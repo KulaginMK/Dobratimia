@@ -18,5 +18,9 @@ desktop.ini
 *.log
 npm-debug.log*
 
+# React / Vite
+web/node_modules/
+web/dist/
+
 # Optional large binaries (uncomment if you use Git LFS elsewhere)
 # assets/sounds/**/*.wav
