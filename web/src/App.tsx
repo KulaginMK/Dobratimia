@@ -6,6 +6,7 @@ import { DassPage } from '@/features/dass/DassPage'
 import { GoodwordPage } from '@/features/goodword/GoodwordPage'
 import { HomePage } from '@/features/home/HomePage'
 import { MapPage } from '@/features/map/MapPage'
+import { MoodPage } from '@/features/mood/MoodPage'
 import { MeditationPage } from '@/features/meditation/MeditationPage'
 import { PsychoeducationPage } from '@/features/psychoeducation/PsychoeducationPage'
 import { ScreamPage } from '@/features/scream/ScreamPage'
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="psychoeducation" element={<PsychoeducationPage />} />
             <Route path="techniques" element={<TechniquesPage />} />
             <Route path="goodword" element={<GoodwordPage />} />
+            <Route path="mood" element={<MoodPage />} />
             <Route path="map" element={<MapPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

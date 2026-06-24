@@ -9,6 +9,7 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/', label: 'Главная', icon: '🏠' },
   { path: '/scream', label: 'Крик', icon: '🔥', accent: 'scream' },
   { path: '/dass', label: 'DASS-21', icon: '📋' },
+  { path: '/mood', label: 'Настроение', icon: '📓' },
   { path: '/meditation', label: 'Медитации', icon: '🧘' },
   { path: '/psychoeducation', label: 'Анатомия', icon: '🧬' },
   { path: '/techniques', label: 'Техники', icon: '💡' },
