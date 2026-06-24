@@ -2,9 +2,16 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { HOME_SLIDES } from '@/config/navigation'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { WellnessTrendChart } from '@/components/WellnessTrendChart'
+import { RecommendationCards } from '@/components/RecommendationCards'
+import { getDassRecommendations } from '@/lib/recommendations'
+import { formatEntryDate, getLatestEntry, loadHistory } from '@/lib/storage/dass-history'
+import { getWeeklyAverage, hasEntryForToday, loadMoodDiary } from '@/lib/storage/mood-diary'
 
 export function HomePage() {
   const [index, setIndex] = useState(0)
+  const [latest] = useState(() => getLatestEntry())
   const slide = HOME_SLIDES[index]
 
   useEffect(() => {
@@ -15,12 +22,71 @@ export function HomePage() {
     return () => window.clearInterval(id)
   }, [])
 
+  const dassHistory = loadHistory()
+  const moodDiary = loadMoodDiary()
+  const weeklyMood = getWeeklyAverage()
+
+  const recommendations = latest
+    ? getDassRecommendations({
+        depression: latest.depression,
+        anxiety: latest.anxiety,
+        stress: latest.stress,
+        levels: latest.levels,
+      })
+    : []
+
   return (
     <div>
       <header className="mb-8 text-center">
         <h2 className="text-2xl font-bold">Добро пожаловать</h2>
-        <p className="mt-2 text-muted">Выберите раздел в карусели или быстрых карточках</p>
       </header>
+
+      {!hasEntryForToday() && (
+        <Card className="mb-8 border-l-4 border-amber-400 bg-amber-50/50">
+          <p className="text-sm font-medium">Сегодня вы ещё не отмечали настроение</p>
+          <Link to="/mood" className="mt-3 inline-block">
+            <Button variant="secondary">Отметить сейчас</Button>
+          </Link>
+        </Card>
+      )}
+
+      {latest && (
+        <Card className="mb-8 border-l-4 border-primary">
+          <h3 className="font-semibold">📊 Ваше состояние</h3>
+          <p className="mt-2 text-sm text-muted">
+            Последний DASS-21: {formatEntryDate(latest.dateIso)}
+          </p>
+          <p className="mt-1 text-sm">
+            Стресс — {latest.levels.stress.text.toLowerCase()}, тревога —{' '}
+            {latest.levels.anxiety.text.toLowerCase()}, депрессия —{' '}
+            {latest.levels.depression.text.toLowerCase()}
+          </p>
+          {weeklyMood !== null && (
+            <p className="mt-2 text-sm text-muted">
+              Среднее настроение за неделю: {weeklyMood} / 5
+            </p>
+          )}
+          {(dassHistory.length >= 2 || moodDiary.length >= 2) && (
+            <div className="mt-4">
+              <p className="mb-2 text-sm font-medium">Динамика</p>
+              <WellnessTrendChart
+                dassEntries={dassHistory}
+                moodEntries={moodDiary}
+                compact
+              />
+            </div>
+          )}
+          {recommendations.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 text-sm font-medium">Что может помочь:</p>
+              <RecommendationCards items={recommendations.slice(0, 2)} />
+            </div>
+          )}
+          <Link to="/dass" className="mt-4 inline-block">
+            <Button variant="secondary">Пройти снова</Button>
+          </Link>
+        </Card>
+      )}
 
       <div className="relative mx-auto mb-8 max-w-lg">
         <button

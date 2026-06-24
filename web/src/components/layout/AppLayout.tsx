@@ -4,6 +4,7 @@ import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { SosFab } from './SosFab'
 import { TopNav } from './TopNav'
+import { ReminderBanner } from './ReminderBanner'
 import { Toast } from './Toast'
 
 export function AppLayout() {
@@ -14,6 +15,7 @@ export function AppLayout() {
         <Header />
         <TopNav />
         <main className="animate-fade-in mx-auto w-full max-w-5xl flex-1 px-4 py-8 md:px-8">
+          <ReminderBanner />
           <Outlet />
         </main>
         <BottomNav />
