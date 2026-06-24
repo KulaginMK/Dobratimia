@@ -2,7 +2,7 @@ import { RESOURCES } from '@/data/resources'
 
 export function Sidebar() {
   return (
-    <aside className="hidden w-80 shrink-0 overflow-y-auto bg-sidebar p-6 text-white lg:block">
+    <aside className="scrollbar-subtle hidden w-80 shrink-0 overflow-y-auto bg-sidebar p-6 text-white lg:block">
       <div className="mb-6 border-b border-white/10 pb-6">
         <p className="text-xl font-bold">Добратимия</p>
         <p className="mt-1 text-sm text-white/70">Территория гармонии</p>

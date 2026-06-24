@@ -7,7 +7,7 @@ const mobileTabs = NAV_ITEMS.filter((i) =>
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200/80 bg-white/90 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_rgba(15,23,42,0.06)] backdrop-blur-md lg:hidden">
       <ul className="flex justify-around">
         {mobileTabs.map((item) => (
           <li key={item.path}>
