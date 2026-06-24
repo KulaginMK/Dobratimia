@@ -1,0 +1,62 @@
+{
+  "body": {
+    "url": "/assets/models/anatomy/body.glb",
+    "fallback": "capsule",
+    "opacity": 0.35,
+    "position": [0, 0, 0],
+    "scale": [0.55, 1.05, 0.35]
+  },
+  "organs": {
+    "brain": {
+      "url": "/assets/models/anatomy/organs/brain.glb",
+      "meshName": "brain",
+      "fallback": "sphere",
+      "anchor": [0.5, 0.94, 0.43],
+      "scaleRatio": 0.08
+    },
+    "heart": {
+      "url": "/assets/models/anatomy/organs/heart.glb",
+      "meshName": "heart",
+      "fallback": "sphere",
+      "anchor": [0.52, 0.73, 0.57],
+      "scaleRatio": 0.08
+    },
+    "lungs": {
+      "url": "/assets/models/anatomy/organs/lungs.glb",
+      "meshName": "lungs",
+      "fallback": "box",
+      "anchor": [0.5, 0.79, 0.38],
+      "scaleRatio": 0.185
+    },
+    "stomach": {
+      "url": "/assets/models/anatomy/organs/stomach.glb",
+      "meshName": "stomach",
+      "fallback": "sphere",
+      "anchor": [0.53, 0.62, 0.47],
+      "scaleRatio": 0.115
+    },
+    "muscles": {
+      "url": "/assets/models/anatomy/organs/muscles.glb",
+      "meshName": "muscles",
+      "fallback": "sphere",
+      "placeholderOnly": true,
+      "anchor": [-0.12, 0.55, 0.52],
+      "scaleRatio": 0.09
+    },
+    "adrenals": {
+      "url": "/assets/models/anatomy/organs/adrenals.glb",
+      "meshName": "adrenals",
+      "fallback": "sphere",
+      "anchor": [0.57, 0.64, 0.38],
+      "scaleRatio": 0.06
+    },
+    "immune": {
+      "url": "/assets/models/anatomy/organs/immune.glb",
+      "meshName": "immune",
+      "fallback": "sphere",
+      "placeholderOnly": true,
+      "anchor": [1.12, 0.55, 0.52],
+      "scaleRatio": 0.09
+    }
+  }
+}
