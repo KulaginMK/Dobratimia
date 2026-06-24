@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { useToast } from '@/context/ToastContext'
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
+import { speechErrorMessage, useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { playScreamReleaseSound } from '@/hooks/useScreamReleaseSound'
 
 type Particle = { id: number; x: number; y: number; tx: number; ty: number; color: string }
@@ -15,6 +16,7 @@ export function ScreamPage() {
   const [text, setText] = useState('')
   const [particles, setParticles] = useState<Particle[]>([])
   const baseRef = useRef('')
+  const holdActiveRef = useRef(false)
 
   const appendTranscript = useCallback((chunk: string, isFinal: boolean) => {
     if (isFinal) {
@@ -25,17 +27,21 @@ export function ScreamPage() {
     }
   }, [])
 
-  const { listening, supported, start, stop } = useSpeechRecognition(appendTranscript)
+  const { listening, supported, error, voiceUsed, start, stop, resetVoice } =
+    useSpeechRecognition(appendTranscript)
 
   const openInput = () => {
     baseRef.current = ''
     setText('')
+    resetVoice()
     setPhase('input')
   }
 
+  const canRelease = Boolean(text.trim()) || voiceUsed
+
   const release = async () => {
-    if (!text.trim()) {
-      showToast('✏️ Напишите или продиктуйте что-нибудь')
+    if (!canRelease) {
+      showToast('✏️ Напишите или продиктуйте что-нибудь, затем нажмите «Отпустить»')
       return
     }
     stop()
@@ -59,11 +65,31 @@ export function ScreamPage() {
     window.setTimeout(() => {
       setParticles([])
       setPhase('success')
+      resetVoice()
     }, 1400)
   }
 
+  const beginHold = async () => {
+    if (holdActiveRef.current) return
+    holdActiveRef.current = true
+    await start()
+  }
+
+  const endHold = () => {
+    if (!holdActiveRef.current) return
+    holdActiveRef.current = false
+    stop()
+  }
+
+  const statusMessage = listening
+    ? '🔴 Слушаю… говорите, затем нажмите «Отпустить»'
+    : speechErrorMessage(error) ??
+      (supported
+        ? '🎤 Нажмите «Голос» или удерживайте кнопку микрофона'
+        : '🎤 Голос: Chrome или Edge на компьютере')
+
   return (
-    <div className="relative">
+    <div className="relative pb-28 lg:pb-8">
       {particles.length > 0 && (
         <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
           {particles.map((p) => (
@@ -115,16 +141,31 @@ export function ScreamPage() {
             className="w-full resize-y rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 text-lg focus:border-danger focus:outline-none focus:ring-2 focus:ring-red-200"
           />
           <p
-            className={`mt-3 rounded-lg px-3 py-2 text-sm ${listening ? 'bg-red-50 text-red-600' : 'text-muted'}`}
+            className={`mt-3 rounded-lg px-3 py-2 text-sm ${
+              listening
+                ? 'bg-red-50 text-red-600'
+                : error
+                  ? 'bg-amber-50 text-amber-900'
+                  : 'text-muted'
+            }`}
           >
-            {listening ? '🔴 Слушаю…' : supported ? '🎤 Голос или удержание микрофона' : '🎤 Голос: Chrome / Edge'}
+            {statusMessage}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => { stop(); setPhase('start'); setText('') }}>
+          <div className="relative z-10 mt-4 flex flex-wrap gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                stop()
+                endHold()
+                setPhase('start')
+                setText('')
+                resetVoice()
+              }}
+            >
               Отмена
             </Button>
             {!listening ? (
-              <Button variant="secondary" onClick={() => start()} disabled={!supported}>
+              <Button variant="secondary" onClick={() => void start()} disabled={!supported}>
                 🎤 Голос
               </Button>
             ) : (
@@ -134,15 +175,20 @@ export function ScreamPage() {
             )}
             <button
               type="button"
-              className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white"
-              onMouseDown={() => start()}
-              onMouseUp={() => stop()}
-              onTouchStart={(e) => { e.preventDefault(); start() }}
-              onTouchEnd={() => stop()}
+              className={`inline-flex min-h-11 touch-manipulation select-none items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition ${
+                listening ? 'bg-red-600' : 'bg-violet-600 hover:bg-violet-700'
+              }`}
+              onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture(e.pointerId)
+                void beginHold()
+              }}
+              onPointerUp={endHold}
+              onPointerCancel={endHold}
+              onLostPointerCapture={endHold}
             >
               🎙 Удерживать
             </button>
-            <Button variant="danger" onClick={release}>
+            <Button variant="danger" onClick={() => void release()} className="min-w-[8.5rem]">
               💥 Отпустить
             </Button>
           </div>
@@ -153,7 +199,18 @@ export function ScreamPage() {
         <div className="flex flex-col items-center py-16 text-center">
           <span className="text-6xl">✨</span>
           <p className="mt-4 text-2xl font-semibold text-primary">Отпущено. Стало легче?</p>
-          <Button className="mt-8" onClick={() => setPhase('start')}>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/dass">
+              <Button variant="secondary">📋 Пройти DASS-21</Button>
+            </Link>
+            <Link to="/meditation?mode=0">
+              <Button variant="secondary">🧘 Подышать 2 минуты</Button>
+            </Link>
+            <Link to="/techniques">
+              <Button variant="secondary">💡 Техники</Button>
+            </Link>
+          </div>
+          <Button className="mt-6" onClick={() => setPhase('start')}>
             🔄 Ещё раз
           </Button>
         </div>
