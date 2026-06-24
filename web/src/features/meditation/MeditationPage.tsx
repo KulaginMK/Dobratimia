@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { MeditationModeToggle } from './MeditationModeToggle'
 
 type Phase = 'inhale' | 'hold' | 'exhale'
+type PomodoroPhase = 'work' | 'break'
 
 const MODES = [
   { label: '4-6', inhale: 4, hold: 0, exhale: 6 },
@@ -17,19 +20,54 @@ const AMBIENT = [
   { id: 'forest', label: 'Лес', emoji: '🌲', src: '/assets/sounds/ambient/forest.mp3' },
 ]
 
+const POMODORO_WORK_SEC = 25 * 60
+const POMODORO_BREAK_SEC = 5 * 60
+
 export function MeditationPage() {
-  const [mode, setMode] = useState(0)
+  const [searchParams] = useSearchParams()
+  const pomodoroMode = searchParams.get('pomodoro') === '1'
+  const initialMode = Math.min(Math.max(Number(searchParams.get('mode') ?? 0), 0), MODES.length - 1)
+
+  const [mode, setMode] = useState(initialMode)
   const [running, setRunning] = useState(false)
   const [phase, setPhase] = useState<Phase>('inhale')
-  const [count, setCount] = useState(4)
+  const [count, setCount] = useState<number>(MODES[initialMode].inhale)
   const [cycles, setCycles] = useState(0)
-  const [ambient, setAmbient] = useState<HTMLAudioElement | null>(null)
+  const [ambientId, setAmbientId] = useState<string | null>(null)
+  const ambientRef = useRef<HTMLAudioElement | null>(null)
   const timerRef = useRef<number | null>(null)
+
+  const stopAmbient = useCallback(() => {
+    ambientRef.current?.pause()
+    ambientRef.current = null
+    setAmbientId(null)
+  }, [])
+
+  useEffect(() => () => stopAmbient(), [stopAmbient])
+
+  useEffect(() => {
+    if (pomodoroMode) stopAmbient()
+    setRunning(false)
+  }, [pomodoroMode, stopAmbient])
+
+  const [pomodoroPhase, setPomodoroPhase] = useState<PomodoroPhase>('work')
+  const [pomodoroSec, setPomodoroSec] = useState(POMODORO_WORK_SEC)
+  const [pomodoroRounds, setPomodoroRounds] = useState(0)
 
   const cfg = MODES[mode]
 
   useEffect(() => {
-    if (!running) return
+    const m = Math.min(Math.max(Number(searchParams.get('mode') ?? mode), 0), MODES.length - 1)
+    if (searchParams.get('mode') !== null && !pomodoroMode) {
+      setMode(m)
+      setPhase('inhale')
+      setCount(MODES[m].inhale)
+      setRunning(false)
+    }
+  }, [searchParams, pomodoroMode, mode])
+
+  useEffect(() => {
+    if (pomodoroMode || !running) return
 
     const tick = () => {
       setCount((c) => {
@@ -48,20 +86,86 @@ export function MeditationPage() {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current)
     }
-  }, [running, phase, cfg])
+  }, [running, phase, cfg, pomodoroMode])
+
+  useEffect(() => {
+    if (!pomodoroMode || !running) return
+
+    const tick = () => {
+      setPomodoroSec((s) => {
+        if (s > 1) return s - 1
+        setPomodoroPhase((p) => {
+          if (p === 'work') {
+            setPomodoroRounds((r) => r + 1)
+            return 'break'
+          }
+          return 'work'
+        })
+        return -1
+      })
+    }
+
+    timerRef.current = window.setInterval(tick, 1000)
+    return () => {
+      if (timerRef.current) window.clearInterval(timerRef.current)
+    }
+  }, [running, pomodoroMode])
+
+  useEffect(() => {
+    if (pomodoroSec === -1) {
+      setPomodoroSec(pomodoroPhase === 'break' ? POMODORO_BREAK_SEC : POMODORO_WORK_SEC)
+    }
+  }, [pomodoroSec, pomodoroPhase])
 
   const toggleAmbient = (src: string, id: string) => {
-    if (ambient) {
-      ambient.pause()
-      setAmbient(null)
-      if (ambient.dataset.id === id) return
+    if (ambientRef.current?.dataset.id === id) {
+      stopAmbient()
+      return
     }
+    stopAmbient()
     const a = new Audio(src)
     a.loop = true
     a.volume = 0.4
     a.dataset.id = id
     a.play().catch(() => undefined)
-    setAmbient(a)
+    ambientRef.current = a
+    setAmbientId(id)
+  }
+
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60)
+    const s = sec % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  if (pomodoroMode) {
+    return (
+      <div>
+        <PageHeader title="🧘 Медитации" subtitle="25 минут работы, 5 минут отдыха" />
+        <MeditationModeToggle />
+        <Card className="text-center">
+          <p className="text-lg font-semibold text-primary">
+            {pomodoroPhase === 'work' ? 'Работа' : 'Перерыв'}
+          </p>
+          <p className="mt-4 text-6xl font-bold tabular-nums">{formatTime(pomodoroSec)}</p>
+          <p className="mt-2 text-sm text-muted">Завершено циклов: {pomodoroRounds}</p>
+          <div className="mt-6 flex justify-center gap-2">
+            <Button onClick={() => setRunning((r) => !r)}>{running ? '⏸ Пауза' : '▶️ Начать'}</Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setRunning(false)
+                setPomodoroPhase('work')
+                setPomodoroSec(POMODORO_WORK_SEC)
+                setPomodoroRounds(0)
+              }}
+            >
+              🔄 Сброс
+            </Button>
+          </div>
+        </Card>
+      </div>
+    )
   }
 
   const phaseLabel = phase === 'inhale' ? 'Вдох' : phase === 'hold' ? 'Задержка' : 'Выдох'
@@ -70,8 +174,9 @@ export function MeditationPage() {
     <div>
       <PageHeader
         title="🧘 Медитации"
-        subtitle="Дыхательные практики и ambient-звуки"
+        subtitle="Дыхательные практики и звуки природы"
       />
+      <MeditationModeToggle />
 
       <Card className="mb-6 text-center">
         <div className="mb-4 flex flex-wrap justify-center gap-2">
@@ -79,7 +184,12 @@ export function MeditationPage() {
             <button
               key={m.label}
               type="button"
-              onClick={() => { setMode(i); setRunning(false) }}
+              onClick={() => {
+                setMode(i)
+                setRunning(false)
+                setPhase('inhale')
+                setCount(MODES[i].inhale)
+              }}
               className={`rounded-full px-4 py-2 text-sm font-medium ${
                 mode === i ? 'bg-primary text-white' : 'bg-slate-100'
               }`}
@@ -114,8 +224,8 @@ export function MeditationPage() {
       </Card>
 
       <Card>
-        <h3 className="mb-2 font-semibold">🎧 Ambient</h3>
-        <p className="mb-4 text-sm text-muted">Добавьте MP3 в public/assets/sounds/ambient/</p>
+        <h3 className="mb-2 font-semibold">🎧 Фоновые звуки</h3>
+        <p className="mb-4 text-sm text-muted">Выберите звук природы для расслабления во время практики.</p>
         <div className="flex flex-wrap gap-2">
           {AMBIENT.map((a) => (
             <button
@@ -128,8 +238,8 @@ export function MeditationPage() {
               <span className="mt-1 block text-sm">{a.label}</span>
             </button>
           ))}
-          {ambient && (
-            <Button variant="secondary" onClick={() => { ambient.pause(); setAmbient(null) }}>
+          {ambientId && (
+            <Button variant="secondary" onClick={stopAmbient}>
               ⏹ Стоп
             </Button>
           )}
