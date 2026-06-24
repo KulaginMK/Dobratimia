@@ -9,6 +9,7 @@ import { MapPage } from '@/features/map/MapPage'
 import { MoodPage } from '@/features/mood/MoodPage'
 import { MeditationPage } from '@/features/meditation/MeditationPage'
 import { PsychoeducationPage } from '@/features/psychoeducation/PsychoeducationPage'
+import { ResourcesPage } from '@/features/resources/ResourcesPage'
 import { ScreamPage } from '@/features/scream/ScreamPage'
 import { TechniquesPage } from '@/features/techniques/TechniquesPage'
 
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="goodword" element={<GoodwordPage />} />
             <Route path="mood" element={<MoodPage />} />
             <Route path="map" element={<MapPage />} />
+            <Route path="resources" element={<ResourcesPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

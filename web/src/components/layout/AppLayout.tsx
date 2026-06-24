@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { BottomNav } from './BottomNav'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
+import { SosFab } from './SosFab'
 import { TopNav } from './TopNav'
 import { Toast } from './Toast'
 
@@ -16,6 +17,7 @@ export function AppLayout() {
           <Outlet />
         </main>
         <BottomNav />
+        <SosFab />
         <Toast />
       </div>
     </div>
