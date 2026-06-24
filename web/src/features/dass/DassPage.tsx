@@ -1,16 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { RecommendationCards } from '@/components/RecommendationCards'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { WarningBox } from '@/components/ui/WarningBox'
 import { DASS_OPTIONS, DASS_QUESTIONS } from '@/data/dass'
+import { getDassRecommendations } from '@/lib/recommendations'
 import { levelToneClass, scoreDass, type DassResult } from '@/lib/dass-scoring'
+import {
+  formatEntryDate,
+  getLatestEntry,
+  loadHistory,
+  saveEntry,
+} from '@/lib/storage/dass-history'
+import { DassHistoryPanel } from './DassHistoryPanel'
 
 export function DassPage() {
   const [started, setStarted] = useState(false)
   const [q, setQ] = useState(0)
   const [answers, setAnswers] = useState<(number | null)[]>(() => Array(21).fill(null))
   const [result, setResult] = useState<DassResult | null>(null)
+  const [latest, setLatest] = useState(() => getLatestEntry())
 
   const pick = (value: number) => {
     const next = [...answers]
@@ -19,7 +29,10 @@ export function DassPage() {
   }
 
   const finish = () => {
-    setResult(scoreDass(answers))
+    const scored = scoreDass(answers)
+    saveEntry(scored)
+    setLatest(getLatestEntry())
+    setResult(scored)
     setStarted(false)
   }
 
@@ -30,10 +43,26 @@ export function DassPage() {
     setStarted(false)
   }
 
+  useEffect(() => {
+    if (!result) setLatest(getLatestEntry())
+  }, [result])
+
   if (result) {
+    const recommendations = getDassRecommendations(result)
+    const showSos = recommendations.some((r) => r.priority === 'sos')
+
     return (
       <div>
         <PageHeader title="📋 Результаты DASS-21" />
+        {showSos && (
+          <WarningBox className="mb-6">
+            Баллы выше нормы. Рекомендуем обратиться к специалисту или позвонить на{' '}
+            <a href="tel:88002000122" className="font-bold underline">
+              8-800-2000-122
+            </a>
+            .
+          </WarningBox>
+        )}
         <div className="grid gap-4 sm:grid-cols-3">
           {(['depression', 'anxiety', 'stress'] as const).map((key) => (
             <Card key={key} className="text-center">
@@ -49,6 +78,14 @@ export function DassPage() {
             </Card>
           ))}
         </div>
+
+        <Card className="mt-6">
+          <h3 className="mb-4 font-semibold">Что попробовать сейчас</h3>
+          <RecommendationCards items={recommendations} />
+        </Card>
+
+        <DassHistoryPanel key={loadHistory().length} />
+
         <Button className="mt-8" onClick={reset}>
           🔄 Пройти снова
         </Button>
@@ -64,8 +101,18 @@ export function DassPage() {
           subtitle="Шкала депрессии, тревоги и стресса. 21 вопрос, ~5 минут."
         />
         <WarningBox>
-          Тест для самодиагностики не заменяет консультацию специалиста.
+          Тест для самодиагностики не заменяет консультацию специалиста. Результаты сохраняются
+          только на этом устройстве.
         </WarningBox>
+        {latest && (
+          <Card className="mb-4 border-l-4 border-primary">
+            <p className="text-sm text-muted">Последнее прохождение</p>
+            <p className="mt-1 font-medium">
+              {formatEntryDate(latest.dateIso)} — стресс: {latest.levels.stress.text.toLowerCase()},
+              тревога: {latest.levels.anxiety.text.toLowerCase()}
+            </p>
+          </Card>
+        )}
         <Card>
           <p className="text-muted">
             Отвечайте, насколько каждое утверждение относилось к вам за последнюю неделю.
@@ -74,6 +121,7 @@ export function DassPage() {
             Начать тест
           </Button>
         </Card>
+        {latest && <DassHistoryPanel />}
       </div>
     )
   }
