@@ -22,5 +22,8 @@ npm-debug.log*
 web/node_modules/
 web/dist/
 
+# Tooling / IDE artifacts
+.cursor/
+
 # Optional large binaries (uncomment if you use Git LFS elsewhere)
 # assets/sounds/**/*.wav
