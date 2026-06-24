@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 export function AboutPage() {
   return (
     <div>
-      <PageHeader title="ℹ️ О проекте" subtitle="Социальная значимость платформы" />
+      <PageHeader title="ℹ️ О проекте" subtitle="Платформа самопомощи для студентов медвузов" />
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <Card className="text-center">
