@@ -35,8 +35,7 @@ export function useOrganModels(manifest: AnatomyModelsManifest | null, organIds:
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- stable via joined ids
-  }, [manifest, organIds.join(',')])
+  }, [manifest, organIds])
 
   return { bodyGlbAvailable, organModels, ready }
 }

@@ -3,7 +3,6 @@ import { BackSide, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import type { FallbackShape } from '../types'
 
 export const OUTLINE_COLOR = '#10b981'
-/** Масштаб всей модели органа — обводка не съезжает относительно центра. */
 export const OUTLINE_SCALE = 1.14
 
 const outlineMaterial = new MeshBasicMaterial({

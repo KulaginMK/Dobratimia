@@ -1,7 +1,6 @@
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import type { AnatomyModelsManifest } from '../types'
-import type { OrganOverride } from './organLayout'
 import { AnatomyScene } from './AnatomyScene'
 import { SceneReadyGate } from './SceneReadyGate'
 import { useOrganModels } from './useOrganModels'
@@ -19,13 +18,11 @@ export default function Anatomy3D({
   organIds,
   selectedId,
   onSelect,
-  overrides,
 }: {
   manifest: AnatomyModelsManifest
   organIds: string[]
   selectedId: string | null
   onSelect: (id: string) => void
-  overrides: Record<string, OrganOverride>
 }) {
   const { bodyGlbAvailable, organModels, ready } = useOrganModels(manifest, organIds)
   const [sceneReady, setSceneReady] = useState(false)
@@ -71,7 +68,6 @@ export default function Anatomy3D({
               organModels={organModels}
               selectedId={selectedId}
               onSelect={onSelect}
-              overrides={overrides}
             />
           </Suspense>
         </Canvas>

@@ -1,11 +1,9 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { OrganAdjustPanel } from './OrganAdjustPanel'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { OrganChipList } from './OrganChipList'
 import { OrganInfoPanel } from './OrganInfoPanel'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { useAnatomyData } from './useAnatomyData'
 import { isWebGLAvailable } from './webgl'
-import type { OrganOverride } from './Anatomy3D/organLayout'
 import { Anatomy3DErrorBoundary } from './Anatomy3D/Anatomy3DErrorBoundary'
 import { Button } from '@/components/ui/Button'
 
@@ -14,24 +12,7 @@ const Anatomy3D = lazy(() => import('./Anatomy3D/Anatomy3D'))
 export function PsychoeducationPage() {
   const { organs, manifest, loading, error } = useAnatomyData()
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [adjust3d, setAdjust3d] = useState(false)
-  const [organOverrides, setOrganOverrides] = useState<Record<string, OrganOverride>>({})
   const webglAvailable = useMemo(() => isWebGLAvailable(), [])
-
-  const handleOrganOverride = useCallback((id: string, patch: OrganOverride) => {
-    setOrganOverrides((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], ...patch },
-    }))
-  }, [])
-
-  const handleResetOrganOverride = useCallback((id: string) => {
-    setOrganOverrides((prev) => {
-      const next = { ...prev }
-      delete next[id]
-      return next
-    })
-  }, [])
 
   useEffect(() => {
     if (organs.length && !selectedId) {
@@ -99,35 +80,12 @@ export function PsychoeducationPage() {
                   organIds={organIds}
                   selectedId={selectedId}
                   onSelect={setSelectedId}
-                  overrides={organOverrides}
                 />
               </Suspense>
             </Anatomy3DErrorBoundary>
           ) : (
             <div className="flex h-[420px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 p-6 text-center text-muted">
               3D-схема недоступна
-            </div>
-          )}
-
-          {import.meta.env.DEV && webglAvailable && (
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => setAdjust3d((v) => !v)}
-                className="text-sm text-teal-700 underline decoration-teal-300 underline-offset-2 hover:text-teal-900"
-              >
-                {adjust3d ? 'Скрыть подстройку 3D' : 'Подстроить положение органов (3D)…'}
-              </button>
-              {adjust3d && (
-                <OrganAdjustPanel
-                  organs={organs}
-                  manifestOrgans={manifest.organs}
-                  selectedId={selectedId}
-                  overrides={organOverrides}
-                  onOverride={handleOrganOverride}
-                  onReset={handleResetOrganOverride}
-                />
-              )}
             </div>
           )}
 

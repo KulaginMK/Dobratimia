@@ -40,7 +40,6 @@ function wrapScaled(object: Object3D, scaleFactor: number, alignBottom: boolean)
   return wrapper
 }
 
-/** Оставляет mesh с подходящим именем; если совпадений нет — показывает все. */
 export function applyMeshNameFilter(object: Object3D, meshName?: string): void {
   if (!meshName) return
 

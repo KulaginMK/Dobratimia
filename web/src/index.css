@@ -23,7 +23,6 @@
 }
 
 @layer utilities {
-  /* Горизонтальное меню: прокрутка колёсиком/тачпадом без «системной» полосы */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -33,7 +32,6 @@
     display: none;
   }
 
-  /* Боковая панель и длинные списки — тонкая полоса в стиле приложения */
   .scrollbar-subtle {
     scrollbar-width: thin;
     scrollbar-color: rgb(16 185 129 / 0.35) transparent;

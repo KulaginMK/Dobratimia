@@ -1,11 +1,9 @@
 import { useMemo } from 'react'
 import { OrbitControls } from '@react-three/drei'
-import type { OrganModelState } from '../types'
-import type { OrganOverride } from './organLayout'
+import type { OrganModelState, AnatomyModelsManifest } from '../types'
 import { resolveOrganLayout } from './organLayout'
 import { BodyShell } from './BodyShell'
 import { OrganMeshLoader } from './OrganMeshLoader'
-import type { AnatomyModelsManifest } from '../types'
 
 export function AnatomyScene({
   manifest,
@@ -13,22 +11,20 @@ export function AnatomyScene({
   organModels,
   selectedId,
   onSelect,
-  overrides,
 }: {
   manifest: AnatomyModelsManifest
   bodyGlbAvailable: boolean
   organModels: OrganModelState[]
   selectedId: string | null
   onSelect: (id: string) => void
-  overrides: Record<string, OrganOverride>
 }) {
   const placed = useMemo(
     () =>
       organModels.map((om) => ({
         ...om,
-        ...resolveOrganLayout(om, overrides[om.id]),
+        ...resolveOrganLayout(om),
       })),
-    [organModels, overrides],
+    [organModels],
   )
 
   return (

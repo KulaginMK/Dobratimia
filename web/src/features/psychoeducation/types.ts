@@ -12,12 +12,9 @@ export type OrganModelConfig = {
   url: string
   meshName?: string
   fallback: FallbackShape
-  /** Позиция относительно тела: x/y/z от 0 до 1 (x может быть <0 или >1 сбоку) */
   anchor: [number, number, number]
-  /** Размер органа как доля роста тела (~1.75 м) */
   scaleRatio: number
   rotation?: [number, number, number]
-  /** Всегда сфера/примитив сбоку, без GLB */
   placeholderOnly?: boolean
 }
 
