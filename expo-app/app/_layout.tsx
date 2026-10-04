@@ -6,6 +6,7 @@ import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { ToastProvider } from '@/components/ui';
 import { ThemePreferenceProvider, appFonts, useTheme, useThemePreference } from '@/theme';
 
 // Сплэш держится, пока не загрузятся шрифты и сохранённая настройка темы.
@@ -40,7 +41,7 @@ function RootStack() {
   if (!ready) return null;
 
   return (
-    <>
+    <ToastProvider>
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
@@ -48,6 +49,6 @@ function RootStack() {
           contentStyle: { backgroundColor: t.color.background },
         }}
       />
-    </>
+    </ToastProvider>
   );
 }

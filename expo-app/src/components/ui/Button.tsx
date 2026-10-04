@@ -72,7 +72,7 @@ export function Button({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled: !!disabled }}
+      aria-disabled={!!disabled}
       style={(state) => {
         const { pressed } = state;
         // focused приходит в вебе (react-native-web) — рисуем кольцо фокуса color.focus.

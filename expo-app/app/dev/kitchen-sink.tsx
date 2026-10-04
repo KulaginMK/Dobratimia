@@ -1,10 +1,40 @@
 import { Redirect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import {
+  ContactRow,
+  MoodPicker,
+  PullHint,
+  ScaleBar,
+  ScreenHeader,
+  SosRound,
+  SpecialistCard,
+  type MoodLevel,
+  type ScaleLevel,
+} from '@/components/blocks';
 import { Icon, Logo, Timka, iconNames } from '@/components/brand';
-import { Button, ButtonRow } from '@/components/ui/Button';
+import {
+  BottomSheet,
+  Button,
+  ButtonRow,
+  Card,
+  Chip,
+  ChipBadge,
+  EmptyState,
+  ProgressBar,
+  ScreenIndicator,
+  SegmentedControl,
+  Skeleton,
+  Switch,
+  TextField,
+  ToastView,
+  cardColors,
+  useToast,
+} from '@/components/ui';
+import { demoSpecialist, demoUniversityService } from '@/data/mocks/demo';
 import { ThemeProvider, useTheme, useThemePreference, type ThemePreference } from '@/theme';
 
 // Экран разработчика: размеры ниже — только для этой витрины, как на handoff/reference/kitchen-sink.png.
@@ -12,11 +42,20 @@ const COLUMN_MIN_WIDTH = 360;
 const LOGO_SMALL = 32;
 const LOGO_MARK = 48;
 const TIMKA_SIZE = 104;
+const SHEET_LONG_ROWS = 24;
 
 const PREFERENCES: { value: ThemePreference; label: string }[] = [
   { value: 'light', label: 'Светлая' },
   { value: 'dark', label: 'Тёмная' },
   { value: 'system', label: 'Как в системе' },
+];
+
+const SCALE_DEMO: { title: string; score: number; level: ScaleLevel }[] = [
+  { title: 'Стресс', score: 6, level: 'normal' },
+  { title: 'Депрессия', score: 12, level: 'mild' },
+  { title: 'Тревога', score: 12, level: 'moderate' },
+  { title: 'Стресс', score: 28, level: 'high' },
+  { title: 'Депрессия', score: 36, level: 'extreme' },
 ];
 
 /** Витрина готовых компонентов в двух темах. Только в dev-сборке. */
@@ -29,7 +68,7 @@ export default function KitchenSink() {
   const sideBySide = width >= COLUMN_MIN_WIDTH * 2;
 
   return (
-    <ScrollView>
+    <ScrollView keyboardShouldPersistTaps="handled">
       <AppThemeSwitch padTop={insets.top} />
       <View style={{ flexDirection: sideBySide ? 'row' : 'column' }}>
         <ThemeProvider preference="light">
@@ -61,24 +100,40 @@ function AppThemeSwitch({ padTop }: { padTop: number }) {
       <Text accessibilityRole="header" style={[t.type.h3, { color: t.color.text }]}>
         Тема приложения
       </Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
-        {PREFERENCES.map(({ value, label }) => (
-          <Button
-            key={value}
-            variant={preference === value ? 'secondary' : 'outline'}
-            icon={preference === value ? 'check' : undefined}
-            onPress={() => setPreference(value)}
-          >
-            {label}
-          </Button>
-        ))}
-      </View>
+      <SegmentedControl
+        accessibilityLabel="Тема оформления"
+        options={PREFERENCES}
+        value={preference}
+        onChange={setPreference}
+      />
+    </View>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const t = useTheme();
+  return (
+    <View style={{ gap: t.space.sm }}>
+      <Text accessibilityRole="header" style={[t.type.overline, { color: t.color.textMuted }]}>
+        {title}
+      </Text>
+      {children}
     </View>
   );
 }
 
 function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
   const t = useTheme();
+  const toast = useToast();
+  const [tone, setTone] = useState<'sweet' | 'spicy'>('sweet');
+  const [screen, setScreen] = useState(2);
+  const [tab, setTab] = useState(0);
+  const [mood, setMood] = useState<MoodLevel | null>(4);
+  const [sheet, setSheet] = useState<'short' | 'long' | null>(null);
+  const [notify, setNotify] = useState(true);
+  const soft = cardColors(t, 'soft');
+  const sos = cardColors(t, 'sos');
+
   return (
     <View
       style={{
@@ -87,65 +142,253 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
         paddingHorizontal: t.space.screen,
         paddingTop: t.space.xl,
         paddingBottom: t.space['3xl'] + padBottom,
-        gap: t.space.md,
+        gap: t.space.xl,
       }}
     >
-      <Logo size={LOGO_SMALL} />
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space.md }}>
-        <Logo variant="mark" size={LOGO_MARK} />
-        <Logo variant="stacked" size={LOGO_SMALL} />
-        <Logo size={LOGO_SMALL} mono={t.color.text} />
-      </View>
+      <Section title="Бренд">
+        <Logo size={LOGO_SMALL} />
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space.md }}>
+          <Logo variant="mark" size={LOGO_MARK} />
+          <Logo variant="stacked" size={LOGO_SMALL} />
+          <Logo size={LOGO_SMALL} mono={t.color.text} />
+        </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
+          <Timka pose="hello" size={TIMKA_SIZE} />
+          <Timka pose="breathe" size={TIMKA_SIZE} />
+          <Timka pose="sleep" size={TIMKA_SIZE} />
+        </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.sm }}>
+          {iconNames.map((name) => (
+            <Icon key={name} name={name} color={t.color.primary} title={name} />
+          ))}
+        </View>
+        <Text style={[t.type.h1, { color: t.color.text }]}>Как вы сегодня?</Text>
+        <Text style={[t.type.body, { color: t.color.textMuted }]}>Голос не записываем — только громкость</Text>
+        <Text style={[t.type.overline, { color: t.color.text }]}>От психотерапевта</Text>
+      </Section>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
-        <Timka pose="hello" size={TIMKA_SIZE} />
-        <Timka pose="breathe" size={TIMKA_SIZE} />
-        <Timka pose="sleep" size={TIMKA_SIZE} />
-      </View>
-
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.sm }}>
-        {iconNames.map((name) => (
-          <Icon key={name} name={name} color={t.color.primary} title={name} />
-        ))}
-      </View>
-
-      <Text style={[t.type.h1, { color: t.color.text }]}>Как вы сегодня?</Text>
-      <Text style={[t.type.body, { color: t.color.textMuted }]}>
-        Голос не записываем — только громкость
-      </Text>
-      <Text style={[t.type.overline, { color: t.color.text }]}>От психотерапевта</Text>
-
-      <Button fullWidth>Начать</Button>
-      <ButtonRow>
-        <Button variant="secondary">Позже</Button>
-        <Button variant="outline" icon="close">
-          Не подходит
+      <Section title="Button">
+        <Button fullWidth>Начать</Button>
+        <ButtonRow>
+          <Button variant="secondary">Позже</Button>
+          <Button variant="outline" icon="close">
+            Не подходит
+          </Button>
+        </ButtonRow>
+        <Button variant="text" style={{ alignSelf: 'flex-start' }}>
+          Подробнее
         </Button>
-      </ButtonRow>
-      <Button variant="text" style={{ alignSelf: 'flex-start' }}>
-        Подробнее
-      </Button>
-      <Button variant="sos" size="lg" icon="phone" fullWidth>
-        Позвонить 133
-      </Button>
-      <Button variant="deep" iconRight="chevronRight" fullWidth>
-        {'Тест DASS-21 · 5 минут'}
-      </Button>
-      <ButtonRow>
-        <Button disabled>Нельзя</Button>
-        <Button variant="outline" icon="heart" accessibilityLabel="Сохранить фразу" />
-      </ButtonRow>
+        <Button variant="sos" size="lg" icon="phone" fullWidth>
+          Позвонить 133
+        </Button>
+        <Button variant="deep" iconRight="chevronRight" fullWidth>
+          {'Тест DASS-21 · 5 минут'}
+        </Button>
+        <ButtonRow>
+          <Button disabled>Нельзя</Button>
+          <Button variant="outline" icon="heart" accessibilityLabel="Сохранить фразу" />
+        </ButtonRow>
+      </Section>
 
-      <View
-        style={{
-          backgroundColor: t.color.surface,
-          padding: t.space.lg,
-          borderRadius: t.radius.xl,
-          boxShadow: t.shadow.sm,
-        }}
-      >
-        <Text style={[t.type.bodyStrong, { color: t.color.text }]}>Дыхание 4-7-8</Text>
-      </View>
+      <Section title="Card">
+        <Card>
+          <Text style={[t.type.bodyStrong, { color: t.color.text }]}>Дыхание 4-7-8</Text>
+        </Card>
+        <Card variant="soft">
+          <Text style={[t.type.body, { color: soft.fg }]}>Вы не обязаны быть продуктивным каждый день.</Text>
+        </Card>
+        <Card variant="outline">
+          <Text style={[t.type.body, { color: t.color.text }]}>Политика конфиденциальности</Text>
+        </Card>
+        <Card variant="sos">
+          <Text style={[t.type.bodyStrong, { color: sos.fg }]}>
+            Возможно, сейчас стоит поговорить со специалистом
+          </Text>
+        </Card>
+        <Card interactive onPress={() => toast.show({ message: 'Карточка нажата' })}>
+          <Text style={[t.type.bodyStrong, { color: t.color.text }]}>Нажимается целиком</Text>
+        </Card>
+      </Section>
+
+      <Section title="TextField">
+        <TextField label="Поиск" placeholder="Имя или специализация" />
+        <TextField label="Телефон" type="tel" defaultValue="+375 29" error="Не хватает цифр — проверьте номер" />
+        <TextField label="О себе" multiline rows={3} hint="До 140 знаков" />
+        <TextField label="Почта" defaultValue="Недоступно" disabled />
+      </Section>
+
+      <Section title="Switch">
+        <Switch
+          label="Напоминать о дневнике"
+          description="Каждый день в 21:00"
+          checked={notify}
+          onChange={setNotify}
+        />
+        <Switch label="Уведомить о перерыве" />
+        <Switch label="Недоступно" defaultChecked disabled />
+      </Section>
+
+      <Section title="Chip">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
+          <Chip defaultSelected>Все</Chip>
+          <Chip>{'До 3 минут'}</Chip>
+          <Chip icon="message">Онлайн</Chip>
+          <Chip disabled>Недоступно</Chip>
+        </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
+          <ChipBadge>Тревога</ChipBadge>
+          <ChipBadge>Выгорание</ChipBadge>
+          <ChipBadge>Сон</ChipBadge>
+        </View>
+      </Section>
+
+      <Section title="SegmentedControl">
+        <SegmentedControl
+          accessibilityLabel="Тон фраз"
+          options={[
+            { value: 'sweet', label: 'Сахарный' },
+            { value: 'spicy', label: 'С перчиком' },
+          ]}
+          value={tone}
+          onChange={setTone}
+        />
+      </Section>
+
+      <Section title="ScreenIndicator">
+        <ScreenIndicator current={screen} onSelect={setScreen} />
+        <ScreenIndicator variant="dots" current={screen} onSelect={setScreen} />
+        <ScreenIndicator
+          screens={['Моя карточка', 'Статистика']}
+          itemNoun="вкладка"
+          current={tab}
+          onSelect={setTab}
+        />
+      </Section>
+
+      <Section title="ScreenHeader · SosRound · PullHint">
+        <ScreenHeader
+          title="Дыхание 4-7-8"
+          leadingLabel="Назад к техникам"
+          onLeadingPress={() => toast.show({ message: 'Назад' })}
+          onSosPress={() => toast.show({ message: 'SOS' })}
+        />
+        <ScreenHeader title="DASS-21" leading="close" leadingLabel="Прервать тест" onSosPress={() => {}} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space.md }}>
+          <SosRound />
+          <SosRound size="lg" />
+        </View>
+        <PullHint label="Потяните вниз — медитации и Pomodoro" />
+        <PullHint variant="handle" label="Свайп вверх — к техникам" accessibilityLabel="Назад к техникам" />
+      </Section>
+
+      <Section title="MoodPicker">
+        <Card style={{ paddingHorizontal: t.space.sm }}>
+          <MoodPicker value={mood} onChange={setMood} />
+        </Card>
+      </Section>
+
+      <Section title="SpecialistCard">
+        <SpecialistCard
+          name={demoSpecialist.name}
+          subtitle={demoSpecialist.subtitle}
+          specializations={demoSpecialist.specializations}
+          quote={demoSpecialist.quote}
+          format={demoSpecialist.format}
+          counter="3 из 12"
+        />
+      </Section>
+
+      <Section title="ContactRow">
+        <View>
+          <ContactRow
+            name={demoUniversityService.name}
+            caption={demoUniversityService.caption}
+            avatarIcon="sos"
+            avatarTone="sos"
+            callLabel={demoUniversityService.callLabel}
+            divider
+          />
+          <ContactRow
+            name={demoSpecialist.name}
+            caption={demoSpecialist.caption}
+            initials={demoSpecialist.initials}
+            avatarTone="primary"
+            callLabel={`Позвонить ${demoSpecialist.nameDative}`}
+          />
+        </View>
+      </Section>
+
+      <Section title="ProgressBar · ScaleBar">
+        <ProgressBar value={7} max={21} accessibilityLabel="Прогресс теста" />
+        {SCALE_DEMO.map((scale) => (
+          <ScaleBar key={scale.level} title={scale.title} score={scale.score} max={42} level={scale.level} />
+        ))}
+      </Section>
+
+      <Section title="Toast">
+        <ToastView message="Отметка сохранена в дневник" tone="success" actionLabel="Отменить" />
+        <ToastView message="Нет интернета. Отметка сохранится, когда сеть вернётся" tone="error" actionLabel="Повторить" />
+        <ToastView message="Ссылка скопирована" />
+        <ButtonRow>
+          <Button
+            variant="secondary"
+            onPress={() =>
+              toast.show({ message: 'Отметка сохранена в дневник', tone: 'success', actionLabel: 'Отменить' })
+            }
+          >
+            Показать тост
+          </Button>
+          <Button
+            variant="outline"
+            onPress={() => toast.show({ message: 'Нет интернета', tone: 'error', actionLabel: 'Повторить' })}
+          >
+            Ошибка
+          </Button>
+        </ButtonRow>
+      </Section>
+
+      <Section title="BottomSheet">
+        <ButtonRow>
+          <Button variant="secondary" onPress={() => setSheet('short')}>
+            Короткая
+          </Button>
+          <Button variant="outline" onPress={() => setSheet('long')}>
+            Длинная
+          </Button>
+        </ButtonRow>
+        <BottomSheet open={sheet === 'short'} title="Прервать тест?" onClose={() => setSheet(null)}>
+          <View style={{ gap: t.space.md }}>
+            <Text style={[t.type.body, { color: t.color.text }]}>Ответы не сохранятся.</Text>
+            <Button fullWidth onPress={() => setSheet(null)}>
+              Продолжить тест
+            </Button>
+            <Button variant="outline" fullWidth onPress={() => setSheet(null)}>
+              Прервать
+            </Button>
+          </View>
+        </BottomSheet>
+        <BottomSheet open={sheet === 'long'} title="Длинное содержимое" onClose={() => setSheet(null)}>
+          <View style={{ gap: t.space.sm }}>
+            {Array.from({ length: SHEET_LONG_ROWS }, (_, i) => (
+              <Text key={i} style={[t.type.body, { color: t.color.text }]}>
+                Строка {i + 1}
+              </Text>
+            ))}
+          </View>
+        </BottomSheet>
+      </Section>
+
+      <Section title="EmptyState">
+        <EmptyState title="Здесь пока пусто" text="Отметьте настроение на главной — и запись появится здесь." actionLabel="Отметить настроение" />
+        <EmptyState icon="specialist" title="Специалисты закончились" text="Вы посмотрели всех, кто сейчас принимает." />
+      </Section>
+
+      <Section title="Skeleton">
+        <Skeleton />
+        <Skeleton variant="listItem" />
+        <Skeleton variant="card" height={96} />
+        <Skeleton variant="circle" />
+      </Section>
     </View>
   );
 }
