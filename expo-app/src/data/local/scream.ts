@@ -15,6 +15,9 @@ export type ScreamRecord = {
   durationSec: number;
 };
 
+// «2» — шкала громкости изменилась 2026-10-04: записи в прежних числах с новыми сравнивать нельзя.
+const KEY = 'scream2';
+
 function isRecord(value: unknown): value is ScreamRecord {
   const record = value as Partial<ScreamRecord> | null;
   return (
@@ -28,7 +31,7 @@ function isRecord(value: unknown): value is ScreamRecord {
 
 export async function loadScreamRecords(userId: string): Promise<ScreamRecord[]> {
   try {
-    const raw = await AsyncStorage.getItem(userKey(userId, 'scream'));
+    const raw = await AsyncStorage.getItem(userKey(userId, KEY));
     const parsed: unknown = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed.filter(isRecord) : [];
   } catch {
@@ -37,5 +40,5 @@ export async function loadScreamRecords(userId: string): Promise<ScreamRecord[]>
 }
 
 export async function saveScreamRecords(userId: string, records: ScreamRecord[]): Promise<void> {
-  await AsyncStorage.setItem(userKey(userId, 'scream'), JSON.stringify(records));
+  await AsyncStorage.setItem(userKey(userId, KEY), JSON.stringify(records));
 }

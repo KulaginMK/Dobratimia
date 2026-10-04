@@ -48,6 +48,11 @@ type Props = {
   sensitive?: boolean;
   /** Чтобы поставить курсор в поле из кода: чип-подсказка вставил начало фразы. */
   inputRef?: React.Ref<TextInput>;
+  /**
+   * Содержимое поверх текста поля, ровно на его месте: анимация исчезающего текста.
+   * Пока оно есть, собственный текст поля не виден, а поле не редактируется.
+   */
+  overlay?: React.ReactNode;
   onChange?: (value: string) => void;
 };
 
@@ -67,6 +72,7 @@ export function TextField({
   disabled,
   sensitive,
   inputRef,
+  overlay,
   onChange,
 }: Props) {
   const t = useTheme();
@@ -87,46 +93,64 @@ export function TextField({
   return (
     <View style={{ gap: GAP, alignSelf: 'stretch' }}>
       {label ? <Text style={labelStyle}>{label}</Text> : null}
-      <TextInput
-        ref={inputRef}
-        value={value}
-        defaultValue={value === undefined ? defaultValue : undefined}
-        onChangeText={onChange}
-        placeholder={placeholder}
-        placeholderTextColor={t.color.textMuted}
-        editable={!disabled}
-        multiline={multiline}
-        maxLength={maxLength}
-        keyboardType={KEYBOARD[type]}
-        autoCapitalize={type === 'email' || type === 'url' ? 'none' : undefined}
-        autoComplete={sensitive ? 'off' : undefined}
-        importantForAutofill={sensitive ? 'no' : undefined}
-        spellCheck={sensitive ? false : undefined}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        accessibilityLabel={accessibilityLabel ?? label}
-        accessibilityHint={message}
-        aria-disabled={!!disabled}
-        aria-invalid={error ? true : undefined}
-        textAlignVertical={multiline ? 'top' : 'center'}
-        style={[
-          {
-            minHeight: multiline ? rows * ROW_HEIGHT + ROWS_EXTRA : MIN_HEIGHT,
-            paddingVertical: PAD_V - shift,
-            paddingHorizontal: PAD_H - shift,
-            borderRadius: t.radius.md,
-            borderWidth: border,
-            borderColor,
-            backgroundColor: disabled ? t.color.surfaceAlt : t.color.surface,
-            color: disabled ? t.color.textMuted : t.color.text,
-            fontFamily: t.type.body.fontFamily,
-            fontSize: t.type.body.fontSize,
-            // Своя рамка фокуса вместо системной обводки браузера.
-            outlineWidth: 0,
-          },
-          multiline && { lineHeight: t.type.body.lineHeight },
-        ]}
-      />
+      {/* zIndex: улетающие куски текста проходят над подсказкой под полем. */}
+      <View style={overlay ? { zIndex: 1 } : undefined}>
+        <TextInput
+          ref={inputRef}
+          value={value}
+          defaultValue={value === undefined ? defaultValue : undefined}
+          onChangeText={onChange}
+          placeholder={placeholder}
+          placeholderTextColor={t.color.textMuted}
+          editable={!disabled && !overlay}
+          multiline={multiline}
+          maxLength={maxLength}
+          keyboardType={KEYBOARD[type]}
+          autoCapitalize={type === 'email' || type === 'url' ? 'none' : undefined}
+          autoComplete={sensitive ? 'off' : undefined}
+          importantForAutofill={sensitive ? 'no' : undefined}
+          spellCheck={sensitive ? false : undefined}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityHint={message}
+          aria-disabled={!!disabled}
+          aria-invalid={error ? true : undefined}
+          textAlignVertical={multiline ? 'top' : 'center'}
+          style={[
+            {
+              minHeight: multiline ? rows * ROW_HEIGHT + ROWS_EXTRA : MIN_HEIGHT,
+              paddingVertical: PAD_V - shift,
+              paddingHorizontal: PAD_H - shift,
+              borderRadius: t.radius.md,
+              borderWidth: border,
+              borderColor,
+              backgroundColor: disabled ? t.color.surfaceAlt : t.color.surface,
+              color: disabled ? t.color.textMuted : t.color.text,
+              fontFamily: t.type.body.fontFamily,
+              fontSize: t.type.body.fontSize,
+              // Своя рамка фокуса вместо системной обводки браузера.
+              outlineWidth: 0,
+            },
+            multiline && { lineHeight: t.type.body.lineHeight },
+            overlay ? { color: 'transparent' } : null,
+          ]}
+        />
+        {overlay ? (
+          <View
+            style={{
+              position: 'absolute',
+              top: BORDER + PAD_V,
+              bottom: BORDER + PAD_V,
+              left: BORDER + PAD_H,
+              right: BORDER + PAD_H,
+              pointerEvents: 'none',
+            }}
+          >
+            {overlay}
+          </View>
+        ) : null}
+      </View>
       {message ? (
         <Text
           accessibilityLiveRegion={error ? 'polite' : 'none'}

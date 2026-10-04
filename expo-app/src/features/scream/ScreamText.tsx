@@ -1,17 +1,11 @@
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Keyboard, Text, View, type TextInput } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { Keyboard, Platform, Text, View, type TextInput } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 import { Button, Chip, TextField } from '@/components/ui';
 import { useTheme } from '@/theme';
+import { TextRelease } from './TextRelease';
+import { RELEASE_MS, nextReleaseEffect, type ReleaseEffect } from './release';
 
-// Текст растворяется 600 мс (docs/07).
-const RELEASE_MS = 600;
 const ROWS = 9;
 
 // Чип вставляет начало фразы, чтобы было с чего начать.
@@ -24,7 +18,7 @@ type Props = {
   /** Текст живёт только в памяти открытого экрана: ни на диск, ни на сервер он не попадает. */
   text: string;
   onChangeText: (text: string) => void;
-  /** «Отпустить»: текст уже исчез. */
+  /** «Отпустить»: анимация закончилась, текст пора стереть. */
   onReleased: () => void;
   /** «Стереть и выйти». */
   onErase: () => void;
@@ -35,26 +29,28 @@ export function ScreamText({ text, onChangeText, onReleased, onErase }: Props) {
   const t = useTheme();
   const reduced = useReducedMotion();
   const inputRef = useRef<TextInput>(null);
-  const [releasing, setReleasing] = useState(false);
-  const fade = useSharedValue(0);
-  const fadeStyle = useAnimatedStyle(() => ({
-    opacity: 1 - fade.get(),
-    transform: [{ translateY: -fade.get() * t.space.md }],
-  }));
+  const [release, setRelease] = useState<{ effect: ReleaseEffect; scrollTop: number } | null>(null);
+  const releasing = release !== null;
 
   // Анимация только показывает уход текста; сам текст стирается по таймеру, даже если кадры не идут.
   const finish = useEffectEvent(onReleased);
   useEffect(() => {
-    if (!releasing) return;
-    const timer = setTimeout(finish, reduced ? 0 : RELEASE_MS);
+    if (!release) return;
+    const timer = setTimeout(finish, RELEASE_MS[release.effect]);
     return () => clearTimeout(timer);
-  }, [releasing, reduced]);
+  }, [release]);
 
-  const release = () => {
+  const letGo = () => {
     Keyboard.dismiss();
-    setReleasing(true);
     // При «Уменьшить движение» текст просто исчезает (docs/09).
-    if (!reduced) fade.set(withTiming(1, { duration: RELEASE_MS, easing: Easing.out(Easing.cubic) }));
+    if (reduced) {
+      onReleased();
+      return;
+    }
+    // В вебе длинный текст прокручивается внутри поля — анимация начинается с того места, которое видно.
+    const field = inputRef.current as unknown as { scrollTop?: number } | null;
+    const scrollTop = Platform.OS === 'web' ? (field?.scrollTop ?? 0) : 0;
+    setRelease({ effect: nextReleaseEffect(), scrollTop });
   };
 
   const insert = (starter: string) => {
@@ -87,12 +83,8 @@ export function ScreamText({ text, onChangeText, onReleased, onErase }: Props) {
           </Chip>
         ))}
       </View>
-      <Animated.View
-        style={[
-          { paddingTop: t.space.sm, paddingHorizontal: t.space.screen, pointerEvents: releasing ? 'none' : 'auto' },
-          fadeStyle,
-        ]}
-      >
+      {/* zIndex: улетающие куски текста проходят над кнопками внизу. */}
+      <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen, zIndex: releasing ? 1 : 0 }}>
         <TextField
           inputRef={inputRef}
           label="Ваш текст"
@@ -102,12 +94,13 @@ export function ScreamText({ text, onChangeText, onReleased, onErase }: Props) {
           sensitive
           value={text}
           onChange={onChangeText}
+          overlay={release ? <TextRelease text={text} effect={release.effect} scrollTop={release.scrollTop} /> : undefined}
         />
-      </Animated.View>
+      </View>
       <View
         style={{ marginTop: 'auto', paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.sm }}
       >
-        <Button size="lg" fullWidth disabled={releasing || text.trim() === ''} onPress={release}>
+        <Button size="lg" fullWidth disabled={releasing || text.trim() === ''} onPress={letGo}>
           Отпустить
         </Button>
         <Button variant="text" fullWidth disabled={releasing} onPress={onErase}>

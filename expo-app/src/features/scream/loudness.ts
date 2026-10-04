@@ -2,9 +2,14 @@ import type { ScreamRecord } from '@/data/local/scream';
 import { addDays } from '@/lib/dates';
 
 // «Условные децибелы» — игровая шкала, а не измерение шума: точность не обещаем (docs/07).
+//
+// Шкала растянута от тишины до предела микрофона. В docs/07 формула проще — «громкость + 110», —
+// но на телефоне она показывала 45–50 в тишине и 90 при речи в полный голос (замер владельца, 2026-10-04).
+// По его решению тишина теперь около нуля. Речь в полный голос выходит около 75, крик — 90–105,
+// как и задумано в docs/07. Проверить ещё на одном-двух телефонах.
 
-/** Сдвиг шкалы. Проверить на 2–3 телефонах: обычная речь должна давать 60–75, громкий крик — 90–105. */
-const CALIBRATION_OFFSET = 110;
+/** Тишина в комнате в дБ от предела микрофона: на шкале это ноль. */
+const SILENCE_DBFS = -65;
 export const MAX_LEVEL = 110;
 /** Замер идёт до 10 секунд. */
 export const MAX_DURATION_MS = 10_000;
@@ -25,7 +30,8 @@ export type ScreamSummary = {
 export function toScreamDb(rms: number): number {
   if (!(rms > 0)) return 0;
   const dbfs = 20 * Math.log10(rms);
-  return Math.min(MAX_LEVEL, Math.max(0, Math.round(dbfs + CALIBRATION_OFFSET)));
+  const share = (dbfs - SILENCE_DBFS) / -SILENCE_DBFS;
+  return Math.min(MAX_LEVEL, Math.max(0, Math.round(share * MAX_LEVEL)));
 }
 
 /** Итог замера по уровням, снятым 10 раз в секунду. */
