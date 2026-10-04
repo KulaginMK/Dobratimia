@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { svgA11y } from '@/components/brand';
 import { focusRing, isFocused } from '@/components/ui/focus';
+import type { MoodLevel } from '@/data/local/mood';
 import { useTheme } from '@/theme';
 
 // Размеры из макетов Home и HomeMarked (.mood, .face).
@@ -17,7 +18,7 @@ const EYE_RADIUS = 1.3;
 const RING_BORDER = 2;
 const RING_OUTSET = 5;
 
-export type MoodLevel = 1 | 2 | 3 | 4 | 5;
+export type { MoodLevel };
 
 /** Пять уровней настроения: подпись и линия рта (сетка 32). */
 export const MOODS: { level: MoodLevel; label: string; mouth: string }[] = [
@@ -56,10 +57,10 @@ export function MoodPicker({ value, onChange }: Props) {
             aria-checked={selected}
             style={(state) => [
               {
-                // На узком экране пункты сжимаются, но кольцо выбранного лица помещается всегда.
+                // На узком экране пункты сжимаются до ширины лица: пять лиц помещаются и на 360 dp.
                 flexBasis: ITEM_WIDTH,
                 flexShrink: 1,
-                minWidth: FACE + RING_OUTSET * 2,
+                minWidth: FACE,
                 minHeight: ITEM_MIN_HEIGHT,
                 alignItems: 'center',
                 gap: ITEM_GAP,

@@ -1,17 +1,4 @@
-const MONTHS_GENITIVE = [
-  'января',
-  'февраля',
-  'марта',
-  'апреля',
-  'мая',
-  'июня',
-  'июля',
-  'августа',
-  'сентября',
-  'октября',
-  'ноября',
-  'декабря',
-];
+import { MONTHS_GENITIVE } from './dates';
 
 /** «2026-09-01» → «1 сентября 2026». Без «г.» в конце, как в макетах. */
 export function formatLongDate(isoDate: string): string {

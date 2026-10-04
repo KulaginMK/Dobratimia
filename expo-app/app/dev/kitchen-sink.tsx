@@ -9,12 +9,19 @@ import {
   EmergencyCard,
   EmergencyStrip,
   LinkRow,
+  MoodCalendar,
+  MoodEntryRow,
   MoodPicker,
+  MoodWeekBars,
   PullHint,
+  RoundAction,
   ScaleBar,
+  ScreamButton,
   ScreenHeader,
+  SosAction,
   SosRound,
   SpecialistCard,
+  Ticker,
   type MoodLevel,
   type ScaleLevel,
 } from '@/components/blocks';
@@ -287,10 +294,55 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
         <PullHint variant="handle" label="Свайп вверх — к техникам" accessibilityLabel="Назад к техникам" />
       </Section>
 
+      <Section title="Ticker · ScreamButton · RoundAction">
+        <Ticker icon="specialist" text="Сегодня вы не одни: " strong={'128\u00A0человек'} />
+        <View style={{ alignItems: 'center' }}>
+          <ScreamButton onPress={() => {}} />
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: t.space['3xl'] }}>
+          <RoundAction icon="map" label="Карта" onPress={() => {}} />
+          <SosAction label="Помощь" onPress={() => {}} />
+        </View>
+      </Section>
+
       <Section title="MoodPicker">
         <Card style={{ paddingHorizontal: t.space.sm }}>
           <MoodPicker value={mood} onChange={setMood} />
         </Card>
+      </Section>
+
+      <Section title="MoodWeekBars · MoodCalendar · MoodEntryRow">
+        <Card>
+          <MoodWeekBars
+            days={[2, 1, 2, 3, 3, 4, null].map((level, i) => ({
+              key: String(i),
+              weekday: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][i],
+              level,
+              color: [t.color.secondary, t.logo.warm, t.color.accent, t.logo.leaf][(level ?? 1) - 1],
+              accessibilityLabel: `День ${i + 1}`,
+            }))}
+          />
+        </Card>
+        <Card style={{ paddingHorizontal: t.space.sm, paddingVertical: t.space.sm }}>
+          <MoodCalendar
+            year={2026}
+            month={8}
+            todayKey="2026-09-24"
+            marks={{
+              '2026-09-22': { color: t.color.accent, label: 'ровно' },
+              '2026-09-23': { color: t.logo.leaf, label: 'хорошо' },
+              '2026-09-24': { color: t.logo.leaf, label: 'хорошо' },
+            }}
+            legend={[
+              { label: 'Ровно', color: t.color.accent },
+              { label: 'Хорошо', color: t.logo.leaf },
+            ]}
+            onPrev={() => {}}
+            onNext={() => {}}
+            nextDisabled
+          />
+        </Card>
+        <MoodEntryRow color={t.logo.leaf} title="Сегодня, 14:20 · Хорошо" onPress={() => {}} />
       </Section>
 
       <Section title="SpecialistCard">

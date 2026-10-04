@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -118,7 +118,8 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
       aria-label={title}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        {/* С клавиатурой шторка поднимается над ней: поле ввода остаётся на виду. */}
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Animated.View
             style={[{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: t.color.scrim }, scrimStyle]}
           >
@@ -199,7 +200,7 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
               </ScrollView>
             </GestureDetector>
           </Animated.View>
-        </View>
+        </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </Modal>
   );
