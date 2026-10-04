@@ -5,11 +5,14 @@ import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  AdviceCard,
   AnatomyFigure,
+  AnswerOption,
   BulletItem,
   ContactRow,
   EmergencyCard,
   EmergencyStrip,
+  HistoryChart,
   LevelBar,
   LinkRow,
   ListItemCard,
@@ -20,6 +23,7 @@ import {
   MoodEntryRow,
   MoodPicker,
   MoodWeekBars,
+  NextTestNote,
   NumberedStep,
   PeakNumber,
   PhaseTiles,
@@ -504,6 +508,34 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
         {SCALE_DEMO.map((scale) => (
           <ScaleBar key={scale.level} title={scale.title} score={scale.score} max={42} level={scale.level} />
         ))}
+      </Section>
+
+      <Section title="DASS-21: AnswerOption · AdviceCard · HistoryChart · NextTestNote">
+        <AnswerOption text="Совсем не подходило" score={0} selected={false} onPress={() => {}} />
+        <AnswerOption text="Подходило заметно или часто" score={2} selected onPress={() => {}} />
+        <AdviceCard
+          tone="sos"
+          title="Возможно, сейчас стоит поговорить со специалистом"
+          body="Тревога и стресс сейчас выше обычного. Это не приговор — но разговор с психологом часто заметно облегчает состояние. Вы не обязаны справляться в одиночку."
+        >
+          <Button icon="specialist" fullWidth onPress={() => {}}>
+            Подобрать специалиста
+          </Button>
+        </AdviceCard>
+        <AdviceCard tone="soft" body="Мягкая карточка при умеренном уровне: текст напишет психолог." />
+        <Card>
+          <HistoryChart
+            max={42}
+            dates={['30 июл', '27 авг', '24 сен']}
+            accessibilityLabel="График за 5 тестов: стресс — с 18 до 28, тревога — с 10 до 18, депрессия — с 8 до 12"
+            series={[
+              { key: 'stress', label: 'Стресс', color: t.color.primary, values: [18, 20, 22, 24, 28] },
+              { key: 'anxiety', label: 'Тревога', color: t.color.text, values: [10, 11, 12, 13, 18] },
+              { key: 'depression', label: 'Депрессия', color: t.color.textMuted, dashed: true, values: [8, 9, 12, 11, 12] },
+            ]}
+          />
+        </Card>
+        <NextTestNote>Следующий тест — 8 октября.</NextTestNote>
       </Section>
 
       <Section title="Toast">

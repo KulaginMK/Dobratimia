@@ -30,6 +30,9 @@ export const MONTHS_GENITIVE = [
   'декабря',
 ];
 
+/** Для подписей графика: «24 сен». */
+export const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+
 /** С понедельника, как в календаре дневника. */
 export const WEEKDAYS_SHORT = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
@@ -65,6 +68,12 @@ export function weekdayIndex(key: string): number {
 export function dayAndMonth(key: string): string {
   const date = fromDateKey(key);
   return `${date.getDate()} ${MONTHS_GENITIVE[date.getMonth()]}`;
+}
+
+/** «24 сен». */
+export function dayAndShortMonth(key: string): string {
+  const date = fromDateKey(key);
+  return `${date.getDate()} ${MONTHS_SHORT[date.getMonth()]}`;
 }
 
 /** «Сегодня», «Вчера» или «22 сентября». */
