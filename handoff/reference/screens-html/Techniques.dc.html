@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Техники</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.pull{display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;border-radius:16px;background:var(--color\.surfaceAlt);color:var(--color\.text);text-decoration:none;font:600 14px "Golos Text",sans-serif}
+.rec{display:flex;align-items:center;gap:14px;min-height:72px;padding:10px 14px;border-radius:20px;background:var(--color\.surface);box-shadow:var(--shadow\.sm);text-decoration:none;color:var(--color\.text)}
+.ric{width:48px;height:48px;border-radius:14px;background:var(--color\.primarySoft);color:var(--color\.onPrimarySoft);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.t{font:800 17px/22px Nunito,"Golos Text",sans-serif}
+.av{width:36px;height:36px;border-radius:18px;background:var(--color\.primarySoft);color:var(--color\.onPrimarySoft);display:flex;align-items:center;justify-content:center;font:700 13px "Golos Text",sans-serif;text-decoration:none}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Home.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <a ref="{{reg}}" href="Anatomy.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <a ref="{{reg}}" href="Meditation.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <div style="padding: 24px 20px 0">
+    <a class="pull" href="Meditation.dc.html"><span style="display: flex; transform: rotate(90deg)"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="18"></x-import></span>Потяните вниз — медитации и Pomodoro</a>
+  </div>
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 20px 0">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 class="h1">Техники</h1>
+      <span class="cap">Проверенные способы снять напряжение</span>
+    </div>
+    <a class="sos-mini" href="Sos.dc.html" aria-label="SOS — экстренная помощь" style="width: 48px; height: 48px; border-radius: 24px; background: var(--color\.sos); color: var(--color\.onSos); display: flex; align-items: center; justify-content: center; font: 900 13px Nunito, sans-serif; text-decoration: none">SOS</a>
+  </div>
+  <div style="display: flex; gap: 8px; padding: 12px 20px 0; overflow: hidden">
+    <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Все</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">До 3 минут</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Перед сном</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Перед экзаменом</x-import>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 12px 20px 0">
+    <a class="rec" href="Technique.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="breath" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span class="t">Дыхание 4-7-8</span><span class="cap">2 минуты · при тревоге и перед сном</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Technique.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="specialist" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span class="t">Прогрессивная релаксация</span><span class="cap">10 минут · снимает зажимы в теле</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Technique.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="diary" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span class="t">Дневник мыслей</span><span class="cap">5 минут · разобрать, что тревожит</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Pomodoro.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="techniques" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span class="t">Pomodoro</span><span class="cap">25 + 5 минут · учёба без выгорания</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Technique.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="sprout" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span class="t">Заземление 5-4-3-2-1</span><span class="cap">3 минуты · когда накрывает паника</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Technique.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="heart" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span class="t">Сканирование тела</span><span class="cap">8 минут · после ночной смены</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i1}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {next: 'Home.dc.html', prev: 'Anatomy.dc.html', down: 'Meditation.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i1: 1 };
+}
+}
+</script>
+</body>
+</html>

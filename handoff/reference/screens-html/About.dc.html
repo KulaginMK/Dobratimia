@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>О проекте</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.pr{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:22px}
+.pi{width:36px;height:36px;border-radius:12px;background:var(--color\.primarySoft);color:var(--color\.onPrimarySoft);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <span class="h3" style="flex-grow: 1">О проекте</span>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="display: flex; justify-content: center; padding-top: 20px">
+    <x-import component-from-global-scope="Dobratimia.Logo" variant="stacked" size="96"></x-import>
+  </div>
+  <p style="margin: 20px 24px 0; font-size: 16px; line-height: 24px; text-align: center">Бесплатное приложение для студентов медицинских вузов Беларуси. Его делают люди, которые знают, как даются сессии, ночные смены и страх ошибиться.</p>
+  <div style="margin: 22px 20px 0; padding: 18px; border-radius: 22px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; flex-direction: column; gap: 14px">
+    <h2 class="h3">Наши принципы</h2>
+    <div class="pr"><span class="pi"><x-import component-from-global-scope="Dobratimia.Icon" name="heart" size="20"></x-import></span><span>Добрый, тёплый тон — без нотаций и стыда</span></div>
+    <div class="pr"><span class="pi"><x-import component-from-global-scope="Dobratimia.Icon" name="check" size="18"></x-import></span><span>Минимум данных и никакой переписки внутри приложения</span></div>
+    <div class="pr"><span class="pi"><x-import component-from-global-scope="Dobratimia.Icon" name="diary" size="20"></x-import></span><span>Никаких диагнозов и медицинских обещаний</span></div>
+    <div class="pr"><span class="pi"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import></span><span>Экстренная помощь доступна с любого экрана</span></div>
+  </div>
+  <div style="margin: 14px 20px 0; padding: 14px 18px; border-radius: 20px; background: var(--color\.sosSoft); color: var(--color\.onSosSoft); font-size: 15px; line-height: 22px">Приложение не заменяет медицинскую и психологическую помощь. Если тяжело — звоните 133.</div>
+  <div style="margin-top: auto; padding: 0 20px 24px; display: flex; flex-direction: column; gap: 8px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" icon="message">Написать команде</x-import>
+    <span class="cap" style="text-align: center">Версия 1.0 · [ПОЧТА КОМАНДЫ]</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

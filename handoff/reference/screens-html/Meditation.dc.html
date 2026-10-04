@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Медитации — дыхательный круг</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.handle{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:12px;text-decoration:none;color:var(--color\.textMuted);font-size:13px;min-height:48px;box-sizing:border-box}
+.handle i{width:40px;height:4px;border-radius:2px;background:var(--color\.borderStrong)}
+.seg{display:flex;background:var(--color\.surfaceAlt);border-radius:999px;padding:4px;gap:4px}
+.seg a{flex:1;min-height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 15px "Golos Text",sans-serif;color:var(--color\.textMuted);text-decoration:none}
+.seg a.on{background:var(--color\.surface);color:var(--color\.text);box-shadow:var(--shadow\.sm)}
+.lbl{font-size:13px;font-weight:600;color:var(--color\.textMuted)}
+input[type=range]{width:100%;accent-color:var(--color\.primary);height:32px}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Techniques.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <a class="handle" href="Techniques.dc.html" aria-label="Назад к техникам"><i></i>Свайп вверх — к техникам</a>
+  <div style="padding: 8px 20px 0">
+    <div class="seg" role="tablist"><a class="on" role="tab" aria-selected="true" href="Meditation.dc.html">Дыхание</a><a role="tab" aria-selected="false" href="Pomodoro.dc.html">Pomodoro</a></div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 20px 0">
+    <span class="lbl">Схема</span>
+    <x-import component-from-global-scope="Dobratimia.Chip">4-6</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">4-7-8</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">5-5-5</x-import>
+  </div>
+  <div style="display: flex; justify-content: center; padding-top: 16px">
+    <div style="width: 270px; height: 270px; border-radius: 135px; background: var(--color\.surfaceAlt); display: flex; align-items: center; justify-content: center" aria-hidden="true">
+      <div style="width: 224px; height: 224px; border-radius: 112px; background: var(--color\.primarySoft); display: flex; align-items: center; justify-content: center; transform: scale({{scale}}); transition: transform 1s linear">
+        <x-import component-from-global-scope="Dobratimia.Timka" pose="breathe" size="170"></x-import>
+      </div>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 10px" aria-live="polite">
+    <h2 class="h2">{{phase}} · {{left}}</h2>
+    <span class="cap">Цикл {{cycle}} из 4 · {{hint}}</span>
+  </div>
+  <div role="group" aria-label="Фоновый звук" style="display: flex; align-items: center; gap: 8px; padding: 14px 20px 0">
+    <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Дождь</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Ветер</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Лес</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Тишина</x-import>
+  </div>
+  <label style="display: flex; align-items: center; gap: 12px; padding: 8px 20px 0"><span class="lbl" style="width: 72px">Громкость</span><input type="range" min="0" max="100" value="60" aria-label="Громкость звука"></label>
+  <div style="display: flex; gap: 12px; padding: 12px 20px 0">
+    <div style="flex: 2"><sc-if value="{{running}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" icon="pause" on-click="{{toggle}}">Пауза</x-import></sc-if><sc-if value="{{paused}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" icon="play" on-click="{{toggle}}">Продолжить</x-import></sc-if></div>
+    <div style="flex: 1"><x-import component-from-global-scope="Dobratimia.Button" variant="outline" size="lg" full-width="{{yes}}" on-click="{{reset}}">Сброс</x-import></div>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i1}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+componentDidMount() {
+  this._b = { p: 0, left: 4, cycle: 1, run: true };
+  this._iv = setInterval(() => {
+    const b = this._b;
+    if (!b.run) return;
+    const P = [4, 7, 8];
+    b.left -= 1;
+    if (b.left <= 0) { b.p = (b.p + 1) % 3; if (b.p === 0) b.cycle = b.cycle >= 4 ? 1 : b.cycle + 1; b.left = P[b.p]; }
+    this.setState({ b: Object.assign({}, b) });
+  }, 1000);
+}
+componentWillUnmount() { clearInterval(this._iv); }
+breathVals() {
+  const b = (this.state && this.state.b) || { p: 0, left: 4, cycle: 1, run: true };
+  const P = [4, 7, 8];
+  const names = ['Вдох', 'Задержите дыхание', 'Выдох'];
+  const hints = ['круг растёт на вдохе', 'круг стоит, пока вы не дышите', 'круг сжимается на выдохе'];
+  const prog = (P[b.p] - b.left + 1) / P[b.p];
+  const scale = b.p === 0 ? 0.72 + 0.28 * prog : (b.p === 1 ? 1 : 1 - 0.28 * prog);
+  return {
+    phase: names[b.p], left: String(b.left), cycle: String(b.cycle), hint: hints[b.p], scale: scale.toFixed(3),
+    running: b.run, paused: !b.run,
+    toggle: () => { this._b.run = !this._b.run; this.setState({ b: Object.assign({}, this._b) }); },
+    reset: () => { this._b = { p: 0, left: 4, cycle: 1, run: true }; this.setState({ b: Object.assign({}, this._b) }); }
+  };
+}
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals(), this.breathVals());
+}
+swipeVals() {
+const cfg = {up: 'Techniques.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i1: 1 };
+}
+}
+</script>
+</body>
+</html>

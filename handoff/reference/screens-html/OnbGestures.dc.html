@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Онбординг — жесты</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.disp{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:34px;line-height:40px;font-weight:900}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.txt{font-size:16px;line-height:24px}
+.steps{display:flex;gap:6px;flex-grow:1}
+.step{height:6px;border-radius:3px;flex-grow:1;background:var(--color\.border)}
+.step.on{background:var(--color\.primary)}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.tile{width:62px;height:96px;border-radius:12px;background:var(--color\.surface);box-shadow:var(--shadow\.sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:11px;line-height:14px;font-weight:600;color:var(--color\.textMuted);text-align:center;box-sizing:border-box;padding:4px}
+.tile.main{background:var(--color\.primary);color:var(--color\.onPrimary)}
+.sub{width:62px;height:52px;border-radius:12px;border:1.5px dashed var(--color\.borderStrong);display:flex;align-items:center;justify-content:center;font-size:11px;line-height:14px;font-weight:600;color:var(--color\.textMuted);text-align:center;box-sizing:border-box}
+.ges{display:flex;gap:14px;align-items:flex-start}
+.gi{width:44px;height:44px;border-radius:14px;background:var(--color\.primarySoft);color:var(--color\.onPrimarySoft);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div style="display: flex; align-items: center; gap: 12px; padding: 24px 20px 0 4px; height: 56px">
+    <a class="ibtn" href="OnbWarning.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <div class="steps" aria-label="Шаг 3 из 5"><span class="step on"></span><span class="step on"></span><span class="step on"></span><span class="step"></span><span class="step"></span></div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 28px 24px 0">
+    <h1 class="disp">Как здесь всё устроено</h1>
+    <p class="txt" style="margin: 0; color: var(--color\.textMuted)">Экраны стоят в ряд, как карточки на столе. Главная — в центре.</p>
+  </div>
+  <div style="margin: 24px 20px 0; padding: 18px 10px 16px; border-radius: 22px; background: var(--color\.surfaceAlt); display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <div class="tile"><x-import component-from-global-scope="Dobratimia.Icon" name="heart" size="22"></x-import>Анатомия</div>
+      <div class="tile"><x-import component-from-global-scope="Dobratimia.Icon" name="techniques" size="22"></x-import>Техники</div>
+      <div class="tile main"><x-import component-from-global-scope="Dobratimia.Icon" name="home" size="22"></x-import>Главная</div>
+      <div class="tile"><x-import component-from-global-scope="Dobratimia.Icon" name="specialist" size="22"></x-import>Специалисты</div>
+      <div class="tile"><x-import component-from-global-scope="Dobratimia.Icon" name="sprout" size="22"></x-import>Доброе слово</div>
+    </div>
+    <div style="display: flex; justify-content: space-between">
+      <div style="width: 62px"></div>
+      <div class="sub">Медитации</div>
+      <div style="width: 62px"></div>
+      <div class="sub">Избранные</div>
+      <div style="width: 62px"></div>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 16px; padding: 24px 24px 0">
+    <div class="ges">
+      <span class="gi" style="gap: 0"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="18"></x-import><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="18"></x-import></span>
+      <div style="display: flex; flex-direction: column; gap: 2px"><span class="h3">Влево и вправо</span><span class="cap">Свайп переносит на соседний экран.</span></div>
+    </div>
+    <div class="ges">
+      <span class="gi"><span style="display: flex; transform: rotate(90deg)"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="22"></x-import></span></span>
+      <div style="display: flex; flex-direction: column; gap: 2px"><span class="h3">Вниз</span><span class="cap">На «Техниках» откроются медитации, на «Специалистах» — избранные контакты.</span></div>
+    </div>
+    <div class="ges">
+      <span class="gi"><span style="display: flex; gap: 4px; align-items: center"><span style="width: 6px; height: 6px; border-radius: 3px; background: currentColor"></span><span style="width: 14px; height: 6px; border-radius: 3px; background: currentColor"></span><span style="width: 6px; height: 6px; border-radius: 3px; background: currentColor"></span></span></span>
+      <div style="display: flex; flex-direction: column; gap: 2px"><span class="h3">Точки внизу</span><span class="cap">Показывают, где вы, и тоже переключают экраны. На «Подборе специалиста» свайп листает карточки, а уйти можно через точки.</span></div>
+    </div>
+  </div>
+  <div style="margin-top: auto; padding: 0 20px 28px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" href="OnbSignIn.dc.html">Понятно</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

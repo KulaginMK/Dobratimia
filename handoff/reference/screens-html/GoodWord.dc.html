@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Доброе слово</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.seg{display:flex;background:var(--color\.surfaceAlt);border-radius:999px;padding:4px;gap:4px}
+.seg a{flex:1;min-height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 15px "Golos Text",sans-serif;color:var(--color\.textMuted);text-decoration:none}
+.seg a.on{background:var(--color\.surface);color:var(--color\.text);box-shadow:var(--shadow\.sm)}
+.quote{margin:0;font:800 27px/36px Nunito,"Golos Text",sans-serif}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Match.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 24px 20px 0">
+    <h1 class="h1">Доброе слово</h1>
+    <a href="Sos.dc.html" aria-label="SOS — экстренная помощь" style="width: 48px; height: 48px; border-radius: 24px; background: var(--color\.sos); color: var(--color\.onSos); display: flex; align-items: center; justify-content: center; font: 900 13px Nunito, sans-serif; text-decoration: none; flex-shrink: 0">SOS</a>
+  </div>
+  <div style="padding: 14px 20px 0">
+    <div class="seg" role="tablist" aria-label="Тон фраз"><a class="on" role="tab" aria-selected="true" href="GoodWord.dc.html">Сахарный</a><a role="tab" aria-selected="false" href="GoodWordAuthor.dc.html">С перчиком</a></div>
+  </div>
+  <div style="margin: 20px 20px 0; height: 470px; border-radius: 32px; background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding: 32px 30px; box-sizing: border-box">
+    <svg width="180" height="180" viewBox="0 0 180 180" style="position: absolute; right: -40px; top: -40px" aria-hidden="true"><circle cx="90" cy="90" r="90" style="fill: var(--logo\.apricot)" opacity=".55"></circle></svg>
+    <svg width="120" height="120" viewBox="0 0 120 120" style="position: absolute; left: -30px; bottom: -36px" aria-hidden="true"><circle cx="60" cy="60" r="60" style="fill: var(--color\.accent)" opacity=".45"></circle></svg>
+    <p class="quote" style="position: relative">Вы не обязаны быть продуктивным каждый день. Отдых — тоже часть учёбы.</p>
+  </div>
+  <div style="display: flex; gap: 12px; padding: 20px 20px 0; align-items: center">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" size="lg" icon="heart" aria-label="Сохранить фразу"></x-import>
+    <div style="flex: 1"><x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" href="GoodWordAuthor.dc.html">Ещё</x-import></div>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i4}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {prev: 'Match.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i4: 4 };
+}
+}
+</script>
+</body>
+</html>

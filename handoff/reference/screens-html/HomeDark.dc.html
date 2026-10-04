@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Главная — тёмная тема</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.avatar{width:48px;height:48px;border-radius:24px;border:none;background:var(--color\.primarySoft);color:var(--color\.onPrimarySoft);font:700 16px "Golos Text",sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.ticker{display:flex;align-items:center;gap:10px;height:48px;border-radius:24px;border:none;background:var(--color\.surface);box-shadow:var(--shadow\.sm);padding:0 6px 0 14px;color:var(--color\.text);width:100%;box-sizing:border-box;cursor:pointer;font-family:"Golos Text",sans-serif}
+.ticker-text{flex-grow:1;white-space:nowrap;overflow:hidden;text-align:left;font-size:15px}
+.pause{width:36px;height:36px;border-radius:18px;background:var(--color\.surfaceAlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--color\.textMuted)}
+.ring{width:236px;height:236px;border-radius:118px;background:var(--color\.primarySoft);display:flex;align-items:center;justify-content:center}
+.scream{width:188px;height:188px;border-radius:94px;background:var(--color\.primary);color:var(--color\.onPrimary);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none}
+.scream-t{font:900 42px/1 Nunito,"Golos Text",sans-serif;letter-spacing:.03em}
+.moods{display:flex;justify-content:space-between}
+.mood{width:68px;min-height:78px;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--color\.textMuted);font:500 13px "Golos Text",sans-serif;padding:0;cursor:pointer}
+.face{width:52px;height:52px;border-radius:26px;background:var(--color\.primarySoft);color:var(--color\.text);display:flex;align-items:center;justify-content:center}
+.round{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--color\.text);font:500 14px "Golos Text",sans-serif}
+.rbtn{width:72px;height:72px;border-radius:36px;display:flex;align-items:center;justify-content:center}
+.ticker-track{display:inline-block;white-space:nowrap;animation:dt-tick 16s linear infinite}
+.ticker.paused .ticker-track{animation-play-state:paused}
+@keyframes dt-tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.ticker-track{animation:none}}
+</style>
+</helmet>
+<div class="scr" data-theme="dark" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Match.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <a ref="{{reg}}" href="Techniques.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 20px 0; height: 56px">
+    <a href="About.dc.html" aria-label="Добратимия — о проекте" style="display: flex; min-height: 48px; align-items: center; text-decoration: none"><x-import component-from-global-scope="Dobratimia.Logo" size="40"></x-import></a>
+    <a class="avatar" href="Profile.dc.html" aria-label="Профиль и настройки">АК</a>
+  </div>
+  <div style="padding: 12px 20px 0">
+    <button type="button" class="{{tickCls}}" aria-label="{{tickLabel}}" onClick="{{toggleTick}}">
+      <span style="color: var(--color\.primary); display: flex"><x-import component-from-global-scope="Dobratimia.Icon" name="specialist" size="22"></x-import></span>
+      <span class="ticker-text"><span class="ticker-track">Сегодня вы не одни: <b>128 человек</b> · Сегодня вы не одни: <b>128 человек</b> · </span></span>
+      <span class="pause"><x-import component-from-global-scope="Dobratimia.Icon" name="{{tickIcon}}" size="16"></x-import></span>
+    </button>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 18px">
+    <div class="ring"><a class="scream" href="Scream.dc.html"><span class="scream-t">КРИК</span><span style="font-size: 14px; font-weight: 500">выпустить пар</span></a></div>
+    <span class="cap">Голос не записываем — только громкость</span>
+  </div>
+  <div style="margin: 18px 20px 0; padding: 14px 12px 10px; border-radius: 22px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 8px">
+      <h2 class="h3">Как вы сегодня?</h2>
+      <a href="Diary.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none">Дневник</a>
+    </div>
+    <div class="moods">
+      <a class="mood" href="HomeMarked.dc.html" style="text-decoration: none"><span class="face"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="20.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><path d="M11 22 Q16 17.5 21 22"></path></svg></span>Тяжело</a>
+      <a class="mood" href="HomeMarked.dc.html" style="text-decoration: none"><span class="face"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="20.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><path d="M12 21.5 Q16 19 20 21.5"></path></svg></span>Грустно</a>
+      <a class="mood" href="HomeMarked.dc.html" style="text-decoration: none"><span class="face"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="20.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><path d="M12 20.5 H20"></path></svg></span>Ровно</a>
+      <a class="mood" href="HomeMarked.dc.html" style="text-decoration: none"><span class="face"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="20.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><path d="M12 19 Q16 22.5 20 19"></path></svg></span>Хорошо</a>
+      <a class="mood" href="HomeMarked.dc.html" style="text-decoration: none"><span class="face"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="20.5" cy="13" r="1.3" fill="currentColor" stroke="none"></circle><path d="M11 18.5 Q16 24.5 21 18.5"></path></svg></span>Отлично</a>
+    </div>
+  </div>
+  <div style="display: flex; justify-content: center; gap: 72px; padding-top: 18px">
+    <a class="round" href="MapStub.dc.html"><span class="rbtn" style="background: var(--color\.surface); box-shadow: inset 0 0 0 1.5px var(--color\.borderStrong)"><x-import component-from-global-scope="Dobratimia.Icon" name="map" size="30"></x-import></span>Карта</a>
+    <a class="round" href="Sos.dc.html" aria-label="SOS — срочная помощь"><span class="rbtn" style="background: var(--color\.sos); color: var(--color\.onSos); font: 900 21px Nunito, sans-serif; letter-spacing: .03em">SOS</span>Помощь</a>
+  </div>
+  <div style="padding: 18px 20px 0">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="deep" size="lg" full-width="{{yes}}" icon="diary" icon-right="chevronRight" href="DassQuestion.dc.html">Тест DASS-21 · 5 минут</x-import>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i2}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {next: 'Match.dc.html', prev: 'Techniques.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+const paused = !!(this.state && this.state.paused);
+return {
+  yes: true, i2: 2,
+  tickCls: paused ? 'ticker paused' : 'ticker',
+  tickIcon: paused ? 'play' : 'pause',
+  tickLabel: paused ? 'Запустить бегущую строку' : 'Остановить бегущую строку',
+  toggleTick: () => this.setState({ paused: !paused })
+};
+}
+}
+</script>
+</body>
+</html>

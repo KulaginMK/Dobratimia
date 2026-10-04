@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Кабинет специалиста — редактирование</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:1500px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 8px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sec{display:flex;flex-direction:column;gap:14px;padding:22px 20px 0}
+.lbl{font-size:14px;font-weight:600}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="CabCard.dc.html" aria-label="Отменить"><x-import component-from-global-scope="Dobratimia.Icon" name="close" size="22"></x-import></a>
+    <span class="h3" style="flex-grow: 1">Редактирование</span>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="text" href="CabCard.dc.html">Сохранить</x-import>
+  </div>
+
+  <div class="sec">
+    <h2 class="h3">Фото и имя</h2>
+    <div style="display: flex; align-items: center; gap: 16px">
+      <div style="width: 88px; height: 88px; border-radius: 44px; background: var(--color\.primarySoft); overflow: hidden; display: flex; align-items: flex-end; justify-content: center" role="img" aria-label="Текущее фото">
+        <svg width="80" height="72" viewBox="0 0 200 180" aria-hidden="true"><circle cx="100" cy="66" r="42" style="fill: var(--logo\.warm)"></circle><path d="M24 180 Q24 118 100 118 Q176 118 176 180Z" style="fill: var(--logo\.warm)"></path></svg>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <x-import component-from-global-scope="Dobratimia.Button" variant="outline">Заменить фото</x-import>
+        <span class="cap">Лицо крупно, светлый фон</span>
+      </div>
+    </div>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Имя и фамилия" default-value="Ольга Мирошник"></x-import>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Кто вы" default-value="Психолог" hint="Например: психолог, психотерапевт, клинический психолог"></x-import>
+  </div>
+
+  <div class="sec">
+    <h2 class="h3">Специализации</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Тревога</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Выгорание</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Сон</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Перфекционизм</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip">Учёба и экзамены</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip">Отношения</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip">Утрата</x-import>
+    </div>
+    <span class="cap">Выберите до 5 — они показываются на карточке</span>
+  </div>
+
+  <div class="sec">
+    <h2 class="h3">О себе</h2>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Цитата для карточки" multiline="{{yes}}" rows="{{r2}}" default-value="Тревога перед экзаменом — не слабость. Давайте спокойно разберёмся, что за ней стоит." hint="86 из 140 знаков"></x-import>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Описание" multiline="{{yes}}" rows="{{r4}}" default-value="Работаю со студентами и молодыми врачами. Помогаю справиться с тревогой перед сессией, выгоранием на практике и бессонницей после ночных смен. Подход — когнитивно-поведенческая терапия."></x-import>
+    <div style="display: flex; gap: 12px">
+      <div style="flex: 1"><x-import component-from-global-scope="Dobratimia.TextField" label="Опыт" default-value="8 лет"></x-import></div>
+      <div style="flex: 2"><x-import component-from-global-scope="Dobratimia.TextField" label="Образование" default-value="Магистр психологии"></x-import></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="h3">Формат</h2>
+    <div style="display: flex; gap: 8px">
+      <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Онлайн</x-import>
+      <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Очно</x-import>
+    </div>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Город для очных встреч" default-value="Витебск"></x-import>
+  </div>
+
+  <div class="sec">
+    <h2 class="h3">Контакты</h2>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Телефон" type="tel" default-value="+375 29 555-12-34"></x-import>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Telegram" default-value="@miroshnik_psy"></x-import>
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Ссылка на запись" type="url" placeholder="https://"></x-import>
+    <div style="padding: 0 16px; border-radius: 18px; background: var(--color\.surface); box-shadow: var(--shadow\.sm)">
+      <x-import component-from-global-scope="Dobratimia.Switch" label="Согласие на публикацию контактов" description="Студенты увидят их после отметки «Нравится»" default-checked="{{yes}}"></x-import>
+    </div>
+  </div>
+
+  <div style="padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <span class="cap">После сохранения изменения проверит администратор. До проверки студенты видят прежнюю версию карточки.</span>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" href="CabCard.dc.html">Сохранить</x-import>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="CabCard.dc.html">Отмена</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true, r2: 2, r4: 4 };
+}
+}
+</script>
+</body>
+</html>

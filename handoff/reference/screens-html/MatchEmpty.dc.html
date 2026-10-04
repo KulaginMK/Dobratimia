@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Подбор специалиста — специалисты закончились</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Favorites.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 24px 20px 0">
+    <h1 class="h1">Подбор специалиста</h1>
+    <a href="Sos.dc.html" aria-label="SOS — экстренная помощь" style="width: 48px; height: 48px; border-radius: 24px; background: var(--color\.sos); color: var(--color\.onSos); display: flex; align-items: center; justify-content: center; font: 900 13px Nunito, sans-serif; text-decoration: none; flex-shrink: 0">SOS</a>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 96px 32px 0">
+    <div style="width: 128px; height: 128px; border-radius: 64px; background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft); display: flex; align-items: center; justify-content: center">
+      <x-import component-from-global-scope="Dobratimia.Icon" name="specialist" size="64"></x-import>
+    </div>
+    <h2 class="h2" style="margin-top: 12px">Специалисты закончились</h2>
+    <p style="margin: 0; font-size: 16px; line-height: 24px; color: var(--color\.textMuted)">Вы посмотрели всех, кто сейчас принимает. Новые специалисты появляются каждую неделю — мы пришлём уведомление.</p>
+  </div>
+  <div style="padding: 32px 20px 0; display: flex; flex-direction: column; gap: 10px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" icon="heart" href="Favorites.dc.html">Открыть избранные (2)</x-import>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="Match.dc.html">Посмотреть всех заново</x-import>
+  </div>
+  <div style="margin: 24px 20px 0; padding: 14px 16px; border-radius: 18px; background: var(--color\.surfaceAlt); display: flex; gap: 12px; align-items: center">
+    <span style="color: var(--color\.primary); display: flex"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="24"></x-import></span>
+    <span style="font-size: 15px; line-height: 22px">Нужна помощь сегодня? Загляните в <a href="SosUni.dc.html" style="font-weight: 600">службу вашего вуза</a>.</span>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i3}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {down: 'Favorites.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i3: 3 };
+}
+}
+</script>
+</body>
+</html>

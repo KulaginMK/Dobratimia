@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Дневник настроения</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.box{background:var(--color\.surface);border-radius:22px;box-shadow:var(--shadow\.sm)}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.wd{text-align:center;font-size:12px;line-height:16px;font-weight:600;color:var(--color\.textMuted);padding-bottom:4px}
+.day{height:44px;border:none;background:none;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:500 14px "Golos Text",sans-serif;color:var(--color\.text);padding:0;cursor:pointer}
+.mk{width:18px;height:6px;border-radius:3px}
+.day.today{background:var(--color\.primarySoft);font-weight:700}
+.day.future{color:var(--color\.textMuted)}
+.day.blank{visibility:hidden}
+.lg{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color\.textMuted)}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <h1 class="h3" style="flex-grow: 1">Дневник настроения</h1>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+
+  <div class="box" style="margin: 14px 20px 0; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline">
+      <h2 class="h3">Среднее за неделю</h2>
+      <span style="font: 900 22px Nunito, sans-serif">Ровно</span>
+    </div>
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; height: 84px">
+      <sc-for list="{{week}}" as="w" hint-placeholder-count="7">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 36px">
+          <span style="width: 24px; height: {{w.h}}; border-radius: 8px; background: {{w.c}}"></span>
+          <span class="cap" style="font-size: 12px; line-height: 16px">{{w.d}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span class="cap">2,7 из 5. К концу недели стало лучше — после выходных вы чаще отмечали «хорошо».</span>
+  </div>
+
+  <div class="box" style="margin: 14px 20px 0; padding: 14px 12px 10px">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px 8px">
+      <button class="ibtn" type="button" aria-label="Август"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="20"></x-import></button>
+      <h2 class="h3">Сентябрь 2026</h2>
+      <button class="ibtn" type="button" aria-label="Октябрь"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></button>
+    </div>
+    <div class="grid">
+      <span class="wd">Пн</span><span class="wd">Вт</span><span class="wd">Ср</span><span class="wd">Чт</span><span class="wd">Пт</span><span class="wd">Сб</span><span class="wd">Вс</span>
+      <sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+        <button type="button" class="{{c.cls}}" aria-label="{{c.label}}"><span>{{c.n}}</span><span class="mk" style="background: {{c.color}}"></span></button>
+      </sc-for>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 6px 2px">
+      <span class="lg"><span class="mk" style="background: var(--color\.secondary)"></span>Тяжело</span>
+      <span class="lg"><span class="mk" style="background: var(--logo\.warm)"></span>Грустно</span>
+      <span class="lg"><span class="mk" style="background: var(--color\.accent)"></span>Ровно</span>
+      <span class="lg"><span class="mk" style="background: var(--logo\.leaf)"></span>Хорошо</span>
+      <span class="lg"><span class="mk" style="background: var(--color\.growth)"></span>Отлично</span>
+    </div>
+  </div>
+
+  <div style="padding: 16px 20px 0; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; gap: 12px; align-items: center"><span class="mk" style="width: 6px; height: 36px; background: var(--logo\.leaf)"></span><div style="display: flex; flex-direction: column"><b style="font-size: 15px">Сегодня, 14:20 · Хорошо</b><span class="cap">«Сдала коллоквиум по фармакологии»</span></div></div>
+    <div style="display: flex; gap: 12px; align-items: center"><span class="mk" style="width: 6px; height: 36px; background: var(--logo\.leaf)"></span><div style="display: flex; flex-direction: column"><b style="font-size: 15px">Вчера, 22:05 · Хорошо</b><span class="cap">Без заметки</span></div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+const col = { 0: 'transparent', 1: 'var(--color\\.secondary)', 2: 'var(--logo\\.warm)', 3: 'var(--color\\.accent)', 4: 'var(--logo\\.leaf)', 5: 'var(--color\\.growth)' };
+const names = { 0: 'нет отметки', 1: 'тяжело', 2: 'грустно', 3: 'ровно', 4: 'хорошо', 5: 'отлично' };
+const moods = [4, 3, 3, 2, 4, 5, 4, 3, 0, 3, 2, 2, 3, 4, 4, 5, 3, 2, 1, 2, 3, 3, 4, 4];
+const cells = [];
+cells.push({ n: '', color: 'transparent', label: '', cls: 'day blank' });
+for (let d = 1; d <= 30; d++) {
+  const m = d <= 24 ? moods[d - 1] : 0;
+  const future = d > 24;
+  cells.push({
+    n: String(d), color: col[m],
+    label: d + ' сентября: ' + (future ? 'ещё не наступило' : names[m]),
+    cls: d === 24 ? 'day today' : (future ? 'day future' : 'day')
+  });
+}
+while (cells.length < 35) cells.push({ n: '', color: 'transparent', label: '', cls: 'day blank' });
+const wk = [[2, 'Пт'], [1, 'Сб'], [2, 'Вс'], [3, 'Пн'], [3, 'Вт'], [4, 'Ср'], [4, 'Чт']];
+return {
+  cells: cells,
+  week: wk.map((w) => ({ h: (12 + w[0] * 12) + 'px', c: col[w[0]], d: w[1] }))
+};
+}
+}
+</script>
+</body>
+</html>

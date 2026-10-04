@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Профиль и настройки</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.box{margin:12px 20px 0;padding:0 16px;border-radius:20px;background:var(--color\.surface);box-shadow:var(--shadow\.sm)}
+.lbl{padding:16px 24px 0;font-size:13px;font-weight:600;color:var(--color\.textMuted)}
+.row{display:flex;align-items:center;gap:12px;min-height:52px;text-decoration:none;color:var(--color\.text);font-size:16px}
+.row + .row{border-top:1px solid var(--color\.border)}
+.seg{display:flex;background:var(--color\.surfaceAlt);border-radius:999px;padding:4px;gap:4px}
+.seg button{flex:1;min-height:44px;border:none;border-radius:999px;background:none;font:600 14px "Golos Text",sans-serif;color:var(--color\.textMuted);cursor:pointer}
+.seg button.on{background:var(--color\.surface);color:var(--color\.text);box-shadow:var(--shadow\.sm)}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <span class="h3" style="flex-grow: 1">Профиль</span>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="display: flex; align-items: center; gap: 14px; padding: 12px 20px 0">
+    <span style="width: 60px; height: 60px; border-radius: 30px; background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft); display: flex; align-items: center; justify-content: center; font: 800 20px Nunito, sans-serif">АК</span>
+    <div style="display: flex; flex-direction: column"><b style="font: 800 20px Nunito, sans-serif">Анна Кравец</b><span class="cap">anna.kravets@gmail.com</span></div>
+  </div>
+  <div class="lbl">Мой вуз</div>
+  <div class="box"><a class="row" href="OnbUniversity.dc.html"><span style="flex-grow: 1">ВГМУ · Витебск</span><span class="cap">Сменить</span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="18"></x-import></a></div>
+  <div class="lbl">Напоминания</div>
+  <div class="box">
+    <x-import component-from-global-scope="Dobratimia.Switch" label="Дневник настроения" description="Каждый день в 21:00" default-checked="{{yes}}"></x-import>
+    <div style="height: 1px; background: var(--color\.border)"></div>
+    <x-import component-from-global-scope="Dobratimia.Switch" label="Тест DASS-21" description="Раз в 14 дней · следующий 8 октября" default-checked="{{yes}}"></x-import>
+  </div>
+  <div class="lbl">Тема</div>
+  <div style="padding: 12px 20px 0">
+    <div class="seg" role="radiogroup" aria-label="Тема оформления"><button type="button" class="on" role="radio" aria-checked="true">Светлая</button><button type="button" role="radio" aria-checked="false">Тёмная</button><button type="button" role="radio" aria-checked="false">Как в системе</button></div>
+  </div>
+  <div class="box" style="margin-top: 16px">
+    <a class="row" href="#privacy"><span style="flex-grow: 1">Политика конфиденциальности</span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="18"></x-import></a>
+    <a class="row" href="#consent"><span style="flex-grow: 1">Согласие на обработку данных</span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="18"></x-import></a>
+    <a class="row" href="About.dc.html"><span style="flex-grow: 1">О проекте</span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="18"></x-import></a>
+  </div>
+  <div style="padding: 16px 20px 0; display: flex; flex-direction: column; gap: 4px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="OnbSignIn.dc.html">Выйти из аккаунта</x-import>
+    <button type="button" style="min-height: 48px; border: none; background: none; color: var(--color\.error); font: 600 15px 'Golos Text', sans-serif; cursor: pointer">Удалить мои данные</button>
+  </div>
+  <div class="cap" style="text-align: center; margin-top: auto; padding-bottom: 20px">Добратимия 1.0 · сделано для студентов медвузов Беларуси</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

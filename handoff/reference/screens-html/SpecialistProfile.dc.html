@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Профиль специалиста — контакты открыты</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:1240px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.tagc{padding:5px 12px;border-radius:999px;background:var(--color\.surfaceAlt);font-size:14px;line-height:20px;font-weight:500}
+.sec{display:flex;flex-direction:column;gap:6px;padding:20px 20px 0}
+.ct{display:flex;align-items:center;gap:12px;padding:12px 0}
+.cti{width:44px;height:44px;border-radius:14px;background:var(--color\.primarySoft);color:var(--color\.onPrimarySoft);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Match.dc.html" aria-label="Назад к подбору"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <span class="h3" style="flex-grow: 1">Специалист</span>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="margin: 12px 20px 0; padding: 12px 16px; border-radius: 18px; background: var(--color\.growthSoft); display: flex; align-items: center; gap: 12px" role="status">
+    <span style="width: 32px; height: 32px; border-radius: 16px; background: var(--color\.surface); color: var(--color\.success); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><x-import component-from-global-scope="Dobratimia.Icon" name="check" size="18"></x-import></span>
+    <span style="font-size: 15px; line-height: 21px"><b>Контакты открыты.</b> Ольга добавлена в избранные.</span>
+  </div>
+  <div style="margin: 16px 20px 0; height: 240px; border-radius: 28px; background: var(--color\.primarySoft); display: flex; align-items: flex-end; justify-content: center; overflow: hidden" role="img" aria-label="Фото: Ольга Мирошник">
+    <svg width="240" height="216" viewBox="0 0 200 180" aria-hidden="true"><circle cx="100" cy="66" r="42" style="fill: var(--logo\.warm)"></circle><path d="M24 180 Q24 118 100 118 Q176 118 176 180Z" style="fill: var(--logo\.warm)"></path></svg>
+  </div>
+  <div style="padding: 16px 20px 0; display: flex; flex-direction: column; gap: 8px">
+    <h1 class="h1">Ольга Мирошник</h1>
+    <span class="cap">Психолог · опыт 8 лет · онлайн и очно</span>
+    <div style="display: flex; gap: 6px; flex-wrap: wrap"><span class="tagc">Тревога</span><span class="tagc">Выгорание</span><span class="tagc">Сон</span><span class="tagc">Перфекционизм</span></div>
+  </div>
+  <p style="margin: 16px 20px 0; padding: 16px 18px; border-radius: 20px; background: var(--color\.surfaceAlt); font-size: 17px; line-height: 25px">«Тревога перед экзаменом — не слабость. Давайте спокойно разберёмся, что за ней стоит».</p>
+
+  <div style="margin: 20px 20px 0; padding: 6px 18px; border-radius: 24px; background: var(--color\.surface); box-shadow: var(--shadow\.md)">
+    <h2 class="h3" style="padding-top: 12px">Контакты</h2>
+    <div class="ct" style="border-bottom: 1px solid var(--color\.border)">
+      <span class="cti"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="24"></x-import></span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">+375 29 555-12-34</b><span class="cap">Телефон</span></div>
+      <x-import component-from-global-scope="Dobratimia.Button" variant="primary" href="tel:+375295551234">Позвонить</x-import>
+    </div>
+    <div class="ct" style="border-bottom: 1px solid var(--color\.border)">
+      <span class="cti"><x-import component-from-global-scope="Dobratimia.Icon" name="message" size="24"></x-import></span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">@miroshnik_psy</b><span class="cap">Telegram</span></div>
+      <x-import component-from-global-scope="Dobratimia.Button" variant="outline">Написать</x-import>
+    </div>
+    <div class="ct">
+      <span class="cti"><x-import component-from-global-scope="Dobratimia.Icon" name="diary" size="24"></x-import></span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Онлайн-запись</b><span class="cap">Свободные окна на неделе</span></div>
+      <x-import component-from-global-scope="Dobratimia.Button" variant="outline">Записаться</x-import>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="h3">О себе</h2>
+    <span style="font-size: 15px; line-height: 22px">Работаю со студентами и молодыми врачами. Помогаю справиться с тревогой перед сессией, выгоранием на практике и бессонницей после ночных смен. Подход — когнитивно-поведенческая терапия.</span>
+  </div>
+  <div class="sec">
+    <h2 class="h3">Опыт и формат</h2>
+    <span style="font-size: 15px; line-height: 22px">8 лет практики, магистр психологии. Онлайн — по видеосвязи; очно — в Витебске.</span>
+  </div>
+  <div style="padding: 20px 20px 28px; display: flex; flex-direction: column; gap: 8px">
+    <span class="cap">Контакты опубликованы с согласия специалиста. Связывайтесь напрямую — переписки внутри приложения нет.</span>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="text" full-width="{{yes}}">Убрать из избранных</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

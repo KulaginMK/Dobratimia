@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Избранные контакты</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.handle{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:12px;text-decoration:none;color:var(--color\.textMuted);font-size:13px;min-height:48px;box-sizing:border-box}
+.handle i{width:40px;height:4px;border-radius:2px;background:var(--color\.borderStrong)}
+.letter{font:900 15px Nunito,sans-serif;color:var(--color\.primary);padding:14px 4px 4px}
+.ct{display:flex;align-items:center;gap:12px;min-height:68px;border-bottom:1px solid var(--color\.border)}
+.av{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font:800 16px Nunito,sans-serif;flex-shrink:0}
+.call{width:48px;height:48px;border-radius:24px;background:var(--color\.primary);color:var(--color\.onPrimary);display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Match.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <a class="handle" href="Match.dc.html" aria-label="Назад к подбору"><i></i>Свайп вверх — к подбору</a>
+  <div style="padding: 8px 20px 0; display: flex; flex-direction: column; gap: 4px">
+    <h1 class="h1">Избранные контакты</h1>
+    <span class="cap">Звонок — в одно касание</span>
+  </div>
+  <div style="padding: 14px 20px 0">
+    <x-import component-from-global-scope="Dobratimia.TextField" label="Поиск" placeholder="Имя или специализация"></x-import>
+  </div>
+  <div style="padding: 4px 20px 0; display: flex; flex-direction: column">
+    <div class="letter">Служба вашего вуза</div>
+    <div class="ct">
+      <span class="av" style="background: var(--color\.sosSoft); color: var(--color\.onSosSoft)"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="24"></x-import></span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Психологическая служба ВГМУ</b><span class="cap">Пн–Пт 9:00–17:00 · очно</span></div>
+      <a class="call" href="tel:+375212000000" aria-label="Позвонить в психологическую службу ВГМУ"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="22"></x-import></a>
+    </div>
+    <div class="letter">Г</div>
+    <div class="ct">
+      <span class="av" style="background: var(--color\.surfaceAlt)">ДГ</span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Дмитрий Гайдук</b><span class="cap">Психотерапевт · онлайн</span></div>
+      <a class="call" href="tel:+375445550987" aria-label="Позвонить Дмитрию Гайдуку"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="22"></x-import></a>
+    </div>
+    <div class="letter">М</div>
+    <div class="ct">
+      <span class="av" style="background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft)">ОМ</span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Ольга Мирошник</b><span class="cap">Психолог · онлайн и очно, Витебск</span></div>
+      <a class="call" href="tel:+375295551234" aria-label="Позвонить Ольге Мирошник"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="22"></x-import></a>
+    </div>
+    <div class="letter">С</div>
+    <div class="ct">
+      <span class="av" style="background: var(--color\.growthSoft)">ЕС</span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Елена Савчук</b><span class="cap">Психолог · очно, Витебск</span></div>
+      <a class="call" href="tel:+375335554411" aria-label="Позвонить Елене Савчук"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="22"></x-import></a>
+    </div>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i3}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {up: 'Match.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i3: 3 };
+}
+}
+</script>
+</body>
+</html>

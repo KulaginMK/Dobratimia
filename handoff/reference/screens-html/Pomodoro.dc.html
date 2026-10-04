@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Медитации — Pomodoro</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.handle{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:12px;text-decoration:none;color:var(--color\.textMuted);font-size:13px;min-height:48px;box-sizing:border-box}
+.handle i{width:40px;height:4px;border-radius:2px;background:var(--color\.borderStrong)}
+.seg{display:flex;background:var(--color\.surfaceAlt);border-radius:999px;padding:4px;gap:4px}
+.seg a{flex:1;min-height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 15px "Golos Text",sans-serif;color:var(--color\.textMuted);text-decoration:none}
+.seg a.on{background:var(--color\.surface);color:var(--color\.text);box-shadow:var(--shadow\.sm)}
+.tomato{width:14px;height:14px;border-radius:7px;background:var(--color\.surfaceAlt);box-shadow:inset 0 0 0 2px var(--color\.borderStrong)}
+.tomato.done{background:var(--color\.primary);box-shadow:none}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Techniques.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <a class="handle" href="Techniques.dc.html" aria-label="Назад к техникам"><i></i>Свайп вверх — к техникам</a>
+  <div style="padding: 8px 20px 0">
+    <div class="seg" role="tablist"><a role="tab" aria-selected="false" href="Meditation.dc.html">Дыхание</a><a class="on" role="tab" aria-selected="true" href="Pomodoro.dc.html">Pomodoro</a></div>
+  </div>
+  <div style="display: flex; gap: 8px; padding: 14px 20px 0">
+    <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Фокус · 25 мин</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Перерыв · 5 мин</x-import>
+  </div>
+  <div style="display: flex; justify-content: center; padding-top: 24px">
+    <div style="position: relative; width: 280px; height: 280px">
+      <svg width="280" height="280" viewBox="0 0 280 280" aria-hidden="true">
+        <circle cx="140" cy="140" r="124" fill="none" stroke-width="18" style="stroke: var(--color\.surfaceAlt)"></circle>
+        <circle cx="140" cy="140" r="124" fill="none" stroke-width="18" stroke-linecap="round" stroke-dasharray="779" stroke-dashoffset="280" transform="rotate(-90 140 140)" style="stroke: var(--color\.primary)"></circle>
+      </svg>
+      <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px" role="timer" aria-label="Осталось 16 минут 5 секунд">
+        <span style="font: 900 64px/1 Nunito, sans-serif">16:05</span>
+        <span class="cap">до перерыва</span>
+      </div>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; padding-top: 16px">
+    <span class="tomato done"></span><span class="tomato"></span><span class="tomato"></span><span class="tomato"></span>
+    <span class="cap" style="margin-left: 4px">Помидор 2 из 4</span>
+  </div>
+  <div style="display: flex; gap: 12px; padding: 22px 20px 0">
+    <div style="flex: 2"><x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" icon="pause">Пауза</x-import></div>
+    <div style="flex: 1"><x-import component-from-global-scope="Dobratimia.Button" variant="outline" size="lg" full-width="{{yes}}">Пропустить</x-import></div>
+  </div>
+  <div style="margin: 16px 20px 0; padding: 4px 16px; border-radius: 20px; background: var(--color\.surface); box-shadow: var(--shadow\.sm)">
+    <x-import component-from-global-scope="Dobratimia.Switch" label="Уведомить о перерыве" description="Звук и вибрация, даже если экран выключен" default-checked="{{yes}}"></x-import>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i1}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {up: 'Techniques.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i1: 1 };
+}
+}
+</script>
+</body>
+</html>

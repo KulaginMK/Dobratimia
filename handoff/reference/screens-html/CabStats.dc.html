@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Кабинет специалиста — статистика</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ovl{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;flex:1}
+.val{font:800 14px Nunito,sans-serif}
+</style>
+</helmet>
+<div class="scr">
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 24px 20px 0">
+    <span class="ovl" style="color: var(--color\.textMuted)">Кабинет специалиста</span>
+    <h1 class="h1">Статистика</h1>
+  </div>
+  <div style="margin: 18px 20px 0; padding: 22px 20px; border-radius: 28px; background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft); display: flex; flex-direction: column; gap: 6px">
+    <span style="font: 900 72px/1 Nunito, sans-serif">37</span>
+    <span style="font-size: 16px; line-height: 22px">откликов «Нравится» за всё время</span>
+    <span style="align-self: flex-start; margin-top: 8px; padding: 5px 12px; border-radius: 999px; background: var(--color\.surface); color: var(--color\.text); font: 600 14px 'Golos Text', sans-serif">+5 за эту неделю</span>
+  </div>
+  <div style="margin: 16px 20px 0; padding: 18px; border-radius: 24px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 class="h3">По неделям</h2><span class="cap">8 недель</span></div>
+    <div style="display: flex; align-items: flex-end; gap: 8px; height: 190px" role="img" aria-label="Отклики по неделям с 3 августа по 21 сентября: 2, 4, 3, 5, 6, 4, 8, 5">
+      <sc-for list="{{weeks}}" as="w" hint-placeholder-count="8">
+        <div class="col"><span class="val">{{w.v}}</span><span style="width: 100%; height: {{w.h}}; border-radius: 10px 10px 4px 4px; background: {{w.c}}"></span></div>
+      </sc-for>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <sc-for list="{{weeks}}" as="w" hint-placeholder-count="8">
+        <span class="cap" style="flex: 1; text-align: center; font-size: 12px; line-height: 16px">{{w.d}}</span>
+      </sc-for>
+    </div>
+  </div>
+  <div style="margin: 16px 20px 0; padding: 14px 16px; border-radius: 18px; background: var(--color\.surfaceAlt); display: flex; gap: 12px; align-items: flex-start">
+    <span style="color: var(--color\.primary); display: flex; padding-top: 2px"><x-import component-from-global-scope="Dobratimia.Icon" name="heart" size="22"></x-import></span>
+    <span style="font-size: 15px; line-height: 22px">Мы показываем только количество. Кто именно отметил вас, не видно ни вам, ни администратору.</span>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" screens="{{tabs}}" default-current="{{i1}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+const vals = [2, 4, 3, 5, 6, 4, 8, 5];
+const days = ['3.08', '10.08', '17.08', '24.08', '31.08', '7.09', '14.09', '21.09'];
+return {
+  i1: 1,
+  tabs: ['Моя карточка', 'Статистика'],
+  weeks: vals.map((v, i) => ({
+    v: String(v), d: days[i],
+    h: (v * 18) + 'px',
+    c: i === vals.length - 1 ? 'var(--color\\.secondary)' : 'var(--logo\\.warm)'
+  }))
+};
+}
+}
+</script>
+</body>
+</html>

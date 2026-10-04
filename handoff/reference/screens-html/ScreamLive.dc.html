@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>КРИК — идёт замер</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.metric{font-family:Nunito,"Golos Text",sans-serif;font-size:40px;line-height:44px;font-weight:900}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.wave{display:flex;align-items:center;justify-content:space-between;height:120px}
+.bar{width:5px;border-radius:3px}
+</style>
+</helmet>
+<div class="scr">
+  <a ref="{{out}}" href="ScreamResult.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <div class="top">
+    <a class="ibtn" href="Scream.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <h1 class="h3" style="flex-grow: 1">КРИК</h1>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="display: flex; justify-content: space-between; padding: 28px 28px 0">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <span class="cap">Время</span>
+      <span class="metric">{{time}}</span>
+      <span class="cap">из 10 секунд</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end">
+      <span class="cap">Сейчас</span>
+      <span class="metric" style="color: var(--color\.primary)">{{level}}</span>
+      <span class="cap">усл. дБ</span>
+    </div>
+  </div>
+  <div style="margin: 24px 20px 0; padding: 16px 18px; border-radius: 22px; background: var(--color\.surface); box-shadow: var(--shadow\.sm)">
+    <div class="wave" aria-label="Волна громкости">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="36">
+        <span class="bar" style="height: {{b.h}}; background: {{b.c}}"></span>
+      </sc-for>
+    </div>
+    <div style="margin-top: 14px; height: 12px; border-radius: 6px; background: var(--color\.surfaceAlt); position: relative; overflow: hidden">
+      <div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{levelPct}}; border-radius: 6px; background: var(--color\.primary); transition: width 150ms linear"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 6px" class="cap"><span>0</span><span>60</span><span>80</span><span>100+</span></div>
+  </div>
+  <div style="display: flex; justify-content: center; padding-top: 40px">
+    <div style="width: 240px; height: 240px; border-radius: 120px; background: var(--color\.primarySoft); display: flex; align-items: center; justify-content: center">
+      <div style="width: 196px; height: 196px; border-radius: 98px; box-shadow: 0 0 0 10px var(--color\.background); background: var(--color\.primarySoft); display: flex; align-items: center; justify-content: center">
+        <a href="ScreamResult.dc.html" aria-label="Остановить замер" style="width: 148px; height: 148px; border-radius: 74px; background: var(--color\.primary); color: var(--color\.onPrimary); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font: 700 16px 'Golos Text', sans-serif"><x-import component-from-global-scope="Dobratimia.Icon" name="pause" size="40"></x-import>Стоп</a>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 24px 32px; color: var(--color\.success)">
+    <x-import component-from-global-scope="Dobratimia.Icon" name="check" size="18"></x-import>
+    <span class="cap">Мы не записываем ваш голос — анализируется только громкость</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+componentDidMount() {
+  this._t = 0;
+  this._iv = setInterval(() => {
+    this._t += 1;
+    if (this._t > 40) { this._t = 0; if (this._out) this._out.click(); }
+    this.setState({ t: this._t });
+  }, 150);
+}
+componentWillUnmount() { clearInterval(this._iv); }
+renderVals() {
+const t = (this.state && this.state.t) || 0;
+const n = 36;
+const filled = Math.min(n, Math.round(t * n / 40));
+const hgt = (i) => Math.round(18 + 92 * Math.abs(Math.sin(i * 0.9) * Math.cos(i * 0.37)) + (i > 8 ? 10 : 0));
+const bars = [];
+for (let i = 0; i < n; i++) {
+  const on = i < filled;
+  bars.push({ h: (on ? hgt(i) : 6) + 'px', c: on ? (i === filled - 1 ? 'var(--color\\.primaryPressed)' : 'var(--color\\.primary)') : 'var(--color\\.border)' });
+}
+const last = filled > 0 ? hgt(filled - 1) : 0;
+const level = filled > 0 ? Math.min(99, Math.round(48 + last * 0.42)) : 0;
+const secs = Math.floor(t * 0.15);
+return { bars: bars, time: '00:0' + Math.min(secs, 9), level: String(level), levelPct: level + '%', out: (el) => { this._out = el; } };
+}
+}
+</script>
+</body>
+</html>

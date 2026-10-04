@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>КРИК — выплеснуть текстом</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.seg{display:flex;background:var(--color\.surfaceAlt);border-radius:999px;padding:4px;gap:4px}
+.seg a{flex:1;min-height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 15px "Golos Text",sans-serif;color:var(--color\.textMuted);text-decoration:none}
+.seg a.on{background:var(--color\.surface);color:var(--color\.text);box-shadow:var(--shadow\.sm)}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <h1 class="h3" style="flex-grow: 1">КРИК</h1>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="padding: 12px 20px 0">
+    <div class="seg" role="tablist"><a role="tab" aria-selected="false" href="Scream.dc.html">Голосом</a><a class="on" role="tab" aria-selected="true" href="ScreamText.dc.html">Выплеснуть текстом</a></div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 6px; padding: 24px 20px 0">
+    <h2 class="h2">Напишите всё, что накипело</h2>
+    <span class="cap">Без цензуры и без адресата. Текст никто не прочитает.</span>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 20px 0">
+    <x-import component-from-global-scope="Dobratimia.Chip">Что бесит больше всего?</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Кому бы вы это сказали?</x-import>
+  </div>
+  <div style="padding: 10px 20px 0">
+    <x-import component-from-global-scope="Dobratimia.TextField" multiline="{{yes}}" rows="{{rows}}" label="Ваш текст" default-value="Третий раз переписываю конспект по фармакологии, а завтра коллоквиум. Староста опять перенёс отработку на субботу. Почему всё сразу и всё на мне?!" hint="Текст не сохраняется и исчезнет, когда вы нажмёте «Отпустить»"></x-import>
+  </div>
+  <div style="margin-top: auto; padding: 0 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" href="ScreamResult.dc.html">Отпустить</x-import>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="text" full-width="{{yes}}" href="Home.dc.html">Стереть и выйти</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true, rows: 9 };
+}
+}
+</script>
+</body>
+</html>

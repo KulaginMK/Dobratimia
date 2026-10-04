@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>КРИК — нет доступа к микрофону</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.txt{font-size:16px;line-height:24px}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.seg{display:flex;background:var(--color\.surfaceAlt);border-radius:999px;padding:4px;gap:4px}
+.seg a{flex:1;min-height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 15px "Golos Text",sans-serif;color:var(--color\.textMuted);text-decoration:none}
+.seg a.on{background:var(--color\.surface);color:var(--color\.text);box-shadow:var(--shadow\.sm)}
+.stepn{width:28px;height:28px;border-radius:14px;background:var(--color\.surfaceAlt);display:flex;align-items:center;justify-content:center;font:800 14px Nunito,sans-serif;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <h1 class="h3" style="flex-grow: 1">КРИК</h1>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="padding: 12px 20px 0">
+    <div class="seg" role="tablist"><a class="on" role="tab" aria-selected="true" href="ScreamNoMic.dc.html">Голосом</a><a role="tab" aria-selected="false" href="ScreamText.dc.html">Выплеснуть текстом</a></div>
+  </div>
+  <div style="display: flex; justify-content: center; padding-top: 48px">
+    <div style="width: 132px; height: 132px; border-radius: 66px; background: var(--color\.surfaceAlt); color: var(--color\.textMuted); display: flex; align-items: center; justify-content: center; position: relative">
+      <x-import component-from-global-scope="Dobratimia.Icon" name="scream" size="64"></x-import>
+      <span style="position: absolute; width: 96px; height: 6px; border-radius: 3px; background: var(--color\.textMuted); transform: rotate(-45deg); box-shadow: 0 0 0 4px var(--color\.surfaceAlt)"></span>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 28px 24px 0; text-align: center; align-items: center">
+    <h2 class="h1">Нет доступа к микрофону</h2>
+    <p class="txt" style="margin: 0; color: var(--color\.textMuted)">Чтобы измерить громкость крика, разрешите доступ к микрофону. Звук не записывается и никуда не отправляется.</p>
+  </div>
+  <div style="margin: 24px 20px 0; padding: 16px 18px; border-radius: 22px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; gap: 12px; align-items: center"><span class="stepn">1</span><span style="font-size: 15px">Нажмите «Открыть настройки»</span></div>
+    <div style="display: flex; gap: 12px; align-items: center"><span class="stepn">2</span><span style="font-size: 15px">Разрешения → Микрофон</span></div>
+    <div style="display: flex; gap: 12px; align-items: center"><span class="stepn">3</span><span style="font-size: 15px">Выберите «Разрешить во время использования»</span></div>
+  </div>
+  <div style="margin-top: auto; padding: 0 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}">Открыть настройки</x-import>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="ScreamText.dc.html">Выплеснуть текстом</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

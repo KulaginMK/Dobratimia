@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>DASS-21 — результат</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:1640px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.scale{padding:16px 18px;border-radius:22px;background:var(--color\.surface);box-shadow:var(--shadow\.sm);display:flex;flex-direction:column;gap:10px}
+.segs{display:flex;gap:4px}
+.seg{flex:1;height:10px;border-radius:5px;background:var(--color\.surfaceAlt)}
+.badge{padding:4px 12px;border-radius:999px;font:600 14px/20px "Golos Text",sans-serif}
+.rec{display:flex;align-items:center;gap:14px;min-height:76px;padding:12px 14px;border-radius:20px;background:var(--color\.surface);box-shadow:var(--shadow\.sm);text-decoration:none;color:var(--color\.text)}
+.ric{width:48px;height:48px;border-radius:14px;background:var(--color\.surfaceAlt);color:var(--color\.primary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Закрыть"><x-import component-from-global-scope="Dobratimia.Icon" name="close" size="22"></x-import></a>
+    <span class="h3" style="flex-grow: 1">DASS-21</span>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="padding: 16px 20px 0; display: flex; flex-direction: column; gap: 6px">
+    <h1 class="h1">Ваши результаты</h1>
+    <span class="cap">24 сентября · это ориентир, а не диагноз</span>
+  </div>
+
+  <div style="margin: 20px 20px 0; padding: 20px; border-radius: 24px; background: var(--color\.sosSoft); color: var(--color\.onSosSoft); display: flex; flex-direction: column; gap: 10px">
+    <h2 class="h2" style="color: var(--color\.onSosSoft)">Возможно, сейчас стоит поговорить со специалистом</h2>
+    <span style="font-size: 15px; line-height: 22px">Тревога и стресс сейчас выше обычного. Это не приговор — но разговор с психологом часто заметно облегчает состояние. Вы не обязаны справляться в одиночку.</span>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px">
+      <x-import component-from-global-scope="Dobratimia.Button" variant="primary" full-width="{{yes}}" icon="specialist" href="Match.dc.html">Подобрать специалиста</x-import>
+      <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="SosUni.dc.html">Помощь в моём вузе</x-import>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; padding: 24px 20px 0">
+    <h2 class="h3">Три шкалы</h2>
+    <div class="scale">
+      <div style="display: flex; align-items: center; gap: 10px"><span class="h3" style="flex-grow: 1">Стресс</span><span class="cap">28 из 42</span><span class="badge" style="background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft)">Высокий</span></div>
+      <div class="segs"><span class="seg" style="background: var(--color\.primary)"></span><span class="seg" style="background: var(--color\.primary)"></span><span class="seg" style="background: var(--color\.primary)"></span><span class="seg" style="background: var(--color\.primary)"></span><span class="seg"></span></div>
+      <div style="display: flex; justify-content: space-between" class="cap"><span>Норма</span><span>Крайне высокий</span></div>
+    </div>
+    <div class="scale">
+      <div style="display: flex; align-items: center; gap: 10px"><span class="h3" style="flex-grow: 1">Тревога</span><span class="cap">18 из 42</span><span class="badge" style="background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft)">Высокий</span></div>
+      <div class="segs"><span class="seg" style="background: var(--color\.primary)"></span><span class="seg" style="background: var(--color\.primary)"></span><span class="seg" style="background: var(--color\.primary)"></span><span class="seg" style="background: var(--color\.primary)"></span><span class="seg"></span></div>
+      <div style="display: flex; justify-content: space-between" class="cap"><span>Норма</span><span>Крайне высокий</span></div>
+    </div>
+    <div class="scale">
+      <div style="display: flex; align-items: center; gap: 10px"><span class="h3" style="flex-grow: 1">Депрессия</span><span class="cap">12 из 42</span><span class="badge" style="background: var(--color\.surfaceAlt); color: var(--color\.text)">Лёгкий</span></div>
+      <div class="segs"><span class="seg" style="background: var(--color\.accent)"></span><span class="seg" style="background: var(--color\.accent)"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      <div style="display: flex; justify-content: space-between" class="cap"><span>Норма</span><span>Крайне высокий</span></div>
+    </div>
+    <span class="cap">Уровни: норма · лёгкий · умеренный · высокий · крайне высокий.</span>
+  </div>
+
+  <div style="margin: 24px 20px 0; padding: 18px; border-radius: 22px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 class="h3">История</h2><span class="cap">5 тестов</span></div>
+    <svg width="336" height="176" viewBox="0 0 336 176" role="img" aria-label="График: стресс вырос с 18 до 28, тревога с 10 до 18, депрессия с 8 до 12 за два месяца">
+      <path d="M30 10 H320 M30 53.3 H320 M30 96.7 H320 M30 140 H320" fill="none" style="stroke: var(--color\.border)" stroke-width="1"></path>
+      <text x="0" y="14" style="fill: var(--color\.textMuted); font: 12px 'Golos Text', sans-serif">42</text>
+      <text x="0" y="144" style="fill: var(--color\.textMuted); font: 12px 'Golos Text', sans-serif">0</text>
+      <polyline points="30,84.3 102.5,71.9 175,59.5 247.5,47.1 320,53.3" fill="none" style="stroke: var(--color\.primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polyline points="30,109 102.5,102.9 175,96.7 247.5,90.5 320,84.3" fill="none" style="stroke: var(--color\.secondary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polyline points="30,115.2 102.5,109 175,96.7 247.5,102.9 320,102.9" fill="none" style="stroke: var(--color\.textMuted)" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"></polyline>
+      <circle cx="320" cy="53.3" r="5" style="fill: var(--color\.primary)"></circle>
+      <circle cx="320" cy="84.3" r="5" style="fill: var(--color\.secondary)"></circle>
+      <circle cx="320" cy="102.9" r="5" style="fill: var(--color\.textMuted)"></circle>
+      <text x="30" y="166" style="fill: var(--color\.textMuted); font: 12px 'Golos Text', sans-serif">30 июл</text>
+      <text x="152" y="166" style="fill: var(--color\.textMuted); font: 12px 'Golos Text', sans-serif">27 авг</text>
+      <text x="286" y="166" style="fill: var(--color\.textMuted); font: 12px 'Golos Text', sans-serif">24 сен</text>
+    </svg>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px">
+      <span style="display: flex; align-items: center; gap: 6px"><span style="width: 18px; height: 4px; border-radius: 2px; background: var(--color\.primary)"></span>Стресс</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span style="width: 18px; height: 4px; border-radius: 2px; background: var(--color\.secondary)"></span>Тревога</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span style="width: 18px; height: 0; border-top: 3px dashed var(--color\.textMuted)"></span>Депрессия</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 24px 20px 0">
+    <h2 class="h3">Что может помочь сейчас</h2>
+    <a class="rec" href="Technique.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="breath" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><b style="font: 800 17px Nunito, sans-serif">Дыхание 4-7-8</b><span class="cap">2 минуты · снижает тревогу</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Techniques.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="specialist" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><b style="font: 800 17px Nunito, sans-serif">Прогрессивная релаксация</b><span class="cap">10 минут · снимает зажимы в теле</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+    <a class="rec" href="Techniques.dc.html"><span class="ric"><x-import component-from-global-scope="Dobratimia.Icon" name="diary" size="30"></x-import></span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><b style="font: 800 17px Nunito, sans-serif">Дневник мыслей</b><span class="cap">5 минут · разобрать, что тревожит</span></span><x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import></a>
+  </div>
+
+  <div style="margin: 24px 20px 0; padding: 16px 18px; border-radius: 20px; background: var(--color\.surfaceAlt); display: flex; gap: 12px; align-items: center">
+    <span style="color: var(--color\.primary); display: flex"><x-import component-from-global-scope="Dobratimia.Icon" name="bell" size="26"></x-import></span>
+    <span style="font-size: 15px; line-height: 22px">Следующий тест — 8 октября. Мы напомним за день.</span>
+  </div>
+  <div style="padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 8px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="Home.dc.html">На главную</x-import>
+    <span class="cap" style="text-align: center">Результаты видны только вам</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":1640}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Анатомия стресса</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.org{fill:var(--logo\.apricot);stroke:var(--logo\.warm);stroke-width:2}
+.org.sel{fill:var(--color\.primary);stroke:var(--color\.primaryPressed)}
+.hot{position:absolute;width:48px;height:48px;border-radius:24px;border:none;background:none;cursor:pointer;padding:0}
+.hot.sel{box-shadow:0 0 0 2px var(--color\.primary)}
+.tag{position:absolute;padding:6px 12px;border-radius:999px;background:var(--color\.primary);color:var(--color\.onPrimary);font:700 14px "Golos Text",sans-serif}
+.li{display:flex;gap:10px;font-size:15px;line-height:22px}
+.li::before{content:"";width:6px;height:6px;border-radius:3px;background:var(--color\.primary);margin-top:8px;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr" onPointerDown="{{down}}" onPointerUp="{{up}}" style="touch-action: pan-y; user-select: none">
+  <a ref="{{reg}}" href="Techniques.dc.html" hidden aria-hidden="true" tabindex="-1"></a>
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; padding: 24px 20px 0">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 class="h1">Анатомия стресса</h1>
+      <span class="cap">Нажмите на орган, чтобы узнать, что с ним происходит</span>
+    </div>
+    <a href="Sos.dc.html" aria-label="SOS — экстренная помощь" style="width: 48px; height: 48px; border-radius: 24px; background: var(--color\.sos); color: var(--color\.onSos); display: flex; align-items: center; justify-content: center; font: 900 13px Nunito, sans-serif; text-decoration: none; flex-shrink: 0">SOS</a>
+  </div>
+  <div style="position: relative; height: 300px; margin-top: 8px; overflow: hidden">
+    <svg width="412" height="300" viewBox="20 18 372 300" aria-hidden="true">
+      <g style="fill: var(--color\.primarySoft)">
+        <circle cx="206" cy="50" r="32"></circle>
+        <rect x="196" y="76" width="20" height="18" rx="6"></rect>
+        <path d="M146 98 Q206 84 266 98 Q282 102 284 120 L290 252 Q290 274 270 278 L142 278 Q122 274 122 252 L128 120 Q130 102 146 98Z"></path>
+        <rect x="94" y="106" width="26" height="160" rx="13" transform="rotate(8 107 106)"></rect>
+        <rect x="292" y="106" width="26" height="160" rx="13" transform="rotate(-8 305 106)"></rect>
+        <rect x="148" y="270" width="48" height="80" rx="20"></rect>
+        <rect x="216" y="270" width="48" height="80" rx="20"></rect>
+      </g>
+      <path class="org" d="M184 52 Q180 32 198 28 Q206 20 216 28 Q232 28 230 46 Q234 60 218 62 L194 62 Q182 62 184 52Z"></path>
+      <path class="org" d="M170 122 Q186 112 196 126 L198 188 Q190 198 174 194 Q160 188 162 162 Q164 132 170 122Z"></path>
+      <path class="org" d="M242 122 Q226 112 216 126 L214 188 Q222 198 238 194 Q252 188 250 162 Q248 132 242 122Z"></path>
+      <path class="org sel" d="M214 204 L198 189 Q190 179 199 171 Q207 166 214 174 Q221 166 229 171 Q238 179 230 189Z"></path>
+      <path class="org" d="M216 212 Q236 208 242 224 Q246 244 226 250 Q210 254 206 242 Q216 238 216 228 Q210 220 216 212Z"></path>
+      <ellipse class="org" cx="180" cy="256" rx="9" ry="13"></ellipse>
+      <ellipse class="org" cx="232" cy="256" rx="9" ry="13"></ellipse>
+      <path d="M171 244 L180 232 L189 244Z" style="fill: var(--color\.accent); stroke: var(--logo\.warm); stroke-width: 2"></path>
+      <path d="M223 244 L232 232 L241 244Z" style="fill: var(--color\.accent); stroke: var(--logo\.warm); stroke-width: 2"></path>
+    </svg>
+    <button type="button" class="hot" aria-label="Мозг" style="left: 182px; top: 6px"></button>
+    <button type="button" class="hot" aria-label="Лёгкие" style="left: 136px; top: 116px"></button>
+    <button type="button" class="hot sel" aria-label="Сердце, выбрано" aria-pressed="true" style="left: 190px; top: 148px"></button>
+    <button type="button" class="hot" aria-label="Желудок" style="left: 212px; top: 200px"></button>
+    <button type="button" class="hot" aria-label="Надпочечники" style="left: 146px; top: 208px"></button>
+    <span class="tag" style="left: 252px; top: 156px">Сердце</span>
+  </div>
+  <div style="display: flex; gap: 8px; padding: 6px 20px 0; flex-wrap: wrap">
+    <x-import component-from-global-scope="Dobratimia.Chip">Мозг</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">Сердце</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Лёгкие</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Желудок</x-import>
+    <x-import component-from-global-scope="Dobratimia.Chip">Надпочечники</x-import>
+  </div>
+  <div style="margin: 12px 20px 0; padding: 18px 20px; border-radius: 24px; background: var(--color\.surface); box-shadow: var(--shadow\.md); display: flex; flex-direction: column; gap: 10px">
+    <h2 class="h2">Сердце</h2>
+    <span style="font-size: 15px; line-height: 22px"><b>Что происходит.</b> Надпочечники выбрасывают адреналин, сердце бьётся чаще, давление поднимается. Это нормальная реакция: тело готовится действовать.</span>
+    <b style="font-size: 15px">Как помочь себе</b>
+    <span class="li">Выдох длиннее вдоха — например, дыхание 4-7-8</span>
+    <span class="li">Пройтись или подняться по лестнице: дать энергии выход</span>
+    <a href="Technique.dc.html" style="font-weight: 600; font-size: 15px; min-height: 40px; display: flex; align-items: center; text-decoration: none">Открыть дыхание 4-7-8 →</a>
+  </div>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" default-current="{{i0}}" hrefs="{{lenta}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return Object.assign(this.baseVals(), this.swipeVals());
+}
+swipeVals() {
+const cfg = {next: 'Techniques.dc.html'};
+const go = (h) => { const a = this._links && h && this._links[h]; if (a) a.click(); };
+return {
+  lenta: ['Anatomy.dc.html', 'Techniques.dc.html', 'Home.dc.html', 'Match.dc.html', 'GoodWord.dc.html'],
+  reg: (el) => { if (!el) return; this._links = this._links || {}; this._links[el.getAttribute('href')] = el; },
+  down: (e) => { this._sx = e.clientX; this._sy = e.clientY; },
+  up: (e) => {
+    if (this._sx === undefined) return;
+    const dx = e.clientX - this._sx, dy = e.clientY - this._sy;
+    this._sx = undefined;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? cfg.next : cfg.prev);
+    else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) go(dy > 0 ? cfg.down : cfg.up);
+  }
+};
+}
+baseVals() {
+return { yes: true, i0: 0 };
+}
+}
+</script>
+</body>
+</html>

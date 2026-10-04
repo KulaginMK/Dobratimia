@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>КРИК — результат</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ovl{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.stat{flex:1;display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:16px;background:var(--color\.surface);box-shadow:var(--shadow\.sm)}
+.stat b{font:900 22px/28px Nunito,"Golos Text",sans-serif}
+.wave{display:flex;align-items:center;justify-content:space-between;height:56px}
+.bar{width:4px;border-radius:2px;background:var(--color\.primary)}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Закрыть"><x-import component-from-global-scope="Dobratimia.Icon" name="close" size="22"></x-import></a>
+    <h1 class="h3" style="flex-grow: 1">КРИК</h1>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 36px">
+    <span class="ovl" style="color: var(--color\.textMuted)">Ваш пик</span>
+    <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px">
+      <span style="font: 900 104px/1 Nunito, 'Golos Text', sans-serif; color: var(--color\.primary)">87</span>
+      <span style="font: 800 22px Nunito, 'Golos Text', sans-serif">усл. дБ</span>
+    </div>
+  </div>
+  <div style="margin: 24px 20px 0; padding: 22px 22px 20px; border-radius: 28px; background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft); display: flex; flex-direction: column; gap: 8px">
+    <span class="ovl">80–99 усл. дБ</span>
+    <h2 class="h2" style="color: var(--color\.onPrimarySoft)">Поздравляем, вы, вероятно, разбудили соседа по комнате</h2>
+    <span style="font-size: 15px; line-height: 22px">Если пар ещё остался — можно повторить. Соседу потом расскажете, что это была дыхательная практика.</span>
+  </div>
+  <div style="margin: 16px 20px 0; padding: 12px 16px; border-radius: 18px; background: var(--color\.surface); box-shadow: var(--shadow\.sm)">
+    <div class="wave" aria-label="Запись громкости за 6 секунд">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="48">
+        <span class="bar" style="height: {{b}}"></span>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; padding: 16px 20px 0">
+    <div class="stat"><span class="cap">Длительность</span><b>6 с</b></div>
+    <div class="stat"><span class="cap">В среднем</span><b>71</b></div>
+    <div class="stat"><span class="cap">Рекорд недели</span><b>94</b></div>
+  </div>
+  <div style="margin-top: auto; padding: 0 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" icon="scream" href="Scream.dc.html">Крикнуть ещё раз</x-import>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" full-width="{{yes}}" href="Home.dc.html">Отметить, как вы теперь</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+const hs = [6, 10, 14, 20, 18, 26, 32, 30, 38, 44, 40, 48, 52, 50, 56, 54, 50, 46, 52, 56, 48, 42, 46, 40, 36, 42, 38, 30, 34, 28, 24, 30, 26, 20, 22, 18, 14, 18, 12, 10, 12, 8, 10, 8, 6, 8, 6, 6];
+return { yes: true, bars: hs.map((h) => h + 'px') };
+}
+}
+</script>
+</body>
+</html>

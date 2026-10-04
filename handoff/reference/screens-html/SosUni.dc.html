@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>SOS — помощь в моём вузе</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.ct{display:flex;align-items:center;gap:12px;min-height:64px}
+.call{width:48px;height:48px;border-radius:24px;background:var(--color\.primary);color:var(--color\.onPrimary);display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none}
+.av{width:44px;height:44px;border-radius:22px;background:var(--color\.surfaceAlt);display:flex;align-items:center;justify-content:center;font:800 15px Nunito,sans-serif;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Sos.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <span class="h3" style="flex-grow: 1">SOS</span>
+  </div>
+  <div style="margin: 8px 20px 0; padding: 12px 12px 12px 18px; border-radius: 22px; background: var(--color\.sosSoft); color: var(--color\.onSosSoft); display: flex; align-items: center; gap: 12px">
+    <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font: 900 24px Nunito, sans-serif">133</b><span style="font-size: 14px">Экстренная психологическая помощь</span></div>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="sos" icon="phone" href="tel:133">Позвонить</x-import>
+  </div>
+  <div style="padding: 24px 20px 0; display: flex; align-items: center; justify-content: space-between">
+    <h2 class="h2">Помощь в моём вузе</h2>
+  </div>
+  <div style="padding: 10px 20px 0; display: flex; align-items: center; gap: 10px">
+    <x-import component-from-global-scope="Dobratimia.Chip" default-selected="{{yes}}">ВГМУ · Витебск</x-import>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="text">Сменить вуз</x-import>
+  </div>
+  <div style="margin: 12px 20px 0; padding: 18px; border-radius: 24px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; flex-direction: column; gap: 10px">
+    <h3 class="h3">Психологическая служба ВГМУ</h3>
+    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 15px; line-height: 22px">
+      <span>Учебный корпус № 1, кабинет 214</span>
+      <span class="cap">Пн–Пт 9:00–17:00</span>
+    </div>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" full-width="{{yes}}" icon="phone" href="tel:+375212000000">Позвонить в службу</x-import>
+  </div>
+  <div style="padding: 20px 20px 0; display: flex; flex-direction: column">
+    <h3 class="h3" style="padding-bottom: 4px">Специалисты службы</h3>
+    <div class="ct" style="border-bottom: 1px solid var(--color\.border)">
+      <span class="av">НБ</span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Наталья Бусько</b><span class="cap">Психолог · очно</span></div>
+      <a class="call" href="tel:+375212000001" aria-label="Позвонить Наталье Бусько"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="22"></x-import></a>
+    </div>
+    <div class="ct">
+      <span class="av">СР</span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column"><b style="font-size: 16px">Сергей Ровба</b><span class="cap">Психолог · очно и онлайн</span></div>
+      <a class="call" href="tel:+375212000002" aria-label="Позвонить Сергею Ровбе"><x-import component-from-global-scope="Dobratimia.Icon" name="phone" size="22"></x-import></a>
+    </div>
+  </div>
+  <div class="cap" style="margin-top: auto; padding: 0 24px 28px; text-align: center">Контакты проверяет администратор. Обновлено 1 сентября 2026.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>

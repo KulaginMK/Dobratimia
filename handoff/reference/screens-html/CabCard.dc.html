@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Кабинет специалиста — моя карточка</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h2{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:22px;line-height:28px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.ovl{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.ind{margin-top:auto;border-top:1px solid var(--color\.border);padding:0 6px}
+.spec{border-radius:28px;background:var(--color\.surface);box-shadow:var(--shadow\.md);overflow:hidden}
+.photo{height:170px;background:var(--color\.primarySoft);display:flex;align-items:flex-end;justify-content:center}
+.tagc{padding:5px 12px;border-radius:999px;background:var(--color\.surfaceAlt);font-size:14px;line-height:20px;font-weight:500}
+</style>
+</helmet>
+<div class="scr">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 24px 20px 0">
+    <div style="display: flex; flex-direction: column; gap: 2px"><span class="ovl" style="color: var(--color\.textMuted)">Кабинет специалиста</span><h1 class="h1">Моя карточка</h1></div>
+    <x-import component-from-global-scope="Dobratimia.Button" variant="outline" href="CabEdit.dc.html">Редактировать</x-import>
+  </div>
+  <div style="margin: 14px 20px 0; padding: 10px 14px; border-radius: 16px; background: var(--color\.growthSoft); display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 20px">
+    <span style="color: var(--color\.success); display: flex"><x-import component-from-global-scope="Dobratimia.Icon" name="check" size="18"></x-import></span>
+    Опубликована и проверена администратором
+  </div>
+  <div class="cap" style="padding: 14px 24px 8px">Так вашу карточку видят студенты:</div>
+  <div style="padding: 0 20px">
+    <article class="spec">
+      <div class="photo" role="img" aria-label="Ваше фото">
+        <svg width="180" height="160" viewBox="0 0 200 180" aria-hidden="true"><circle cx="100" cy="66" r="42" style="fill: var(--logo\.warm)"></circle><path d="M24 180 Q24 118 100 118 Q176 118 176 180Z" style="fill: var(--logo\.warm)"></path></svg>
+      </div>
+      <div style="padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; flex-direction: column; gap: 2px"><h2 class="h2">Ольга Мирошник</h2><span class="cap">Психолог · опыт 8 лет</span></div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap"><span class="tagc">Тревога</span><span class="tagc">Выгорание</span><span class="tagc">Сон</span><span class="tagc">Перфекционизм</span></div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px">«Тревога перед экзаменом — не слабость. Давайте спокойно разберёмся, что за ней стоит».</p>
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--color\.textMuted); font-size: 14px"><x-import component-from-global-scope="Dobratimia.Icon" name="message" size="20"></x-import>Онлайн и очно · Витебск</div>
+      </div>
+    </article>
+  </div>
+  <a href="CabStats.dc.html" style="margin: 14px 20px 0; padding: 14px 16px; border-radius: 20px; background: var(--color\.surface); box-shadow: var(--shadow\.sm); display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--color\.text)">
+    <span style="width: 48px; height: 48px; border-radius: 14px; background: var(--color\.primarySoft); color: var(--color\.onPrimarySoft); display: flex; align-items: center; justify-content: center"><x-import component-from-global-scope="Dobratimia.Icon" name="heart" size="26"></x-import></span>
+    <span style="flex-grow: 1; display: flex; flex-direction: column"><b style="font: 900 22px Nunito, sans-serif">37 откликов</b><span class="cap">+5 за эту неделю</span></span>
+    <x-import component-from-global-scope="Dobratimia.Icon" name="chevronRight" size="20"></x-import>
+  </a>
+  <div class="ind"><x-import component-from-global-scope="Dobratimia.ScreenIndicator" screens="{{tabs}}" default-current="{{i0}}"></x-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { i0: 0, tabs: ['Моя карточка', 'Статистика'] };
+}
+}
+</script>
+</body>
+</html>

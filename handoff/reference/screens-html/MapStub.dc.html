@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Карта бережных мест</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dobratimia/tokens.css">
+<link rel="stylesheet" href="ds/dobratimia/components/bundle.css">
+<script src="ds/dobratimia/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--color\.primary)}a:hover{color:var(--color\.primaryPressed)}
+.scr{width:412px;height:915px;box-sizing:border-box;background:var(--color\.background);color:var(--color\.text);font-family:"Golos Text",system-ui,sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.h1{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:28px;line-height:36px;font-weight:900}
+.h3{margin:0;font-family:Nunito,"Golos Text",sans-serif;font-size:18px;line-height:24px;font-weight:800}
+.cap{font-size:14px;line-height:20px;color:var(--color\.textMuted)}
+.top{display:flex;align-items:center;gap:4px;padding:24px 12px 0 4px;height:56px}
+.ibtn{width:48px;height:48px;border:none;background:none;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--color\.text);cursor:pointer;padding:0;flex-shrink:0}
+.sos{height:48px;padding:0 16px;border:none;border-radius:24px;background:var(--color\.sos);color:var(--color\.onSos);font:700 15px "Golos Text",sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;flex-shrink:0}
+.kind{display:flex;align-items:center;gap:10px;font-size:15px}
+.kd{width:12px;height:12px;border-radius:6px;flex-shrink:0}
+</style>
+</helmet>
+<div class="scr">
+  <div class="top">
+    <a class="ibtn" href="Home.dc.html" aria-label="Назад"><x-import component-from-global-scope="Dobratimia.Icon" name="chevronLeft" size="26"></x-import></a>
+    <span class="h3" style="flex-grow: 1">Карта</span>
+    <a class="sos" href="Sos.dc.html"><x-import component-from-global-scope="Dobratimia.Icon" name="sos" size="20"></x-import>SOS</a>
+  </div>
+  <div style="margin: 14px 20px 0; height: 300px; border-radius: 28px; overflow: hidden; background: var(--color\.growthSoft)" role="img" aria-label="Иллюстрация карты с отмеченными местами">
+    <svg width="372" height="300" viewBox="0 0 372 300" aria-hidden="true">
+      <path d="M-10 210 Q120 170 200 200 T390 160" fill="none" stroke-width="22" stroke-linecap="round" style="stroke: var(--color\.surface)"></path>
+      <path d="M120 -10 Q140 120 110 310" fill="none" stroke-width="16" stroke-linecap="round" style="stroke: var(--color\.surface)"></path>
+      <path d="M250 -10 Q230 90 290 310" fill="none" stroke-width="14" stroke-linecap="round" style="stroke: var(--color\.surface)"></path>
+      <circle cx="320" cy="60" r="44" style="fill: var(--logo\.leaf)" opacity=".45"></circle>
+      <circle cx="54" cy="70" r="30" style="fill: var(--logo\.leaf)" opacity=".45"></circle>
+      <path d="M180 64 C172 64 167 70 167 77 C167 86 180 99 180 99 C180 99 193 86 193 77 C193 70 188 64 180 64Z" style="fill: var(--color\.primary)"></path>
+      <circle cx="180" cy="77" r="5" style="fill: var(--color\.onPrimary)"></circle>
+      <path d="M70 136 C62 136 57 142 57 149 C57 158 70 171 70 171 C70 171 83 158 83 149 C83 142 78 136 70 136Z" style="fill: var(--color\.accent)"></path>
+      <circle cx="70" cy="149" r="5" style="fill: var(--color\.onAccent)"></circle>
+      <path d="M300 186 C292 186 287 192 287 199 C287 208 300 221 300 221 C300 221 313 208 313 199 C313 192 308 186 300 186Z" style="fill: var(--color\.growth)"></path>
+      <circle cx="300" cy="199" r="5" style="fill: var(--color\.surface)"></circle>
+      <path d="M200 236 C192 236 187 242 187 249 C187 258 200 271 200 271 C200 271 213 258 213 249 C213 242 208 236 200 236Z" style="fill: var(--color\.primary)"></path>
+      <circle cx="200" cy="249" r="5" style="fill: var(--color\.onPrimary)"></circle>
+    </svg>
+  </div>
+  <div style="padding: 22px 24px 0; display: flex; flex-direction: column; gap: 8px">
+    <h1 class="h1">Карта бережных мест</h1>
+    <p style="margin: 0; font-size: 16px; line-height: 24px; color: var(--color\.textMuted)">Тихие кафе, парки и уголки, где можно побыть одному или выдохнуть между парами. Мы собираем их вместе со студентами.</p>
+  </div>
+  <div style="padding: 16px 24px 0; display: flex; flex-direction: column; gap: 8px">
+    <span class="kind"><span class="kd" style="background: var(--color\.primary)"></span>Тихие кафе и коворкинги</span>
+    <span class="kind"><span class="kd" style="background: var(--color\.growth)"></span>Парки и скверы</span>
+    <span class="kind"><span class="kd" style="background: var(--color\.accent)"></span>Психологические службы вузов</span>
+  </div>
+  <div style="margin-top: auto; padding: 0 20px 28px; display: flex; flex-direction: column; gap: 8px">
+    <x-import component-from-global-scope="Dobratimia.Button" variant="primary" size="lg" full-width="{{yes}}" icon="map">Открыть карту в Google Maps</x-import>
+    <span class="cap" style="text-align: center">Откроется приложение Google Maps. Карта внутри Добратимии появится в следующих версиях.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+renderVals() {
+return { yes: true };
+}
+}
+</script>
+</body>
+</html>
