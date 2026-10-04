@@ -53,7 +53,11 @@ export function useLoudnessMeter(): LoudnessMeter {
         return Math.sqrt(squares / count);
       },
       stop: () => {
-        stream.stop();
+        try {
+          stream.stop();
+        } catch {
+          // Экран уже закрыт: expo-audio сам освободил поток и выключил микрофон, повторная остановка — ошибка.
+        }
         heard.current = { squares: 0, count: 0 };
       },
       // Из настроек человек возвращается в приложение — в этот момент и проверяем, появился ли доступ.
