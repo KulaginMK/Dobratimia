@@ -26,7 +26,7 @@ export const SCALE_LEVEL_LABEL: Record<ScaleLevel, string> = {
 
 /**
  * Цвета уровня. В макете есть только «Лёгкий» (accent) и «Высокий» (primary);
- * «Норма», «Умеренный» и «Крайне высокий» — предложение, ждёт решения владельца.
+ * «Норма» (growth), «Умеренный» (accent) и «Крайне высокий» (primary) утверждены владельцем.
  * color.sos здесь не используется: он только для SOS.
  */
 function levelColors(t: Theme, level: ScaleLevel) {

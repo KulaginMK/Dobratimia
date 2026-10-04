@@ -102,6 +102,7 @@ export function SpecialistCard({
       </View>
       <View style={{ paddingTop: BODY_PAD_TOP, paddingHorizontal: BODY_PAD, paddingBottom: BODY_PAD, gap: BODY_GAP }}>
         <View style={{ gap: NAME_GAP }}>
+          {/* Имя — h2 (22/28), как на скриншоте-эталоне; в docs/04 указан h3. Решение владельца. */}
           <Text accessibilityRole="header" style={[t.type.h2, { color: t.color.text }]}>
             {name}
           </Text>
