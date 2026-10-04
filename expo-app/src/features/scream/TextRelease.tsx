@@ -31,6 +31,9 @@ import {
 
 // За какую долю своего исчезновения полоски шредера расходятся в стороны.
 const CUT_SHARE = 0.15;
+// Исчезающий текст — жирный. Жирное начертание Golos Text шире обычного примерно на 0,18 точки на букву;
+// на столько же сжимаем расстояние между буквами, чтобы слова остались на своих местах и строки не поехали.
+const BOLD_TRACKING = -0.18;
 // Запас ширины, чтобы слово внутри кусочка не перенеслось на вторую строку из-за округления.
 // (numberOfLines тут не годится: в вебе он обрезает слово по ширине окошка и ставит многоточие.)
 const WIDTH_SLACK = 100;
@@ -46,7 +49,7 @@ type Props = {
 
 /**
  * Текст, который исчезает после «Отпустить». Лежит поверх поля ввода, ровно на месте его текста:
- * сначала весь текст увеличивается, затем слова по очереди распадаются на кусочки.
+ * сначала весь текст становится жирным и увеличивается, затем слова по очереди распадаются на кусочки.
  */
 export function TextRelease({ text, effect, scrollTop, onDone }: Props) {
   const t = useTheme();
@@ -56,6 +59,7 @@ export function TextRelease({ text, effect, scrollTop, onDone }: Props) {
   const clock = useSharedValue(0);
   // Те же шрифт и высота строки, что у текста в поле: строки ложатся так же.
   const textStyle: TextStyle = { ...t.type.body, color: t.color.text };
+  const boldStyle: TextStyle = { ...textStyle, fontFamily: t.fontFamily.text[700], letterSpacing: BOLD_TRACKING };
   const lineHeight = t.type.body.lineHeight;
 
   // Телефон: система сама сообщает, как текст разбился на строки.
@@ -129,7 +133,7 @@ export function TextRelease({ text, effect, scrollTop, onDone }: Props) {
               style={{ position: 'absolute', left: 0, top: line.top - scrollTop, height: lineHeight, flexDirection: 'row' }}
             >
               {line.units.map((unit) => (
-                <UnitView key={unit.key} unit={unit} wordMs={plan.wordMs} clock={clock} textStyle={textStyle} />
+                <UnitView key={unit.key} unit={unit} wordMs={plan.wordMs} clock={clock} textStyle={boldStyle} />
               ))}
             </View>
           ))}
