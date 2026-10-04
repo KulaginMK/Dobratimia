@@ -9,6 +9,7 @@ export * from './RadioCard';
 export * from './ScreenIndicator';
 export * from './SegmentedControl';
 export * from './Skeleton';
+export * from './Slider';
 export * from './Switch';
 export * from './TextField';
 export * from './Toast';

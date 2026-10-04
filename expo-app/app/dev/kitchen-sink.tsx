@@ -27,6 +27,8 @@ import {
   SosRound,
   SpecialistCard,
   Ticker,
+  TimerRing,
+  TomatoDots,
   type MoodLevel,
   type ScaleLevel,
 } from '@/components/blocks';
@@ -44,6 +46,7 @@ import {
   ScreenIndicator,
   SegmentedControl,
   Skeleton,
+  Slider,
   Switch,
   TextField,
   ToastView,
@@ -151,6 +154,7 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
   const [notify, setNotify] = useState(true);
   const [radio, setRadio] = useState(0);
   const [organ, setOrgan] = useState<OrganId>('heart');
+  const [volume, setVolume] = useState(60);
   const soft = cardColors(t, 'soft');
   const sos = cardColors(t, 'sos');
 
@@ -364,6 +368,16 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
         />
         <NumberedStep number={1}>Сядьте удобно, плечи опустите. Кончик языка — за верхними зубами.</NumberedStep>
         <BulletItem>Выдох длиннее вдоха — например, дыхание 4-7-8</BulletItem>
+      </Section>
+
+      <Section title="Slider · TimerRing · TomatoDots">
+        <View style={{ flexDirection: 'row' }}>
+          <Slider value={volume} onChange={setVolume} accessibilityLabel="Громкость звука" />
+        </View>
+        <View style={{ alignItems: 'center', gap: t.space.md }}>
+          <TimerRing remaining={0.64} time="16:05" caption="до перерыва" accessibilityLabel="Осталось 16 минут 5 секунд" />
+          <TomatoDots total={4} done={1} label="Помидор 2 из 4" />
+        </View>
       </Section>
 
       <Section title="AnatomyFigure">

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
-import { View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,10 +35,15 @@ export function SlideFromTopScreen({ hint, hintAccessibilityLabel, feedIndex, ch
     [router],
   );
   const leave = useCallback(() => toFeed(feedIndex), [toFeed, feedIndex]);
-  const { style, gesture, close } = useSlideFromTop(true, leave);
+  const { style, makeGesture, close } = useSlideFromTop(true, leave);
+
+  // Содержимое, которое не помещается на экран, прокручивается; тогда свайп вверх закрывает только с шапки.
+  const [viewport, setViewport] = useState(0);
+  const [content, setContent] = useState(0);
+  const scrollable = content > viewport + 1;
   return (
-    <GestureDetector gesture={gesture}>
-      <Animated.View style={[{ flex: 1, backgroundColor: t.color.background }, style]}>
+    <Animated.View style={[{ flex: 1, backgroundColor: t.color.background }, style]}>
+      <GestureDetector gesture={makeGesture(true)}>
         <View
           style={{
             flexDirection: 'row',
@@ -59,14 +64,22 @@ export function SlideFromTopScreen({ hint, hintAccessibilityLabel, feedIndex, ch
           </View>
           <SosRound onPress={() => router.push('/sos')} />
         </View>
-        <View style={{ flex: 1 }}>{children}</View>
-        <View style={{ paddingBottom: insets.bottom }}>
-          <ScreenIndicator
-            current={feedIndex}
-            onSelect={(i) => close(() => toFeed(i))}
-          />
-        </View>
-      </Animated.View>
-    </GestureDetector>
+      </GestureDetector>
+      <GestureDetector gesture={makeGesture(!scrollable)}>
+        <ScrollView
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: t.space.xl }}
+          onLayout={(e) => setViewport(e.nativeEvent.layout.height)}
+          onContentSizeChange={(_, height) => setContent(height)}
+        >
+          {children}
+        </ScrollView>
+      </GestureDetector>
+      <View style={{ paddingBottom: insets.bottom }}>
+        <ScreenIndicator current={feedIndex} onSelect={(i) => close(() => toFeed(i))} />
+      </View>
+    </Animated.View>
   );
 }

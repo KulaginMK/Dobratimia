@@ -75,21 +75,25 @@ export function useSlideFromTop(enabled: boolean, leave: () => void) {
     }, [enabled, close]),
   );
 
-  // Свайп вверх. Когда на экране появится длинный список, жест останется только на подсказке сверху.
-  const gesture = Gesture.Pan()
-    .enabled(enabled)
-    .activeOffsetY(-AXIS_LOCK)
-    .failOffsetX([-AXIS_LOCK, AXIS_LOCK])
-    .onUpdate((e) => {
-      if (!reduced) drag.set(Math.min(0, e.translationY));
-    })
-    .onEnd((e) => {
-      if (e.translationY < -SWIPE_DISTANCE || e.velocityY < -SWIPE_VELOCITY) {
-        scheduleOnRN(close);
-      } else {
-        drag.set(withTiming(0, { duration: t.motion.press, easing: Easing.out(Easing.cubic) }));
-      }
-    });
+  /**
+   * Свайп вверх закрывает экран. Жест вешается на шапку всегда, а на содержимое — только пока оно
+   * не прокручивается: иначе свайп вверх по длинному списку — это прокрутка.
+   */
+  const makeGesture = (active: boolean) =>
+    Gesture.Pan()
+      .enabled(enabled && active)
+      .activeOffsetY(-AXIS_LOCK)
+      .failOffsetX([-AXIS_LOCK, AXIS_LOCK])
+      .onUpdate((e) => {
+        if (!reduced) drag.set(Math.min(0, e.translationY));
+      })
+      .onEnd((e) => {
+        if (e.translationY < -SWIPE_DISTANCE || e.velocityY < -SWIPE_VELOCITY) {
+          scheduleOnRN(close);
+        } else {
+          drag.set(withTiming(0, { duration: t.motion.press, easing: Easing.out(Easing.cubic) }));
+        }
+      });
 
   const style = useAnimatedStyle(() =>
     reduced
@@ -97,5 +101,5 @@ export function useSlideFromTop(enabled: boolean, leave: () => void) {
       : { opacity: 1, transform: [{ translateY: (shown.get() - 1) * height + drag.get() }] },
   );
 
-  return { style, gesture, close };
+  return { style, makeGesture, close };
 }

@@ -1,4 +1,5 @@
 export * from './AnatomyFigure';
+export * from './BreathCircle';
 export * from './ContactRow';
 export * from './Emergency';
 export * from './FeedHeader';
@@ -17,3 +18,4 @@ export * from './SosRound';
 export * from './SpecialistCard';
 export * from './TechniqueParts';
 export * from './Ticker';
+export * from './TimerRing';
