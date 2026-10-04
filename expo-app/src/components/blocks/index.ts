@@ -1,5 +1,7 @@
 export * from './ContactRow';
+export * from './Emergency';
 export * from './FeedHeader';
+export * from './LinkRow';
 export * from './MoodPicker';
 export * from './PullHint';
 export * from './ScaleBar';

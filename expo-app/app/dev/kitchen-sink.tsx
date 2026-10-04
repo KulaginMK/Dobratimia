@@ -6,6 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   ContactRow,
+  EmergencyCard,
+  EmergencyStrip,
+  LinkRow,
   MoodPicker,
   PullHint,
   ScaleBar,
@@ -25,6 +28,7 @@ import {
   ChipBadge,
   EmptyState,
   ProgressBar,
+  RadioCard,
   ScreenIndicator,
   SegmentedControl,
   Skeleton,
@@ -34,6 +38,7 @@ import {
   cardColors,
   useToast,
 } from '@/components/ui';
+import { PSYCH_HELPLINE } from '@/data/emergency';
 import { demoSpecialist, demoUniversityService } from '@/data/mocks/demo';
 import { ThemeProvider, useTheme, useThemePreference, type ThemePreference } from '@/theme';
 
@@ -131,6 +136,7 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
   const [mood, setMood] = useState<MoodLevel | null>(4);
   const [sheet, setSheet] = useState<'short' | 'long' | null>(null);
   const [notify, setNotify] = useState(true);
+  const [radio, setRadio] = useState(0);
   const soft = cardColors(t, 'soft');
   const sos = cardColors(t, 'sos');
 
@@ -314,6 +320,34 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
             initials={demoSpecialist.initials}
             avatarTone="primary"
             callLabel={`Позвонить ${demoSpecialist.nameDative}`}
+          />
+        </View>
+      </Section>
+
+      <Section title="EmergencyCard · EmergencyStrip · LinkRow">
+        <EmergencyCard label="Экстренная психологическая помощь" number={PSYCH_HELPLINE} onCall={() => {}} />
+        <EmergencyStrip label="Экстренная психологическая помощь" number={PSYCH_HELPLINE} onCall={() => {}} />
+        <LinkRow
+          icon="specialist"
+          title="Выберите свой вуз"
+          caption="Покажем психологическую службу и её специалистов"
+          onPress={() => {}}
+        />
+      </Section>
+
+      <Section title="RadioCard">
+        <View accessibilityRole="radiogroup" accessibilityLabel="Вуз" style={{ gap: t.space.sm }}>
+          <RadioCard
+            title="ВГМУ"
+            description="Витебский государственный медицинский университет"
+            selected={radio === 0}
+            onPress={() => setRadio(0)}
+          />
+          <RadioCard
+            title="Другой вуз"
+            description="Укажу позже или выберу общий список служб"
+            selected={radio === 1}
+            onPress={() => setRadio(1)}
           />
         </View>
       </Section>

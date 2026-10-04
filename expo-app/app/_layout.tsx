@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ToastProvider } from '@/components/ui';
+import { SelectedUniversityProvider } from '@/features/university/SelectedUniversity';
 import { ThemePreferenceProvider, appFonts, useTheme, useThemePreference } from '@/theme';
 
 // Основание стека — лента: «Назад» с экрана, открытого по ссылке (SOS, медитации), ведёт на неё.
@@ -19,7 +20,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemePreferenceProvider>
-        <RootStack />
+        <SelectedUniversityProvider>
+          <RootStack />
+        </SelectedUniversityProvider>
       </ThemePreferenceProvider>
     </GestureHandlerRootView>
   );

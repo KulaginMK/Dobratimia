@@ -29,6 +29,8 @@ type Props = {
   name: string;
   /** Роль и формат: «Психолог · онлайн и очно, Витебск». */
   caption?: string;
+  /** Третья строка, например номер телефона в вебе: с компьютера звонок может не открыться. */
+  note?: string;
   /** Инициалы в аватаре: «ОМ». */
   initials?: string;
   /** Иконка вместо инициалов: sos у службы вуза. */
@@ -42,7 +44,7 @@ type Props = {
 };
 
 /** Строка контакта: аватар-инициалы, имя, подпись и звонок в одно касание. */
-export function ContactRow({ name, caption, initials, avatarIcon, avatarTone = 'neutral', callLabel, onCall, divider }: Props) {
+export function ContactRow({ name, caption, note, initials, avatarIcon, avatarTone = 'neutral', callLabel, onCall, divider }: Props) {
   const t = useTheme();
   const avatar = avatarColors(t, avatarTone);
   return (
@@ -81,6 +83,7 @@ export function ContactRow({ name, caption, initials, avatarIcon, avatarTone = '
       <View style={{ flex: 1 }}>
         <Text style={[t.type.bodyStrong, { color: t.color.text }]}>{name}</Text>
         {caption ? <Text style={[t.type.caption, { color: t.color.textMuted }]}>{caption}</Text> : null}
+        {note ? <Text style={[t.type.caption, { color: t.color.textMuted }]}>{note}</Text> : null}
       </View>
       <Pressable
         onPress={onCall}

@@ -5,6 +5,7 @@ export * from './Chip';
 export * from './EmptyState';
 export * from './IconButton';
 export * from './ProgressBar';
+export * from './RadioCard';
 export * from './ScreenIndicator';
 export * from './SegmentedControl';
 export * from './Skeleton';
