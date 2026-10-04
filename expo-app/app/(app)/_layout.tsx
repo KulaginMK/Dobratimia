@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { GUEST_USER_ID } from '@/data/local/session';
 import { DassHistoryProvider } from '@/features/dass/DassHistory';
 import { MoodDiaryProvider } from '@/features/mood/MoodDiary';
+import { SpecialistsProvider } from '@/features/specialists/Specialists';
 import { useTheme } from '@/theme';
 
 // Лента всегда лежит в основании стека: «Назад» с экрана, открытого по ссылке, ведёт на неё.
@@ -13,19 +14,21 @@ export default function AppLayout() {
   return (
     <MoodDiaryProvider userId={GUEST_USER_ID}>
       <DassHistoryProvider userId={GUEST_USER_ID}>
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }}>
-          {/* Лента объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
-          <Stack.Screen name="index" />
-          {/* Избранные выезжают сверху над лентой: прозрачное окно без системной анимации (docs/06). */}
-          <Stack.Screen
-            name="favorites"
-            options={{
-              presentation: 'transparentModal',
-              animation: 'none',
-              contentStyle: { backgroundColor: 'transparent' },
-            }}
-          />
-        </Stack>
+        <SpecialistsProvider userId={GUEST_USER_ID}>
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }}>
+            {/* Лента объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
+            <Stack.Screen name="index" />
+            {/* Избранные выезжают сверху над лентой: прозрачное окно без системной анимации (docs/06). */}
+            <Stack.Screen
+              name="favorites"
+              options={{
+                presentation: 'transparentModal',
+                animation: 'none',
+                contentStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+          </Stack>
+        </SpecialistsProvider>
       </DassHistoryProvider>
     </MoodDiaryProvider>
   );

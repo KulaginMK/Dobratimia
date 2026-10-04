@@ -38,26 +38,31 @@ type Props = {
   avatarTone?: AvatarTone;
   /** Подпись кнопки звонка для скринридера, имя в дательном падеже: «Позвонить Ольге Мирошник». */
   callLabel: string;
+  /** Звонок. Если телефона нет, кнопки звонка в строке нет. */
   onCall?: () => void;
+  /** Нажатие на саму строку: открыть профиль специалиста. */
+  onPress?: () => void;
   /** Разделитель снизу — между строками списка. */
   divider?: boolean;
 };
 
 /** Строка контакта: аватар-инициалы, имя, подпись и звонок в одно касание. */
-export function ContactRow({ name, caption, note, initials, avatarIcon, avatarTone = 'neutral', callLabel, onCall, divider }: Props) {
+export function ContactRow({
+  name,
+  caption,
+  note,
+  initials,
+  avatarIcon,
+  avatarTone = 'neutral',
+  callLabel,
+  onCall,
+  onPress,
+  divider,
+}: Props) {
   const t = useTheme();
   const avatar = avatarColors(t, avatarTone);
-  return (
-    <View
-      style={{
-        minHeight: ROW_MIN_HEIGHT,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: ROW_GAP,
-        borderBottomWidth: divider ? 1 : 0,
-        borderBottomColor: t.color.border,
-      }}
-    >
+  const who = (
+    <>
       <View
         style={{
           width: t.size.avatar,
@@ -85,25 +90,52 @@ export function ContactRow({ name, caption, note, initials, avatarIcon, avatarTo
         {caption ? <Text style={[t.type.caption, { color: t.color.textMuted }]}>{caption}</Text> : null}
         {note ? <Text style={[t.type.caption, { color: t.color.textMuted }]}>{note}</Text> : null}
       </View>
-      <Pressable
-        onPress={onCall}
-        accessibilityRole="button"
-        accessibilityLabel={callLabel}
-        style={(state) => [
-          {
-            width: t.size.touch,
-            height: t.size.touch,
-            borderRadius: t.radius.full,
-            backgroundColor: state.pressed ? t.color.primaryPressed : t.color.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          },
-          focusRing(t, isFocused(state)),
-        ]}
-      >
-        <Icon name="phone" size={CALL_ICON} color={t.color.onPrimary} />
-      </Pressable>
+    </>
+  );
+  const whoStyle = { flex: 1, minHeight: ROW_MIN_HEIGHT, flexDirection: 'row', alignItems: 'center', gap: ROW_GAP } as const;
+  return (
+    <View
+      style={{
+        minHeight: ROW_MIN_HEIGHT,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: ROW_GAP,
+        borderBottomWidth: divider ? 1 : 0,
+        borderBottomColor: t.color.border,
+      }}
+    >
+      {onPress ? (
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          style={(state) => [whoStyle, { borderRadius: t.radius.md }, focusRing(t, isFocused(state))]}
+        >
+          {who}
+        </Pressable>
+      ) : (
+        <View style={whoStyle}>{who}</View>
+      )}
+      {onCall ? (
+        <Pressable
+          onPress={onCall}
+          accessibilityRole="button"
+          accessibilityLabel={callLabel}
+          style={(state) => [
+            {
+              width: t.size.touch,
+              height: t.size.touch,
+              borderRadius: t.radius.full,
+              backgroundColor: state.pressed ? t.color.primaryPressed : t.color.primary,
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            },
+            focusRing(t, isFocused(state)),
+          ]}
+        >
+          <Icon name="phone" size={CALL_ICON} color={t.color.onPrimary} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }

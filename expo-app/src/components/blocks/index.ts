@@ -19,6 +19,7 @@ export * from './ScreamParts';
 export * from './ScreenHeader';
 export * from './SosRound';
 export * from './SpecialistCard';
+export * from './SpecialistParts';
 export * from './TechniqueParts';
 export * from './Ticker';
 export * from './TimerRing';

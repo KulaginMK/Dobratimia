@@ -9,11 +9,14 @@ import {
   AnatomyFigure,
   AnswerOption,
   BulletItem,
+  ContactAction,
   ContactRow,
   EmergencyCard,
   EmergencyStrip,
   HistoryChart,
+  InfoNote,
   LevelBar,
+  LikeStamp,
   LinkRow,
   ListItemCard,
   LoudnessWave,
@@ -26,6 +29,7 @@ import {
   NextTestNote,
   NumberedStep,
   PeakNumber,
+  PhraseCard,
   PhaseTiles,
   PrivacyNote,
   PullHint,
@@ -35,11 +39,14 @@ import {
   ScaleBar,
   ScreamButton,
   ScreenHeader,
+  SectionLetter,
   SosAction,
   SosRound,
   SpecialistCard,
+  SpecialistPhoto,
   StatTile,
   StopButton,
+  SuccessBanner,
   Ticker,
   TimerRing,
   TomatoDots,
@@ -455,7 +462,50 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
         />
       </Section>
 
-      <Section title="ContactRow">
+      <Section title="Подбор и профиль: LikeStamp · SuccessBanner · SpecialistPhoto · ContactAction · InfoNote">
+        <SpecialistCard
+          name={demoSpecialist.name}
+          subtitle={demoSpecialist.subtitle}
+          specializations={demoSpecialist.specializations}
+          tone="neutral"
+          photoOverlay={<LikeStamp />}
+        />
+        <SuccessBanner lead="Контакты открыты." text="Ольга добавлена в избранные." />
+        <SpecialistPhoto name={demoSpecialist.name} tone="growth" />
+        <Card>
+          <ContactAction
+            icon="phone"
+            title="+375 29 555-12-34"
+            caption="Телефон"
+            actionLabel="Позвонить"
+            primary
+            divider
+            onAction={() => {}}
+          />
+          <ContactAction icon="message" title="@miroshnik_psy" caption="Telegram" actionLabel="Написать" onAction={() => {}} />
+        </Card>
+        <InfoNote
+          icon="sos"
+          text="Нужна помощь сегодня? Загляните в "
+          linkLabel="службу вашего вуза"
+          tail="."
+          onLinkPress={() => {}}
+        />
+      </Section>
+
+      <Section title="Доброе слово: PhraseCard">
+        <PhraseCard tone="sweet" text="Вы не обязаны быть продуктивным каждый день. Отдых — тоже часть учёбы." />
+        <PhraseCard
+          tone="spicy"
+          badge="От психотерапевта"
+          text="Перестаньте сравнивать свой черновик с чужим чистовиком. Особенно в сторис однокурсников."
+          author="— Ирина Ракович, психотерапевт"
+          onAuthorPress={() => {}}
+        />
+      </Section>
+
+      <Section title="ContactRow · SectionLetter">
+        <SectionLetter>М</SectionLetter>
         <View>
           <ContactRow
             name={demoUniversityService.name}
