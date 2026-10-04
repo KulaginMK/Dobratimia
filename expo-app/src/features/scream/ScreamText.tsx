@@ -4,9 +4,11 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { Button, Chip, TextField } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { TextRelease } from './TextRelease';
-import { RELEASE_MS, nextReleaseEffect, type ReleaseEffect } from './release';
+import { nextReleaseEffect, type ReleaseEffect } from './release';
 
 const ROWS = 9;
+// Страховка: если анимация почему-то не сообщила о конце, текст всё равно стирается.
+const RELEASE_LIMIT_MS = 6000;
 
 // Чип вставляет начало фразы, чтобы было с чего начать.
 const PROMPTS = [
@@ -18,7 +20,7 @@ type Props = {
   /** Текст живёт только в памяти открытого экрана: ни на диск, ни на сервер он не попадает. */
   text: string;
   onChangeText: (text: string) => void;
-  /** «Отпустить»: анимация закончилась, текст пора стереть. */
+  /** «Отпустить»: анимация закончилась — текст пора стереть. Экран остаётся открытым: можно писать снова. */
   onReleased: () => void;
   /** «Стереть и выйти». */
   onErase: () => void;
@@ -32,11 +34,14 @@ export function ScreamText({ text, onChangeText, onReleased, onErase }: Props) {
   const [release, setRelease] = useState<{ effect: ReleaseEffect; scrollTop: number } | null>(null);
   const releasing = release !== null;
 
-  // Анимация только показывает уход текста; сам текст стирается по таймеру, даже если кадры не идут.
-  const finish = useEffectEvent(onReleased);
+  const finish = () => {
+    setRelease(null);
+    onReleased();
+  };
+  const onLimit = useEffectEvent(finish);
   useEffect(() => {
     if (!release) return;
-    const timer = setTimeout(finish, RELEASE_MS[release.effect]);
+    const timer = setTimeout(onLimit, RELEASE_LIMIT_MS);
     return () => clearTimeout(timer);
   }, [release]);
 
@@ -94,7 +99,11 @@ export function ScreamText({ text, onChangeText, onReleased, onErase }: Props) {
           sensitive
           value={text}
           onChange={onChangeText}
-          overlay={release ? <TextRelease text={text} effect={release.effect} scrollTop={release.scrollTop} /> : undefined}
+          overlay={
+            release ? (
+              <TextRelease text={text} effect={release.effect} scrollTop={release.scrollTop} onDone={finish} />
+            ) : undefined
+          }
         />
       </View>
       <View

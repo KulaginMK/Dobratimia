@@ -58,10 +58,7 @@ export function ScreamScreen({ userId }: { userId: string }) {
     <ScreamText
       text={text}
       onChangeText={setText}
-      onReleased={() => {
-        setText('');
-        leave();
-      }}
+      onReleased={() => setText('')}
       onErase={() => {
         setText('');
         leave();

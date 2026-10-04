@@ -50,7 +50,7 @@ type Props = {
   inputRef?: React.Ref<TextInput>;
   /**
    * Содержимое поверх текста поля, ровно на его месте: анимация исчезающего текста.
-   * Пока оно есть, собственный текст поля не виден, а поле не редактируется.
+   * Пока оно есть, само поле пустое (текст показывает только анимация), не редактируется и не меняет высоту.
    */
   overlay?: React.ReactNode;
   onChange?: (value: string) => void;
@@ -77,6 +77,8 @@ export function TextField({
 }: Props) {
   const t = useTheme();
   const [focused, setFocused] = useState(false);
+  // Высота поля с текстом: многострочное поле на телефоне растёт вместе с ним.
+  const [inputHeight, setInputHeight] = useState(0);
 
   const borderColor = error ? t.color.error : focused ? t.color.focus : t.color.borderStrong;
   const border = focused ? BORDER_FOCUS : BORDER;
@@ -97,8 +99,10 @@ export function TextField({
       <View style={overlay ? { zIndex: 1 } : undefined}>
         <TextInput
           ref={inputRef}
-          value={value}
+          // Прятать текст цветом нельзя: на Android уже набранный текст цвет не меняет. Поэтому поле очищаем.
+          value={overlay ? '' : value}
           defaultValue={value === undefined ? defaultValue : undefined}
+          onLayout={overlay ? undefined : (event) => setInputHeight(event.nativeEvent.layout.height)}
           onChangeText={onChange}
           placeholder={placeholder}
           placeholderTextColor={t.color.textMuted}
@@ -119,7 +123,7 @@ export function TextField({
           textAlignVertical={multiline ? 'top' : 'center'}
           style={[
             {
-              minHeight: multiline ? rows * ROW_HEIGHT + ROWS_EXTRA : MIN_HEIGHT,
+              minHeight: Math.max(multiline ? rows * ROW_HEIGHT + ROWS_EXTRA : MIN_HEIGHT, overlay ? inputHeight : 0),
               paddingVertical: PAD_V - shift,
               paddingHorizontal: PAD_H - shift,
               borderRadius: t.radius.md,
@@ -133,7 +137,6 @@ export function TextField({
               outlineWidth: 0,
             },
             multiline && { lineHeight: t.type.body.lineHeight },
-            overlay ? { color: 'transparent' } : null,
           ]}
         />
         {overlay ? (

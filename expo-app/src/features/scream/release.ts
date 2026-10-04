@@ -1,25 +1,36 @@
-/** Как исчезает текст после «Отпустить»: шредер, взрыв или развеивание по ветру. */
+/** Как исчезают слова после «Отпустить»: шредер, взрыв или развеивание по ветру. */
 export type ReleaseEffect = 'shred' | 'burst' | 'dust';
-
-/** Длительность каждой анимации, мс. */
-export const RELEASE_MS: Record<ReleaseEffect, number> = { shred: 2200, burst: 1800, dust: 2400 };
 
 const EFFECTS: ReleaseEffect[] = ['shred', 'burst', 'dust'];
 
+/** Сначала весь текст увеличивается — так исчезновение заметнее. На 10%: больше — и он вылезет за рамку поля. */
+export const GROW_MS = 450;
+export const GROW_SCALE = 1.1;
+// Короткая пауза между увеличением и первым словом.
+const HOLD_MS = 120;
+/** Сколько длится исчезновение одного слова. */
+const WORD_MS: Record<ReleaseEffect, number> = { shred: 700, burst: 650, dust: 800 };
+// Слова уходят по порядку, с минимальной задержкой. У длинного текста задержка меньше:
+// вся анимация не должна тянуться дольше TOTAL_MAX_MS.
+const STAGGER_MS = 70;
+const TOTAL_MAX_MS = 3200;
+// Очень длинный текст уходит не по одному слову, а по нескольку — иначе телефон не успеет это нарисовать.
+const UNITS_MAX = 90;
+const PIECES_MAX = 200;
+
+/** Строка текста, как она легла в поле: отступ сверху и её слова вместе с пробелами после них. */
+export type MeasuredLine = { top: number; tokens: string[] };
+
 /**
- * Кусок текста: окошко в поле ввода и то, как оно улетает.
- * Время — в долях всей анимации (0…1), расстояния — в dp, поворот — в градусах.
+ * Кусочек слова: окошко в сетке cols × rows и то, как оно улетает.
+ * Время — в долях исчезновения слова (0…1), расстояния — в dp, поворот — в градусах.
  */
 export type Piece = {
   key: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  /** Когда кусок трогается с места. */
+  col: number;
+  row: number;
+  /** Когда кусочек трогается с места. */
   delay: number;
-  /** Сколько длится его движение. */
-  span: number;
   /** Сдвиг к концу движения. */
   dx: number;
   dy: number;
@@ -28,12 +39,30 @@ export type Piece = {
   rotate: number;
   /** Масштаб к концу движения. */
   scale: number;
-  /** С какой доли своего движения кусок начинает таять. */
+  /** С какой доли своего движения кусочек начинает таять. */
   fadeFrom: number;
   /** Сдвиг в сторону в самом начале: полосы шредера расходятся, будто их разрезали. */
   cut: number;
-  /** true — кусок разгоняется (падает), false — тормозит (разлетается). */
+  /** true — кусочек разгоняется (падает), false — тормозит (разлетается). */
   accelerate: boolean;
+};
+
+/** Слово (или несколько слов подряд, если текст очень длинный) и его кусочки. */
+export type Unit = {
+  key: string;
+  text: string;
+  /** Когда слово начинает исчезать, мс от нажатия «Отпустить». */
+  startMs: number;
+  cols: number;
+  rows: number;
+  /** Пусто — это просто пробелы: они ничего не показывают и не анимируются. */
+  pieces: Piece[];
+};
+
+export type ReleasePlan = {
+  lines: { key: string; top: number; units: Unit[] }[];
+  wordMs: number;
+  totalMs: number;
 };
 
 // Очередь эффектов живёт в памяти приложения: в ней только названия анимаций, текста здесь нет.
@@ -59,121 +88,139 @@ export function nextReleaseEffect(): ReleaseEffect {
   return last;
 }
 
-// Шредер: ширина полосы и сколько их бывает.
-const STRIP_WIDTH = 16;
-const STRIPS_MIN = 8;
-const STRIPS_MAX = 24;
-const STRIP_GAP = 1.2;
-// Взрыв и развеивание: размер кусочка.
-const SHARD = { width: 52, height: 44 };
-const SPECK = { width: 38, height: 30 };
-// Каждый кусок — копия всего текста в окошке, поэтому у длинного текста кусков меньше.
-const PIECES_MAX = 54;
-const PIECES_MAX_LONG = 24;
-const LONG_TEXT = 1500;
+/** Текст → слова вместе с пробелами после них; пробелы в начале строки — отдельным куском. */
+export function splitWords(text: string): string[] {
+  return text.match(/\S+\s*|\s+/g) ?? [];
+}
 
 const random = (from: number, to: number) => from + Math.random() * (to - from);
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-/** Границы ячеек по целым точкам: между соседними кусками не остаётся щелей. */
-function edges(size: number, count: number): number[] {
-  return Array.from({ length: count + 1 }, (_, i) => Math.round((i * size) / count));
+type Shape = Pick<Unit, 'cols' | 'rows' | 'pieces'>;
+
+/** Шредер: слово режется на вертикальные полоски, они расходятся и падают. */
+function shred(key: string, letters: number, max: number): Shape {
+  const cols = clamp(Math.ceil(letters / 2), 2, Math.min(6, Math.max(2, max)));
+  return {
+    cols,
+    rows: 1,
+    pieces: Array.from({ length: cols }, (_, col) => ({
+      key: `${key}-${col}`,
+      col,
+      row: 0,
+      delay: random(0, 0.25),
+      dx: random(-5, 5),
+      dy: 0,
+      fall: random(70, 130),
+      rotate: random(-8, 8),
+      scale: 1,
+      fadeFrom: 0.6,
+      cut: (col - (cols - 1) / 2) * 2,
+      accelerate: true,
+    })),
+  };
 }
 
-function grid(width: number, height: number, cell: { width: number; height: number }, max: number) {
-  const cols = clamp(Math.round(width / cell.width), 2, 10);
-  const rows = clamp(Math.round(height / cell.height), 2, Math.max(2, Math.floor(max / cols)));
-  return { cols, rows, xs: edges(width, cols), ys: edges(height, rows) };
+/** Сетка кусочков для взрыва и развеивания: два ряда, пока хватает запаса на число кусочков. */
+function grid(letters: number, max: number) {
+  const rows = max >= 4 ? 2 : 1;
+  const cols = clamp(Math.ceil(letters / 3), 2, Math.min(4, Math.max(2, Math.floor(max / rows))));
+  return { cols, rows };
 }
 
-/** Шредер: текст режется на вертикальные полосы, они расходятся и падают вниз. */
-function shred(width: number, height: number): Piece[] {
-  const count = clamp(Math.round(width / STRIP_WIDTH), STRIPS_MIN, STRIPS_MAX);
-  const xs = edges(width, count);
-  return Array.from({ length: count }, (_, i) => ({
-    key: `s${i}`,
-    x: xs[i],
-    y: 0,
-    width: xs[i + 1] - xs[i],
-    height,
-    delay: random(0.12, 0.42),
-    span: 0.55,
-    dx: random(-6, 6),
-    dy: 0,
-    fall: height * 0.6 + random(120, 200),
-    rotate: random(-4, 4),
-    scale: 1,
-    fadeFrom: 0.7,
-    cut: (i - (count - 1) / 2) * STRIP_GAP,
-    accelerate: true,
-  }));
-}
-
-/** Взрыв: куски разлетаются от середины поля, кувыркаясь. */
-function burst(width: number, height: number, max: number): Piece[] {
-  const { cols, rows, xs, ys } = grid(width, height, SHARD, max);
+/** Взрыв: кусочки слова разлетаются от его середины, кувыркаясь. */
+function burst(key: string, letters: number, max: number): Shape {
+  const { cols, rows } = grid(letters, max);
   const pieces: Piece[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const centerX = (xs[col] + xs[col + 1]) / 2 - width / 2;
-      const centerY = (ys[row] + ys[row + 1]) / 2 - height / 2;
-      const angle = Math.atan2(centerY, centerX) + random(-0.35, 0.35);
-      const distance = random(140, 300);
+      // Направление — от середины слова. Слово шире, чем выше, поэтому по вертикали добавляем разброс.
+      const angle = Math.atan2(row - (rows - 1) / 2 + random(-0.6, 0.6), col - (cols - 1) / 2) + random(-0.4, 0.4);
+      const distance = random(60, 150);
       pieces.push({
-        key: `b${row}-${col}`,
-        x: xs[col],
-        y: ys[row],
-        width: xs[col + 1] - xs[col],
-        height: ys[row + 1] - ys[row],
-        delay: random(0, 0.06),
-        span: 0.9,
+        key: `${key}-${row}-${col}`,
+        col,
+        row,
+        delay: random(0, 0.08),
         dx: Math.cos(angle) * distance,
         dy: Math.sin(angle) * distance,
-        fall: 80,
-        rotate: random(-180, 180),
+        fall: 40,
+        rotate: random(-200, 200),
         scale: random(0.4, 0.7),
-        fadeFrom: 0.45,
+        fadeFrom: 0.4,
         cut: 0,
         accelerate: false,
       });
     }
   }
-  return pieces;
+  return { cols, rows, pieces };
 }
 
-/** Развеивание: кусочки по очереди, слева направо, отрываются и улетают вверх, тая. */
-function dust(width: number, height: number, max: number): Piece[] {
-  const { cols, rows, xs, ys } = grid(width, height, SPECK, max);
+/** Развеивание: кусочки слова слева направо отрываются и улетают вверх, тая. */
+function dust(key: string, letters: number, max: number): Shape {
+  const { cols, rows } = grid(letters, max);
   const pieces: Piece[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const wave = 0.75 * (col / (cols - 1)) + 0.25 * (row / (rows - 1));
       pieces.push({
-        key: `d${row}-${col}`,
-        x: xs[col],
-        y: ys[row],
-        width: xs[col + 1] - xs[col],
-        height: ys[row + 1] - ys[row],
-        delay: 0.55 * wave + random(0, 0.1),
-        span: 0.35,
-        dx: random(30, 100),
-        dy: -random(30, 110),
+        key: `${key}-${row}-${col}`,
+        col,
+        row,
+        delay: 0.35 * (col / (cols - 1)) + random(0, 0.1),
+        dx: random(20, 80),
+        dy: -random(30, 100),
         fall: 0,
-        rotate: random(-25, 25),
+        rotate: random(-35, 35),
         scale: random(0.2, 0.5),
-        fadeFrom: 0.15,
+        fadeFrom: 0.2,
         cut: 0,
         accelerate: false,
       });
     }
   }
-  return pieces;
+  return { cols, rows, pieces };
 }
 
-/** Делит поле с текстом (width × height) на куски и задаёт каждому его полёт. */
-export function buildPieces(effect: ReleaseEffect, width: number, height: number, textLength: number): Piece[] {
-  const max = textLength > LONG_TEXT ? PIECES_MAX_LONG : PIECES_MAX;
-  if (effect === 'shred') return shred(width, height);
-  if (effect === 'burst') return burst(width, height, max);
-  return dust(width, height, max);
+const BUILDERS = { shred, burst, dust };
+
+/** Соседние слова строки — по `size` в одном куске. */
+function chunked(tokens: string[], size: number): string[] {
+  if (size <= 1) return tokens;
+  const chunks: string[] = [];
+  for (let i = 0; i < tokens.length; i += size) chunks.push(tokens.slice(i, i + size).join(''));
+  return chunks;
+}
+
+const isWord = (token: string) => token.trim() !== '';
+
+/** Расписывает исчезновение: какое слово когда уходит и на какие кусочки распадается. */
+export function planRelease(effect: ReleaseEffect, measured: MeasuredLine[]): ReleasePlan {
+  const words = measured.reduce((count, line) => count + line.tokens.filter(isWord).length, 0);
+  const lines = measured.map((line) => ({ top: line.top, tokens: chunked(line.tokens, Math.ceil(words / UNITS_MAX)) }));
+  const units = lines.reduce((count, line) => count + line.tokens.filter(isWord).length, 0);
+
+  const wordMs = WORD_MS[effect];
+  const firstMs = GROW_MS + HOLD_MS;
+  const stagger = units > 1 ? Math.min(STAGGER_MS, (TOTAL_MAX_MS - firstMs - wordMs) / (units - 1)) : 0;
+  const piecesPerUnit = Math.max(1, Math.floor(PIECES_MAX / Math.max(1, units)));
+
+  let order = 0;
+  return {
+    wordMs,
+    totalMs: firstMs + Math.max(0, units - 1) * stagger + wordMs,
+    lines: lines.map((line, lineIndex) => ({
+      key: `l${lineIndex}`,
+      top: line.top,
+      units: line.tokens.map((token, tokenIndex) => {
+        const key = `u${lineIndex}-${tokenIndex}`;
+        // Переносы строк уже учтены в строках. Обычные пробелы меняем на неразрывные:
+        // иначе пробел в конце слова не занимает места, и слова слипаются.
+        const text = token.replace(/[\r\n]/g, '').replace(/\s/g, ' ');
+        if (!isWord(token)) return { key, text, startMs: 0, cols: 1, rows: 1, pieces: [] };
+        const startMs = firstMs + order * stagger;
+        order += 1;
+        return { key, text, startMs, ...BUILDERS[effect](key, token.trim().length, piecesPerUnit) };
+      }),
+    })),
+  };
 }
