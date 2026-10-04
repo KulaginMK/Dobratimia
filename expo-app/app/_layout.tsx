@@ -9,6 +9,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ToastProvider } from '@/components/ui';
 import { ThemePreferenceProvider, appFonts, useTheme, useThemePreference } from '@/theme';
 
+// Основание стека — лента: «Назад» с экрана, открытого по ссылке (SOS, медитации), ведёт на неё.
+export const unstable_settings = { anchor: '(app)' };
+
 // Сплэш держится, пока не загрузятся шрифты и сохранённая настройка темы.
 SplashScreen.preventAutoHideAsync();
 
@@ -48,7 +51,23 @@ function RootStack() {
           headerShown: false,
           contentStyle: { backgroundColor: t.color.background },
         }}
-      />
+      >
+        {/* Группа с лентой объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
+        <Stack.Screen name="(app)" />
+        {/* Из ленты медитации выезжают сверху над «Техниками»: прозрачное окно без системной анимации (docs/06). */}
+        <Stack.Screen
+          name="meditation"
+          options={({ route }) =>
+            (route.params as { from?: string } | undefined)?.from === 'feed'
+              ? {
+                  presentation: 'transparentModal',
+                  animation: 'none',
+                  contentStyle: { backgroundColor: 'transparent' },
+                }
+              : {}
+          }
+        />
+      </Stack>
     </ToastProvider>
   );
 }

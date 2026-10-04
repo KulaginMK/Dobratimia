@@ -1,10 +1,10 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/brand';
 import { IconButton } from '@/components/ui/IconButton';
 import { focusRing, isFocused } from '@/components/ui/focus';
 import { useTheme } from '@/theme';
+import { useTopInset } from './useTopInset';
 
 // Размеры из макетов (.top, .ibtn, .sos).
 const ROW_HEIGHT = 56;
@@ -32,12 +32,11 @@ type Props = {
 /** Шапка экранов вне ленты: «Назад» или «Закрыть», заголовок и SOS справа. */
 export function ScreenHeader({ title, leading = 'back', leadingLabel, onLeadingPress, onSosPress }: Props) {
   const t = useTheme();
-  const insets = useSafeAreaInsets();
+  const topInset = useTopInset();
   return (
     <View
       style={{
-        // В макете сверху 24 — место под статусбар; на устройстве берём его настоящую высоту.
-        paddingTop: Math.max(insets.top, t.space.xl),
+        paddingTop: topInset,
         paddingLeft: leading === 'none' ? t.space.screen : PAD_LEFT,
         paddingRight: PAD_RIGHT,
       }}
