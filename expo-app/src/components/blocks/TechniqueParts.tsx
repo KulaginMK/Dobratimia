@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { useTheme } from '@/theme';
 
-// Размеры из макетов Technique (.phase, .st, .sn) и Anatomy (.li).
+// Размеры из макетов Technique (.phase, .st, .sn), Anatomy (.li) и ScreamNoMic (.stepn).
 const PHASE_GAP = 10;
 const PHASE_PAD_V = 14;
 const PHASE_PAD_H = 6;
@@ -13,6 +13,8 @@ const PHASE_TEXT_GAP = 2;
 const STEP_GAP = 12;
 const STEP_BADGE = 28;
 const STEP_NUMBER_SIZE = 14;
+const STEP_PLAIN_SIZE = 15;
+const STEP_PLAIN_LINE = 20;
 const BULLET_GAP = 10;
 const BULLET = 6;
 const BULLET_TOP = 9;
@@ -59,17 +61,25 @@ export function PhaseTiles({ phases }: { phases: { value: string; label: string 
   );
 }
 
+type StepProps = {
+  number: number;
+  /** accent — шаг техники: терракотовый кружок; plain — служебная инструкция (как дать доступ к микрофону). */
+  tone?: 'accent' | 'plain';
+  children: React.ReactNode;
+};
+
 /** Шаг инструкции с номером в кружке. */
-export function NumberedStep({ number, children }: { number: number; children: React.ReactNode }) {
+export function NumberedStep({ number, tone = 'accent', children }: StepProps) {
   const t = useTheme();
+  const plain = tone === 'plain';
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: STEP_GAP }}>
+    <View style={{ flexDirection: 'row', alignItems: plain ? 'center' : 'flex-start', gap: STEP_GAP }}>
       <View
         style={{
           width: STEP_BADGE,
           height: STEP_BADGE,
           borderRadius: t.radius.full,
-          backgroundColor: t.color.primarySoft,
+          backgroundColor: plain ? t.color.surfaceAlt : t.color.primarySoft,
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
@@ -79,13 +89,21 @@ export function NumberedStep({ number, children }: { number: number; children: R
           style={{
             fontFamily: t.fontFamily.display[800],
             fontSize: STEP_NUMBER_SIZE,
-            color: t.color.onPrimarySoft,
+            color: plain ? t.color.text : t.color.onPrimarySoft,
           }}
         >
           {number}
         </Text>
       </View>
-      <Text style={[t.type.body, { flex: 1, color: t.color.text }]}>{children}</Text>
+      <Text
+        style={[
+          t.type.body,
+          { flex: 1, color: t.color.text },
+          plain && { fontSize: STEP_PLAIN_SIZE, lineHeight: STEP_PLAIN_LINE },
+        ]}
+      >
+        {children}
+      </Text>
     </View>
   );
 }

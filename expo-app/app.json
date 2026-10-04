@@ -35,6 +35,15 @@
             "backgroundColor": "#1B1412"
           }
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Микрофон нужен, только чтобы измерить громкость крика. Звук не сохраняется и никуда не отправляется",
+          "recordAudioAndroid": true,
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
       ]
     ],
     "experiments": {

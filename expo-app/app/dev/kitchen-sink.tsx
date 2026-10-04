@@ -10,15 +10,23 @@ import {
   ContactRow,
   EmergencyCard,
   EmergencyStrip,
+  LevelBar,
   LinkRow,
   ListItemCard,
+  LoudnessWave,
+  MicButton,
+  MicOffBadge,
   MoodCalendar,
   MoodEntryRow,
   MoodPicker,
   MoodWeekBars,
   NumberedStep,
+  PeakNumber,
   PhaseTiles,
+  PrivacyNote,
   PullHint,
+  ReactionCard,
+  ReactionScale,
   RoundAction,
   ScaleBar,
   ScreamButton,
@@ -26,6 +34,8 @@ import {
   SosAction,
   SosRound,
   SpecialistCard,
+  StatTile,
+  StopButton,
   Ticker,
   TimerRing,
   TomatoDots,
@@ -64,6 +74,8 @@ const LOGO_SMALL = 32;
 const LOGO_MARK = 48;
 const TIMKA_SIZE = 104;
 const SHEET_LONG_ROWS = 24;
+// Уровни громкости для волны КРИКа: тихо — крик — затихание.
+const DEMO_LEVELS = Array.from({ length: 60 }, (_, i) => Math.round(30 + 70 * Math.sin((Math.PI * i) / 59)));
 
 const PREFERENCES: { value: ThemePreference; label: string }[] = [
   { value: 'light', label: 'Светлая' },
@@ -367,6 +379,9 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           ]}
         />
         <NumberedStep number={1}>Сядьте удобно, плечи опустите. Кончик языка — за верхними зубами.</NumberedStep>
+        <NumberedStep number={2} tone="plain">
+          Разрешения → Микрофон
+        </NumberedStep>
         <BulletItem>Выдох длиннее вдоха — например, дыхание 4-7-8</BulletItem>
       </Section>
 
@@ -378,6 +393,47 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           <TimerRing remaining={0.64} time="16:05" caption="до перерыва" accessibilityLabel="Осталось 16 минут 5 секунд" />
           <TomatoDots total={4} done={1} label="Помидор 2 из 4" />
         </View>
+      </Section>
+
+      <Section title="КРИК: MicButton · StopButton · LoudnessWave · LevelBar">
+        <View style={{ alignItems: 'center', gap: t.space.md }}>
+          <MicButton onPress={() => {}} />
+          <StopButton onPress={() => {}} />
+        </View>
+        <Card>
+          <View style={{ gap: t.space.md }}>
+            <LoudnessWave variant="live" levels={DEMO_LEVELS.slice(0, 24)} max={110} accessibilityLabel="Волна громкости" />
+            <LevelBar level={87} max={110} />
+          </View>
+        </Card>
+        <Card>
+          <LoudnessWave variant="result" levels={DEMO_LEVELS} max={110} accessibilityLabel="Запись громкости за 6 секунд" />
+        </Card>
+      </Section>
+
+      <Section title="КРИК: PeakNumber · ReactionCard · StatTile · ReactionScale · MicOffBadge · PrivacyNote">
+        <PeakNumber label="Ваш пик" value={87} unit="усл. дБ" />
+        <ReactionCard
+          overline="80–99 усл. дБ"
+          title="Поздравляем, вы, вероятно, разбудили соседа по комнате"
+          body="Если пар ещё остался — можно повторить. Соседу потом расскажете, что это была дыхательная практика."
+        />
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
+          <StatTile label="Длительность" value="6 с" />
+          <StatTile label="В среднем" value="71" />
+          <StatTile label="Рекорд недели" value="94" />
+        </View>
+        <ReactionScale
+          title="Шкала реакций"
+          rows={[
+            { range: 'до 60', text: 'Шёпот в библиотеке' },
+            { range: '80–99', text: 'Сосед по комнате проснулся', accent: true },
+          ]}
+        />
+        <View style={{ alignItems: 'center' }}>
+          <MicOffBadge />
+        </View>
+        <PrivacyNote>Мы не записываем ваш голос — анализируется только громкость</PrivacyNote>
       </Section>
 
       <Section title="AnatomyFigure">

@@ -41,6 +41,13 @@ type Props = {
   type?: FieldType;
   maxLength?: number;
   disabled?: boolean;
+  /**
+   * Личный текст, который нигде не должен остаться («Выплеснуть текстом»): без автозаполнения,
+   * а в вебе ещё и без проверки орфографии — браузер может отправлять её на свои серверы.
+   */
+  sensitive?: boolean;
+  /** Чтобы поставить курсор в поле из кода: чип-подсказка вставил начало фразы. */
+  inputRef?: React.Ref<TextInput>;
   onChange?: (value: string) => void;
 };
 
@@ -58,6 +65,8 @@ export function TextField({
   type = 'text',
   maxLength,
   disabled,
+  sensitive,
+  inputRef,
   onChange,
 }: Props) {
   const t = useTheme();
@@ -79,6 +88,7 @@ export function TextField({
     <View style={{ gap: GAP, alignSelf: 'stretch' }}>
       {label ? <Text style={labelStyle}>{label}</Text> : null}
       <TextInput
+        ref={inputRef}
         value={value}
         defaultValue={value === undefined ? defaultValue : undefined}
         onChangeText={onChange}
@@ -89,6 +99,9 @@ export function TextField({
         maxLength={maxLength}
         keyboardType={KEYBOARD[type]}
         autoCapitalize={type === 'email' || type === 'url' ? 'none' : undefined}
+        autoComplete={sensitive ? 'off' : undefined}
+        importantForAutofill={sensitive ? 'no' : undefined}
+        spellCheck={sensitive ? false : undefined}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={accessibilityLabel ?? label}
