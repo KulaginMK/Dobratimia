@@ -31,6 +31,11 @@ const LAST_INDEX = FEED_SCREENS.length - 1;
 export type FeedPageProps = {
   /** Экран сейчас текущий в ленте. Соседние экраны смонтированы, но скрыты от скринридера и клавиатуры. */
   active: boolean;
+  /**
+   * Экран с прокруткой сообщает, в самом ли верху его список. Свайп вниз открывает экран сверху,
+   * только когда список в самом верху — иначе это обычная прокрутка (docs/06).
+   */
+  onScrollAtTop: (atTop: boolean) => void;
 };
 
 type Props = {
@@ -64,6 +69,17 @@ export function FeedPager({ pages, onPullDown }: Props) {
   if (neighbours(index).some((i) => !mounted.has(i))) {
     setMounted(new Set([...mounted, ...neighbours(index)]));
   }
+
+  // Экраны, список которых прокручен вниз: на них свайп вниз — прокрутка, а не открытие экрана сверху.
+  const [scrolled, setScrolled] = useState<Set<number>>(() => new Set());
+  const reportScroll = (page: number, atTop: boolean) =>
+    setScrolled((current) => {
+      if (current.has(page) === !atTop) return current;
+      const next = new Set(current);
+      if (atTop) next.delete(page);
+      else next.add(page);
+      return next;
+    });
 
   // Положение ленты в экранах: 2 — Главная, 2.5 — на полпути к Подбору.
   const position = useSharedValue(index);
@@ -142,10 +158,9 @@ export function FeedPager({ pages, onPullDown }: Props) {
       }
     });
 
-  // Этап 6: когда на Техниках появится список, свайп вниз ловить только при прокрутке в самый верх (docs/06).
   const pullDown = onPullDown?.[feedKey(index)];
   const pull = Gesture.Pan()
-    .enabled(!!pullDown)
+    .enabled(!!pullDown && !scrolled.has(index))
     .activeOffsetY(AXIS_LOCK)
     .failOffsetX([-AXIS_LOCK, AXIS_LOCK])
     .onEnd((e) => {
@@ -171,7 +186,9 @@ export function FeedPager({ pages, onPullDown }: Props) {
               const Page = pages[screen.key];
               return (
                 <FeedSlot key={screen.key} width={width} active={i === index}>
-                  {mounted.has(i) ? <Page active={i === index} /> : null}
+                  {mounted.has(i) ? (
+                    <Page active={i === index} onScrollAtTop={(atTop) => reportScroll(i, atTop)} />
+                  ) : null}
                 </FeedSlot>
               );
             })}

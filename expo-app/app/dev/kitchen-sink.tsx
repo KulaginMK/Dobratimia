@@ -5,14 +5,19 @@ import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  AnatomyFigure,
+  BulletItem,
   ContactRow,
   EmergencyCard,
   EmergencyStrip,
   LinkRow,
+  ListItemCard,
   MoodCalendar,
   MoodEntryRow,
   MoodPicker,
   MoodWeekBars,
+  NumberedStep,
+  PhaseTiles,
   PullHint,
   RoundAction,
   ScaleBar,
@@ -45,6 +50,7 @@ import {
   cardColors,
   useToast,
 } from '@/components/ui';
+import { ORGANS, type OrganId } from '@/data/anatomy';
 import { PSYCH_HELPLINE } from '@/data/emergency';
 import { demoSpecialist, demoUniversityService } from '@/data/mocks/demo';
 import { ThemeProvider, useTheme, useThemePreference, type ThemePreference } from '@/theme';
@@ -144,6 +150,7 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
   const [sheet, setSheet] = useState<'short' | 'long' | null>(null);
   const [notify, setNotify] = useState(true);
   const [radio, setRadio] = useState(0);
+  const [organ, setOrgan] = useState<OrganId>('heart');
   const soft = cardColors(t, 'soft');
   const sos = cardColors(t, 'sos');
 
@@ -343,6 +350,24 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           />
         </Card>
         <MoodEntryRow color={t.logo.leaf} title="Сегодня, 14:20 · Хорошо" onPress={() => {}} />
+      </Section>
+
+      <Section title="ListItemCard · PhaseTiles · NumberedStep · BulletItem">
+        <ListItemCard icon="breath" title="Дыхание 4-7-8" caption={'2\u00A0минуты · при тревоге и перед сном'} onPress={() => {}} />
+        <ListItemCard icon="diary" tone="neutral" title="Дневник мыслей" caption={'5\u00A0минут · разобрать, что тревожит'} onPress={() => {}} />
+        <PhaseTiles
+          phases={[
+            { value: '4', label: 'вдох носом' },
+            { value: '7', label: 'задержка' },
+            { value: '8', label: 'выдох ртом' },
+          ]}
+        />
+        <NumberedStep number={1}>Сядьте удобно, плечи опустите. Кончик языка — за верхними зубами.</NumberedStep>
+        <BulletItem>Выдох длиннее вдоха — например, дыхание 4-7-8</BulletItem>
+      </Section>
+
+      <Section title="AnatomyFigure">
+        <AnatomyFigure organs={ORGANS} selected={organ} onSelect={setOrgan} />
       </Section>
 
       <Section title="SpecialistCard">

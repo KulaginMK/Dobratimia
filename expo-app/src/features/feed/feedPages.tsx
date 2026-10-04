@@ -2,51 +2,16 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 import { FeedHeader, PullHint } from '@/components/blocks';
-import { useTopInset } from '@/components/blocks/useTopInset';
+import { AnatomyPage } from '@/features/anatomy/AnatomyPage';
 import { HomePage } from '@/features/home/HomePage';
 import { PlaceholderNote } from '@/features/navigation/PlaceholderScreen';
+import { TechniquesPage } from '@/features/techniques/TechniquesPage';
 import { useTheme } from '@/theme';
 import type { FeedPageProps } from './FeedPager';
 import type { FeedKey } from './feedScreens';
 
-// Экраны ленты. Главная свёрстана; остальные пока заглушки этапа 3: шапка с SOS, подсказки о жестах и переходы.
-// Их вёрстка — на этапах 6 и 10.
-
-function AnatomyPage({ active }: FeedPageProps) {
-  const router = useRouter();
-  return (
-    <View style={{ flex: 1 }}>
-      <FeedHeader title="Анатомия стресса" active={active} onSosPress={() => router.push('/sos')} />
-      <PlaceholderNote
-        stage={6}
-        etalon="Anatomy"
-        links={[{ label: 'Дыхание 4-7-8', href: '/technique/breath-4-7-8' }]}
-      />
-    </View>
-  );
-}
-
-function TechniquesPage({ active }: FeedPageProps) {
-  const t = useTheme();
-  const router = useRouter();
-  const topInset = useTopInset();
-  return (
-    <View style={{ flex: 1 }}>
-      <View style={{ paddingTop: topInset, paddingHorizontal: t.space.screen }}>
-        <PullHint
-          label="Потяните вниз — медитации и Pomodoro"
-          onPress={() => router.push('/meditation?from=feed')}
-        />
-      </View>
-      <FeedHeader title="Техники" active={active} inset={false} onSosPress={() => router.push('/sos')} />
-      <PlaceholderNote
-        stage={6}
-        etalon="Techniques"
-        links={[{ label: 'Дыхание 4-7-8', href: '/technique/breath-4-7-8' }]}
-      />
-    </View>
-  );
-}
+// Экраны ленты. «Подбор специалиста» и «Доброе слово» пока заглушки этапа 3: шапка с SOS,
+// подсказка о жесте и переходы. Их вёрстка — на этапе 10.
 
 function MatchPage({ active }: FeedPageProps) {
   const t = useTheme();
