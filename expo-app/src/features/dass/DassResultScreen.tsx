@@ -2,26 +2,16 @@ import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  AdviceCard,
-  EmergencyStrip,
-  HistoryChart,
-  ListItemCard,
-  NextTestNote,
-  ScaleBar,
-  ScreenHeader,
-  type ChartSeries,
-} from '@/components/blocks';
+import { AdviceCard, EmergencyStrip, ListItemCard, NextTestNote, ScaleBar, ScreenHeader } from '@/components/blocks';
 import { Button } from '@/components/ui';
 import { PSYCH_HELPLINE } from '@/data/emergency';
-import type { DassEntry } from '@/data/local/dass';
 import { TEXT_NEEDED } from '@/data/placeholders';
 import { techniqueById, type Technique } from '@/data/techniques';
-import { addDays, dayAndMonth, dayAndShortMonth } from '@/lib/dates';
+import { addDays, dayAndMonth } from '@/lib/dates';
 import { useCallPhone } from '@/lib/phone';
-import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
-import { HISTORY_MAX, NEXT_TEST_DAYS, useDassHistory } from './DassHistory';
+import { NEXT_TEST_DAYS, useDassHistory } from './DassHistory';
+import { DassHistoryCard } from './DassHistoryCard';
 import { DASS_MAX, dassAdvice, dassLevels, dassTips, scalesFrom, type DassScale } from './score';
 
 // Порядок шкал на экране — как в макете DassResult.
@@ -48,27 +38,6 @@ function raisedSentence(scales: DassScale[]): string {
   return `${list[0].toUpperCase()}${list.slice(1)} сейчас выше обычного.`;
 }
 
-/** Что на графике, словами — для скринридера. */
-function chartLabel(entries: DassEntry[]): string {
-  const first = entries[0];
-  const last = entries[entries.length - 1];
-  if (entries.length === 1) {
-    return `Один тест: стресс ${last.stress}, тревога ${last.anxiety}, депрессия ${last.depression}`;
-  }
-  const tests = `${entries.length} ${plural(entries.length, 'тест', 'теста', 'тестов')}`;
-  return (
-    `График за ${tests}: стресс — с ${first.stress} до ${last.stress}, ` +
-    `тревога — с ${first.anxiety} до ${last.anxiety}, депрессия — с ${first.depression} до ${last.depression}`
-  );
-}
-
-/** Подписи дат под графиком: первая, средняя (если тестов три и больше) и последняя. */
-function chartDates(entries: DassEntry[]): string[] {
-  const last = entries.length - 1;
-  const picked = entries.length >= 3 ? [0, Math.floor(last / 2), last] : entries.map((_, i) => i);
-  return picked.map((i) => dayAndShortMonth(entries[i].date));
-}
-
 /** DassResult: результат последнего теста, история и что может помочь. Это ориентир, а не диагноз. */
 export function DassResultScreen() {
   const t = useTheme();
@@ -84,31 +53,18 @@ export function DassResultScreen() {
 
   const levels = dassLevels(latest);
   const advice = dassAdvice(levels);
-  const recent = entries.slice(-HISTORY_MAX);
   const tips = dassTips(levels)
     .map((id) => techniqueById(id))
     .filter((technique): technique is Technique => technique !== null);
-  // В макете линия тревоги — color.secondary. В тёмной теме он почти сливается с color.primary (линия стресса),
-  // поэтому берём color.text: в светлой теме он выглядит так же, как в макете, а в тёмной линии различимы.
-  const series: ChartSeries[] = [
-    { key: 'stress', label: 'Стресс', color: t.color.primary, values: recent.map((entry) => entry.stress) },
-    { key: 'anxiety', label: 'Тревога', color: t.color.text, values: recent.map((entry) => entry.anxiety) },
-    {
-      key: 'depression',
-      label: 'Депрессия',
-      color: t.color.textMuted,
-      dashed: true,
-      values: recent.map((entry) => entry.depression),
-    },
-  ];
-
   const home = () => router.dismissTo('/?s=home');
+  // Крестик возвращает туда, откуда пришли: после теста это Главная, из дневника — дневник.
+  const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const openTip = (technique: Technique) =>
     router.push(technique.opens === 'pomodoro' ? '/meditation?tab=pomodoro' : `/technique/${technique.id}`);
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <ScreenHeader title="DASS-21" leading="close" onLeadingPress={home} onSosPress={() => router.push('/sos')} />
+      <ScreenHeader title="DASS-21" leading="close" onLeadingPress={close} onSosPress={() => router.push('/sos')} />
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + t.space['2xl'] }}>
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen, gap: t.space.xs }}>
           <Text accessibilityRole="header" style={[t.type.h1, { color: t.color.text }]}>
@@ -162,26 +118,8 @@ export function DassResultScreen() {
           </Text>
         </View>
 
-        <View
-          style={{
-            marginTop: t.space.xl,
-            marginHorizontal: t.space.screen,
-            padding: t.space.md,
-            borderRadius: t.radius.xl,
-            backgroundColor: t.color.surface,
-            boxShadow: t.shadow.sm,
-            gap: t.space.sm,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: t.space.sm }}>
-            <Text accessibilityRole="header" style={[t.type.h3, { color: t.color.text }]}>
-              История
-            </Text>
-            <Text style={[t.type.caption, { color: t.color.textMuted }]}>
-              {`${recent.length} ${plural(recent.length, 'тест', 'теста', 'тестов')}`}
-            </Text>
-          </View>
-          <HistoryChart series={series} max={DASS_MAX} dates={chartDates(recent)} accessibilityLabel={chartLabel(recent)} />
+        <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen }}>
+          <DassHistoryCard entries={entries} />
         </View>
 
         <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.sm }}>

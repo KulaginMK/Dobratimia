@@ -12,6 +12,8 @@ import {
 } from '@/components/blocks';
 import { BottomSheet, Button, Card, EmptyState, TextField } from '@/components/ui';
 import { MOOD_NOTE_MAX, type MoodEntry, type MoodLevel } from '@/data/local/mood';
+import { useDassHistory } from '@/features/dass/DassHistory';
+import { DassHistoryCard } from '@/features/dass/DassHistoryCard';
 import { useMoodDiary } from '@/features/mood/MoodDiary';
 import { moodColor, moodLabel } from '@/features/mood/moodMeta';
 import { WEEKDAYS_SHORT, addDays, dayAndMonth, fromDateKey, relativeDay, weekdayIndex } from '@/lib/dates';
@@ -20,12 +22,16 @@ import { useTheme } from '@/theme';
 // Сколько последних отметок показываем списком под календарём.
 const RECENT_COUNT = 7;
 
-/** Дневник настроения: среднее за неделю, календарь месяца и последние отметки. Все данные — на устройстве. */
+/**
+ * Дневник настроения: среднее за неделю, календарь месяца и последние отметки, ниже — история тестов DASS-21
+ * (её в макете Diary нет, добавлена по решению владельца). Все данные — на устройстве.
+ */
 export function DiaryScreen() {
   const t = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { entries, ready, todayKey, setNote } = useMoodDiary();
+  const dass = useDassHistory();
 
   const [cursor, setCursor] = useState(() => {
     const today = fromDateKey(todayKey);
@@ -65,16 +71,7 @@ export function DiaryScreen() {
         onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
         onSosPress={() => router.push('/sos')}
       />
-      {!ready ? null : entries.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <EmptyState
-            title="Здесь пока пусто"
-            text="Отметьте настроение на главной — и запись появится здесь."
-            actionLabel="Отметить настроение"
-            onAction={() => router.dismissTo({ pathname: '/', params: { s: 'home', focus: 'mood' } })}
-          />
-        </View>
-      ) : (
+      {!ready || !dass.ready ? null : (
         <ScrollView
           contentContainerStyle={{
             paddingTop: t.space.sm,
@@ -83,64 +80,105 @@ export function DiaryScreen() {
             gap: t.space.md,
           }}
         >
-          <Card>
-            <View style={{ gap: t.space.sm }}>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: t.space.sm }}>
-                <Text accessibilityRole="header" style={[t.type.h3, { flexShrink: 1, color: t.color.text }]}>
-                  Среднее за неделю
-                </Text>
-                {average !== null ? (
-                  <Text style={[t.type.h2, { fontFamily: t.fontFamily.display[900], color: t.color.text }]}>
-                    {moodLabel(Math.round(average) as MoodLevel)}
-                  </Text>
-                ) : null}
-              </View>
-              <MoodWeekBars
-                days={week.map((key, i) => {
-                  const level = weekLevels[i];
-                  return {
-                    key,
-                    weekday: WEEKDAYS_SHORT[weekdayIndex(key)],
-                    level,
-                    color: level ? moodColor(t, level) : undefined,
-                    accessibilityLabel: `${dayAndMonth(key)}: ${level ? moodLabel(level).toLowerCase() : 'нет отметки'}`,
-                  };
-                })}
-              />
-              <Text style={[t.type.caption, { color: t.color.textMuted }]}>
-                {average !== null
-                  ? `${average.toFixed(1).replace('.', ',')} из 5`
-                  : 'За эту неделю отметок пока нет.'}
-              </Text>
-            </View>
-          </Card>
-
-          <Card style={{ paddingHorizontal: t.space.sm, paddingVertical: t.space.sm }}>
-            <MoodCalendar
-              year={cursor.year}
-              month={cursor.month}
-              todayKey={todayKey}
-              marks={marks}
-              legend={MOODS.map((mood) => ({ label: mood.label, color: moodColor(t, mood.level) }))}
-              onPrev={() => shiftMonth(-1)}
-              onNext={() => shiftMonth(1)}
-              nextDisabled={atCurrentMonth}
+          {entries.length === 0 ? (
+            <EmptyState
+              title="Здесь пока пусто"
+              text="Отметьте настроение на главной — и запись появится здесь."
+              actionLabel="Отметить настроение"
+              onAction={() => router.dismissTo({ pathname: '/', params: { s: 'home', focus: 'mood' } })}
             />
-          </Card>
+          ) : (
+            <>
+              <Card>
+                <View style={{ gap: t.space.sm }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: t.space.sm }}>
+                    <Text accessibilityRole="header" style={[t.type.h3, { flexShrink: 1, color: t.color.text }]}>
+                      Среднее за неделю
+                    </Text>
+                    {average !== null ? (
+                      <Text style={[t.type.h2, { fontFamily: t.fontFamily.display[900], color: t.color.text }]}>
+                        {moodLabel(Math.round(average) as MoodLevel)}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <MoodWeekBars
+                    days={week.map((key, i) => {
+                      const level = weekLevels[i];
+                      return {
+                        key,
+                        weekday: WEEKDAYS_SHORT[weekdayIndex(key)],
+                        level,
+                        color: level ? moodColor(t, level) : undefined,
+                        accessibilityLabel: `${dayAndMonth(key)}: ${level ? moodLabel(level).toLowerCase() : 'нет отметки'}`,
+                      };
+                    })}
+                  />
+                  <Text style={[t.type.caption, { color: t.color.textMuted }]}>
+                    {average !== null
+                      ? `${average.toFixed(1).replace('.', ',')} из 5`
+                      : 'За эту неделю отметок пока нет.'}
+                  </Text>
+                </View>
+              </Card>
 
-          <View style={{ gap: t.space.xs }}>
-            {recent.map((entry) => (
-              <MoodEntryRow
-                key={entry.date}
-                color={moodColor(t, entry.level)}
-                title={entryTitle(entry)}
-                note={entry.note}
-                onPress={() => {
-                  setDraft(entry.note ?? '');
-                  setNoteFor(entry);
-                }}
-              />
-            ))}
+              <Card style={{ paddingHorizontal: t.space.sm, paddingVertical: t.space.sm }}>
+                <MoodCalendar
+                  year={cursor.year}
+                  month={cursor.month}
+                  todayKey={todayKey}
+                  marks={marks}
+                  legend={MOODS.map((mood) => ({ label: mood.label, color: moodColor(t, mood.level) }))}
+                  onPrev={() => shiftMonth(-1)}
+                  onNext={() => shiftMonth(1)}
+                  nextDisabled={atCurrentMonth}
+                />
+              </Card>
+
+              <View style={{ gap: t.space.xs }}>
+                {recent.map((entry) => (
+                  <MoodEntryRow
+                    key={entry.date}
+                    color={moodColor(t, entry.level)}
+                    title={entryTitle(entry)}
+                    note={entry.note}
+                    onPress={() => {
+                      setDraft(entry.note ?? '');
+                      setNoteFor(entry);
+                    }}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+
+          <View style={{ gap: t.space.sm, paddingTop: t.space.xs }}>
+            <Text accessibilityRole="header" style={[t.type.h3, { color: t.color.text }]}>
+              Тест DASS-21
+            </Text>
+            {dass.entries.length > 0 ? (
+              <>
+                <DassHistoryCard entries={dass.entries} />
+                <Button variant="outline" fullWidth onPress={() => router.push('/dass/result')}>
+                  Последний результат
+                </Button>
+              </>
+            ) : (
+              <Card>
+                <View style={{ gap: t.space.sm }}>
+                  <Text style={[t.type.body, { color: t.color.textMuted }]}>Вы ещё не проходили тест.</Text>
+                  <Button
+                    variant="deep"
+                    size="lg"
+                    icon="diary"
+                    iconRight="chevronRight"
+                    fullWidth
+                    onPress={() => router.push('/dass')}
+                  >
+                    {'Тест DASS-21 · 5 минут'}
+                  </Button>
+                </View>
+              </Card>
+            )}
           </View>
         </ScrollView>
       )}
