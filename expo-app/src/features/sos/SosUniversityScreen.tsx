@@ -6,7 +6,7 @@ import { ContactRow, EmergencyStrip, LinkRow, ScreenHeader } from '@/components/
 import { Button, Card, Chip } from '@/components/ui';
 import { PSYCH_HELPLINE } from '@/data/emergency';
 import { TEAM_EMAIL } from '@/data/mocks/universities';
-import { universitiesRepo, type University, type UniversityService } from '@/data/repos';
+import type { University, UniversityService } from '@/data/repos';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
 import { formatLongDate } from '@/lib/formatDate';
@@ -30,9 +30,9 @@ export function SosUniversityScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const call = useCallPhone();
-  const { universityId, ready, select } = useSelectedUniversity();
+  const { universityId, ready, byId, select } = useSelectedUniversity();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const university = universitiesRepo.byId(universityId);
+  const university = byId(universityId);
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
@@ -87,10 +87,11 @@ export function SosUniversityScreen() {
 
 function UniversityHelp({ university, onCall }: { university: University; onCall: (phone: string) => void }) {
   const t = useTheme();
+  const { universities } = useSelectedUniversity();
 
   // «Другой вуз»: службы всех вузов из справочника с городами.
   if (university.id === 'other') {
-    const withService = universitiesRepo.all().filter((item) => item.service);
+    const withService = universities.filter((item) => item.service);
     return (
       <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen, gap: t.space.sm }}>
         <View>

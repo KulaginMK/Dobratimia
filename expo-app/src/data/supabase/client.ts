@@ -1,0 +1,71 @@
+import 'react-native-url-polyfill/auto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { AppState, Platform } from 'react-native';
+import { OfflineError } from '@/data/repos/errors';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
+
+// Общий ключ с префиксом app: — «Удалить мои данные» стирает и сохранённый вход (src/data/local/session.ts).
+export const AUTH_STORAGE_KEY = 'app:supabase-auth';
+
+let client: SupabaseClient | null = null;
+
+/** Клиент Supabase. Создаётся при первом обращении; вызывать только если SUPABASE_CONFIGURED. */
+export function supabase(): SupabaseClient {
+  if (client) return client;
+  const created = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    // Без скрытых повторов: иначе при пропавшей сети экран несколько секунд молчит.
+    // Человеку сразу говорим «Нет интернета» и даём «Повторить», а отметки ждут в очереди.
+    db: { retry: false },
+    auth: {
+      storage: AsyncStorage,
+      storageKey: AUTH_STORAGE_KEY,
+      persistSession: true,
+      autoRefreshToken: true,
+      // PKCE: после входа в адрес возвращается одноразовый код, а не сами ключи доступа.
+      flowType: 'pkce',
+      // В вебе Supabase сам забирает код из адреса после возврата от Google; на телефоне это делает экран /auth/callback.
+      detectSessionInUrl: Platform.OS === 'web',
+    },
+  });
+  // На телефоне обновлять вход имеет смысл, только пока приложение на экране.
+  if (Platform.OS !== 'web') {
+    AppState.addEventListener('change', (state) => {
+      if (state === 'active') created.auth.startAutoRefresh();
+      else created.auth.stopAutoRefresh();
+    });
+  }
+  client = created;
+  return created;
+}
+
+/** Забыть вход на устройстве, даже если сервер недоступен: «Выйти из аккаунта» работает и без сети. */
+export async function forgetSession(): Promise<void> {
+  client = null;
+  await AsyncStorage.multiRemove([AUTH_STORAGE_KEY, `${AUTH_STORAGE_KEY}-code-verifier`]);
+}
+
+type Result<T> = { data: T | null; error: { message: string; code?: string } | null; status?: number };
+
+/**
+ * Достаёт данные из ответа Supabase. Статус 0 — запрос не дошёл до сервера: это OfflineError,
+ * действие можно повторить. Остальные ошибки — отказ сервера.
+ */
+export function unwrap<T>(result: Result<T>): T {
+  if (result.error) {
+    if (result.status === 0) throw new OfflineError();
+    throw Object.assign(new Error(result.error.message), { code: result.error.code });
+  }
+  return result.data as T;
+}
+
+/** Запрос к Supabase, у которого сетевой сбой превращается в OfflineError, а не в необработанное исключение. */
+export async function request<T>(run: (db: SupabaseClient) => PromiseLike<Result<T>>): Promise<T> {
+  let result: Result<T>;
+  try {
+    result = await run(supabase());
+  } catch {
+    throw new OfflineError();
+  }
+  return unwrap(result);
+}

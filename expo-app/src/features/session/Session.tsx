@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   GUEST_USER_ID,
+  adoptGuestData,
   clearUserData,
   loadOnboarded,
   loadSessionUser,
   saveOnboarded,
   saveSessionUser,
 } from '@/data/local/session';
-import { authRepo, type SessionUser } from '@/data/repos';
+import { authRepo, universitiesRepo, type SessionUser, type SignInCallback, type SignedIn } from '@/data/repos';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 
 type SessionValue = {
@@ -17,8 +18,13 @@ type SessionValue = {
   onboarded: boolean;
   /** Кто вошёл; null — никто. Без входа доступны только онбординг, SOS и медитации (docs/01). */
   user: SessionUser | null;
-  /** «Войти через Google». Отклоняется, если войти не удалось. */
-  signIn: () => Promise<void>;
+  /**
+   * «Войти через Google». signedIn — вход состоялся; redirected — открылась страница Google, вход завершит
+   * экран /auth/callback; cancelled — человек закрыл окно. Отклоняется, если войти не удалось.
+   */
+  signIn: () => Promise<'signedIn' | 'redirected' | 'cancelled'>;
+  /** Завершить вход после возврата от Google. */
+  completeSignIn: (callback: SignInCallback) => Promise<void>;
   /** «Выйти из аккаунта»: дневник и результаты остаются на устройстве под ключом пользователя. */
   signOut: () => Promise<void>;
   /** «Удалить мои данные»: аккаунт и всё сохранённое на устройстве, кроме темы. Дальше — онбординг с начала. */
@@ -29,7 +35,8 @@ const SessionContext = createContext<SessionValue>({
   ready: false,
   onboarded: false,
   user: null,
-  signIn: async () => {},
+  signIn: async () => 'cancelled',
+  completeSignIn: async () => {},
   signOut: async () => {},
   deleteData: async () => {},
 });
@@ -41,6 +48,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [onboarded, setOnboarded] = useState(false);
   const [ready, setReady] = useState(false);
 
+  // Кто вошёл, приложение помнит само: дневник и тесты открываются и без сети, когда сервер проверить вход не может.
   useEffect(() => {
     let alive = true;
     Promise.all([loadSessionUser(), loadOnboarded()]).then(([storedUser, storedOnboarded]) => {
@@ -54,8 +62,52 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = async () => {
-    const signedIn = await authRepo.signInWithGoogle();
+  // После запуска и после входа сверяемся с сервером: вход могли отозвать, а роль — поменять
+  // (специалисту открыли кабинет). Сверка идёт по тому, кто вошёл сейчас, а не по записи на устройстве:
+  // сразу после входа она ещё может быть не сохранена.
+  useEffect(() => {
+    if (!ready || !user) return;
+    let alive = true;
+    const forget = () => {
+      if (!alive) return;
+      setUser(null);
+      saveSessionUser(null).catch(() => {});
+    };
+    authRepo
+      .restore(user)
+      .then((checked) => {
+        if (!alive) return;
+        if (!checked) {
+          forget();
+          return;
+        }
+        // Ничего не изменилось — состояние не трогаем, иначе сверка запустится заново.
+        if (checked.role === user.role && checked.name === user.name && checked.email === user.email) return;
+        setUser(checked);
+        saveSessionUser(checked).catch(() => {});
+      })
+      // Нет сети — оставляем вход как есть: дневник и тесты работают и без неё.
+      .catch(() => {});
+    const unsubscribe = authRepo.onSignedOut(forget);
+    return () => {
+      alive = false;
+      unsubscribe();
+    };
+  }, [ready, user]);
+
+  // Выбранный вуз хранится и в профиле на сервере; источник правды — устройство (SOS работает без сети).
+  const userId = user?.id;
+  const universityId = university.universityId;
+  useEffect(() => {
+    if (userId && universityId) authRepo.saveUniversity(userId, universityId).catch(() => {});
+  }, [userId, universityId]);
+
+  const accept = async ({ user: signedIn, universityId: fromProfile }: SignedIn) => {
+    // Данные, накопленные с входом-заглушкой, переходят к первому настоящему аккаунту.
+    await adoptGuestData(signedIn.id).catch(() => {});
+    // Новое устройство: вуз берём из профиля, если здесь он ещё не выбран.
+    const known = universitiesRepo.byId(fromProfile);
+    if (!university.universityId && known) university.select(known.id);
     setUser(signedIn);
     setOnboarded(true);
     // Не сохранилось — вход всё равно действует до перезапуска.
@@ -63,8 +115,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     saveOnboarded().catch(() => {});
   };
 
+  const signIn = async () => {
+    const result = await authRepo.signInWithGoogle();
+    if (result === 'redirected' || result === 'cancelled') return result;
+    await accept(result);
+    return 'signedIn' as const;
+  };
+
+  const completeSignIn = async (callback: SignInCallback) => {
+    await accept(await authRepo.completeSignIn(callback));
+  };
+
   const signOut = async () => {
-    // Нет сети — на устройстве выходим всё равно.
     await authRepo.signOut().catch(() => {});
     setUser(null);
     saveSessionUser(null).catch(() => {});
@@ -81,7 +143,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SessionContext.Provider value={{ ready, onboarded, user, signIn, signOut, deleteData }}>
+    <SessionContext.Provider value={{ ready, onboarded, user, signIn, completeSignIn, signOut, deleteData }}>
       {children}
     </SessionContext.Provider>
   );

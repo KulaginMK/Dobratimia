@@ -1,5 +1,5 @@
-import { Redirect, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { Text, View, useWindowDimensions } from 'react-native';
 import { GoogleButton, InlineLink } from '@/components/blocks';
 import { Logo } from '@/components/brand';
@@ -21,6 +21,7 @@ const TITLE_MARGIN_TOP = 28;
 /**
  * Шаг 4 (эталон OnbSignIn): вход через Google. Сюда же приложение возвращает после «Выйти из аккаунта» —
  * тогда стрелки «Назад» нет. После входа — выбор вуза или сразу Главная, если вуз уже выбран.
+ * В вебе страница целиком уходит на Google и возвращается на экран /auth/callback: он и завершает вход.
  */
 export function OnboardingSignInScreen() {
   const t = useTheme();
@@ -31,24 +32,27 @@ export function OnboardingSignInScreen() {
   const { user, signIn } = useSession();
   const { universityId } = useSelectedUniversity();
   const [busy, setBusy] = useState(false);
-  // Экран открыли, уже войдя (в вебе — кнопкой «Назад» браузера): входить незачем.
-  const [alreadySignedIn] = useState(user !== null);
+
+  // Человек вошёл (или открыл экран, уже войдя — в вебе кнопкой «Назад» браузера): ведём дальше.
+  // Экран входа при этом заменяется: вернуться «назад ко входу» после входа нельзя.
+  useFocusEffect(
+    useCallback(() => {
+      if (user) router.replace(universityId ? '/?s=home' : '/onboarding/university');
+    }, [user, universityId, router]),
+  );
 
   const onSignIn = async () => {
     if (busy) return;
     setBusy(true);
     try {
+      // Закрыл окно Google — остаёмся на экране входа; остальное сделает переход выше.
       await signIn();
-      if (universityId) router.replace('/?s=home');
-      else router.push('/onboarding/university');
     } catch {
       toast.show({ message: 'Не удалось войти. Проверьте интернет и попробуйте ещё раз.', tone: 'error' });
     } finally {
       setBusy(false);
     }
   };
-
-  if (alreadySignedIn) return <Redirect href="/?s=home" />;
 
   return (
     <OnboardingStep

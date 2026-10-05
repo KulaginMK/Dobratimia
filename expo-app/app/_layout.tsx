@@ -64,6 +64,8 @@ function RootStack() {
         <Stack.Screen name="(app)" options={{ animation: 'fade' }} />
         {/* Вход и выход меняют онбординг и приложение местами — мягким проявлением, без сдвига. */}
         <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+        {/* Возврат от Google после входа: короткий экран «Входим в аккаунт…». */}
+        <Stack.Screen name="auth/callback" options={{ animation: 'fade' }} />
         {/* Из ленты медитации выезжают сверху над «Техниками»: прозрачное окно без системной анимации (docs/06). */}
         <Stack.Screen
           name="meditation"

@@ -21,3 +21,30 @@ export function loadRejected(userId: string): Promise<string[]> {
 export async function saveRejected(userId: string, ids: string[]): Promise<void> {
   await AsyncStorage.setItem(userKey(userId, 'rejected'), JSON.stringify(ids));
 }
+
+/** Избранные специалисты и их контакты, какими их в последний раз отдал сервер. */
+export type FavoritesCache<Card, Contacts> = { cards: Card[]; contacts: Record<string, Contacts | null> };
+
+/**
+ * Копия избранных на устройстве: позвонить специалисту можно и без интернета.
+ * Сюда попадают только те контакты, которые сервер уже открыл этому пользователю после «Нравится».
+ */
+export async function loadFavoritesCache<Card, Contacts>(userId: string): Promise<FavoritesCache<Card, Contacts>> {
+  try {
+    const raw = await AsyncStorage.getItem(userKey(userId, 'favorites'));
+    const parsed = (raw ? JSON.parse(raw) : null) as Partial<FavoritesCache<Card, Contacts>> | null;
+    return {
+      cards: Array.isArray(parsed?.cards) ? parsed.cards : [],
+      contacts: parsed?.contacts && typeof parsed.contacts === 'object' ? parsed.contacts : {},
+    };
+  } catch {
+    return { cards: [], contacts: {} };
+  }
+}
+
+export async function saveFavoritesCache<Card, Contacts>(
+  userId: string,
+  cache: FavoritesCache<Card, Contacts>,
+): Promise<void> {
+  await AsyncStorage.setItem(userKey(userId, 'favorites'), JSON.stringify(cache));
+}

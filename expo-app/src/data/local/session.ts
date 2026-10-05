@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { SessionUser } from '@/data/repos/AuthRepo';
 
 /**
- * До появления входа личные данные лежали под ключом гостя. Вход-имитация этапа 11 оставляет тот же ключ,
- * чтобы уже накопленные на телефоне данные не пропали. С настоящим входом (этап 12) ключом станет
- * id пользователя: другой аккаунт на том же телефоне этих данных не увидит (docs/08).
+ * До появления входа личные данные лежали под ключом гостя, и вход-заглушка оставляет тот же ключ.
+ * С настоящим входом ключом становится id пользователя: другой аккаунт на том же телефоне этих данных
+ * не увидит (docs/08). Данные гостя при первом настоящем входе переходят к вошедшему — adoptGuestData.
  */
 export const GUEST_USER_ID = 'guest';
 
@@ -26,7 +26,7 @@ function isUser(value: unknown): value is SessionUser {
     typeof user.id === 'string' &&
     typeof user.name === 'string' &&
     typeof user.email === 'string' &&
-    (user.role === 'student' || user.role === 'specialist')
+    (user.role === 'student' || user.role === 'specialist' || user.role === 'admin')
   );
 }
 
@@ -57,6 +57,32 @@ export async function loadSessionUser(): Promise<SessionUser | null> {
 export async function saveSessionUser(user: SessionUser | null): Promise<void> {
   if (user) await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(user));
   else await AsyncStorage.removeItem(SESSION_KEY);
+}
+
+// Что из накопленного гостем переходит в аккаунт: дневник, тесты и рекорды КРИКа.
+// Отметки специалистам и фразам не переносим: в заглушках у них другие id, чем на сервере.
+const ADOPTED = ['mood', 'dass', 'scream2'];
+
+/**
+ * Первый настоящий вход на устройстве, где приложением пользовались с входом-заглушкой:
+ * дневник и тесты гостя становятся данными вошедшего, остальное гостевое стирается.
+ * Если у аккаунта на этом устройстве уже есть свои данные, они не перезаписываются.
+ */
+export async function adoptGuestData(userId: string): Promise<void> {
+  if (userId === GUEST_USER_ID) return;
+  const keys = await AsyncStorage.getAllKeys();
+  const guestKeys = keys.filter(
+    (key) => key.startsWith(`user:${GUEST_USER_ID}:`) || key.startsWith('mock:') && key.endsWith(`:${GUEST_USER_ID}`),
+  );
+  if (guestKeys.length === 0) return;
+  for (const name of ADOPTED) {
+    const from = userKey(GUEST_USER_ID, name);
+    const to = userKey(userId, name);
+    if (!keys.includes(from) || keys.includes(to)) continue;
+    const value = await AsyncStorage.getItem(from);
+    if (value !== null) await AsyncStorage.setItem(to, value);
+  }
+  await AsyncStorage.multiRemove(guestKeys);
 }
 
 /**

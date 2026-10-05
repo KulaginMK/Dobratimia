@@ -32,7 +32,7 @@ export function SpecialistScreen() {
   const insets = useSafeAreaInsets();
   const call = useCallPhone();
   const { id, from, opened } = useLocalSearchParams<{ id: string; from?: string; opened?: string }>();
-  const { ready, byId, toneOf, isLiked, contactsOf, like, unlike } = useSpecialists();
+  const { ready, offline, retry, byId, toneOf, isLiked, contactsOf, like, unlike } = useSpecialists();
   // «Нравится» нажали прямо здесь — плашку показываем так же, как после подбора.
   const [likedHere, setLikedHere] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -172,6 +172,17 @@ export function SpecialistScreen() {
                   <Text style={[t.type.caption, { paddingVertical: t.space.sm, color: t.color.textMuted }]}>
                     Специалист пока не опубликовал контакты.
                   </Text>
+                ) : null}
+                {/* Отметка поставлена без сети: она не потеряна, контакты придут, когда сеть появится. */}
+                {contacts === undefined && offline ? (
+                  <View style={{ paddingVertical: t.space.sm, gap: t.space.sm }}>
+                    <Text style={[t.type.caption, { color: t.color.textMuted }]}>
+                      Нет интернета. Отметка сохранена — контакты откроются, когда появится сеть.
+                    </Text>
+                    <Button variant="outline" fullWidth onPress={retry}>
+                      Повторить
+                    </Button>
+                  </View>
                 ) : null}
               </>
             ) : (

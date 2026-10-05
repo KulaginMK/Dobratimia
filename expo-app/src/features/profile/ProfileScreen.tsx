@@ -6,7 +6,6 @@ import { DangerButton, GroupLabel, ProfileHead, ScreenHeader, SettingsGroup, Set
 import { BottomSheet, Button, SegmentedControl, Switch, useToast } from '@/components/ui';
 import { DEFAULT_REMINDERS, loadReminders, saveReminders, type Reminders } from '@/data/local/reminders';
 import { CONSENT_URL, PRIVACY_URL } from '@/data/mocks/links';
-import { universitiesRepo } from '@/data/repos';
 import { NEXT_TEST_DAYS, useDassHistory } from '@/features/dass/DassHistory';
 import { useSession } from '@/features/session/Session';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
@@ -55,7 +54,7 @@ export function ProfileScreen() {
   const toast = useToast();
   const openLink = useOpenLink();
   const { user, signOut, deleteData } = useSession();
-  const { universityId, select } = useSelectedUniversity();
+  const { universityId, byId, select } = useSelectedUniversity();
   const { preference, setPreference } = useThemePreference();
   const { entries } = useDassHistory();
   const [reminders, setReminders] = useReminders();
@@ -64,7 +63,7 @@ export function ProfileScreen() {
 
   if (!user) return null;
 
-  const university = universitiesRepo.byId(universityId);
+  const university = byId(universityId);
   // Следующий тест — через 14 дней после последнего; если этот день уже прошёл, дату не показываем.
   const latest = entries[entries.length - 1];
   const nextTest = latest ? addDays(latest.date, NEXT_TEST_DAYS) : null;
@@ -82,7 +81,7 @@ export function ProfileScreen() {
     } catch {
       setDeleting(false);
       setSheet(null);
-      toast.show({ message: 'Не удалось удалить данные. Попробуйте ещё раз.', tone: 'error' });
+      toast.show({ message: 'Не удалось удалить данные. Проверьте интернет и попробуйте ещё раз.', tone: 'error' });
     }
   };
 

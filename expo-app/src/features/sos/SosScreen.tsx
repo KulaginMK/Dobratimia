@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmergencyCard, LinkRow, ScreenHeader } from '@/components/blocks';
 import { Button } from '@/components/ui';
 import { AMBULANCE, PSYCH_HELPLINE } from '@/data/emergency';
-import { universitiesRepo, type University } from '@/data/repos';
+import type { University } from '@/data/repos';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
 import { useCallPhone } from '@/lib/phone';
@@ -31,9 +31,9 @@ export function SosScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const call = useCallPhone();
-  const { universityId, select } = useSelectedUniversity();
+  const { universityId, byId, select } = useSelectedUniversity();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const row = universityRow(universitiesRepo.byId(universityId));
+  const row = universityRow(byId(universityId));
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>

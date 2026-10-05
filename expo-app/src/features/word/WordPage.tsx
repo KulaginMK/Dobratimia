@@ -43,10 +43,14 @@ export function WordPage({ active }: FeedPageProps) {
   const [recent, setRecent] = useState<Record<PhraseTone, string[]>>({ sweet: [], spicy: [] });
   const [liked, setLiked] = useState<string[]>([]);
   const [authorOpen, setAuthorOpen] = useState(false);
+  // Фразы не загрузились: сети нет, а копии на устройстве ещё нет.
+  const [failed, setFailed] = useState(false);
+  // «Повторить» увеличивает счётчик — загрузка запускается заново.
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
-    Promise.all([phrasesRepo.all(), phrasesRepo.liked(userId).catch(() => [])])
+    Promise.all([phrasesRepo.all(), phrasesRepo.liked(userId).catch((): string[] => [])])
       .then(([all, likedIds]) => {
         if (!alive) return;
         const first: Shown = { sweet: nextPhrase(all, 'sweet', []), spicy: nextPhrase(all, 'spicy', []) };
@@ -54,12 +58,15 @@ export function WordPage({ active }: FeedPageProps) {
         setLiked(likedIds);
         setShown(first);
         setRecent({ sweet: first.sweet ? [first.sweet.id] : [], spicy: first.spicy ? [first.spicy.id] : [] });
+        setFailed(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (alive) setFailed(true);
+      });
     return () => {
       alive = false;
     };
-  }, [userId]);
+  }, [userId, attempt]);
 
   const phrase = shown[tone];
   const author: Specialist | null = phrase?.authorSpecialistId ? byId(phrase.authorSpecialistId) : null;
@@ -120,6 +127,18 @@ export function WordPage({ active }: FeedPageProps) {
             </View>
           </View>
         </>
+      ) : failed ? (
+        <View style={{ paddingTop: t.space['3xl'], paddingHorizontal: t.space.screen, gap: t.space.sm }}>
+          <Text accessibilityRole="header" style={[t.type.h2, { color: t.color.text, textAlign: 'center' }]}>
+            Нет интернета
+          </Text>
+          <Text style={[t.type.body, { color: t.color.textMuted, textAlign: 'center' }]}>
+            Фразы загрузятся, когда появится сеть. После этого они будут открываться и без неё.
+          </Text>
+          <Button fullWidth onPress={() => setAttempt(attempt + 1)}>
+            Повторить
+          </Button>
+        </View>
       ) : null}
 
       <BottomSheet open={authorOpen && author !== null} title="Автор фразы" onClose={() => setAuthorOpen(false)}>

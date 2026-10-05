@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { FeedHeader, InfoNote, LikeStamp, PullHint, SpecialistCard, type PhotoTone } from '@/components/blocks';
-import { Button, EmptyState } from '@/components/ui';
+import { Button, EmptyState, Skeleton } from '@/components/ui';
 import type { Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
@@ -34,6 +34,8 @@ const UNDER_SHIFT = 10;
 const UNDER_OPACITY = 0.9;
 // Улетающая карточка уходит за край экрана с запасом на наклон.
 const FLY_SHARE = 1.4;
+// Заглушка загрузки — примерно по высоте карточки специалиста.
+const LOADING_CARD_HEIGHT = 480;
 
 const quoted = (quote: string | undefined) => (quote ? `«${quote}».` : undefined);
 
@@ -52,7 +54,8 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
   const t = useTheme();
   const router = useRouter();
   const onScroll = useReportScrollTop(onScrollAtTop);
-  const { ready, deck, deckPosition, deckTotal, liked, toneOf, like, reject, resetRejected } = useSpecialists();
+  const { ready, offline, retry, deck, deckPosition, deckTotal, liked, toneOf, like, reject, resetRejected } =
+    useSpecialists();
   const current = deck[0];
   const count = liked.length > 0 ? ` (${liked.length})` : '';
   const openFavorites = () => router.push('/favorites');
@@ -65,7 +68,11 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
       contentContainerStyle={{ flexGrow: 1, paddingBottom: t.space.xl }}
     >
       <FeedHeader title="Подбор специалиста" active={active} onSosPress={() => router.push('/sos')} />
-      {!ready ? null : current ? (
+      {!ready ? (
+        <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen }}>
+          <Skeleton variant="card" height={LOADING_CARD_HEIGHT} />
+        </View>
+      ) : current ? (
         <>
           <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
             <PullHint label={`Потяните вниз — избранные контакты${count}`} onPress={openFavorites} />
@@ -84,6 +91,22 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
             onReject={() => reject(current.id)}
           />
         </>
+      ) : offline ? (
+        // Подбор работает только с сетью (docs/08). Тимки здесь нет: это ошибка, а не пустое состояние.
+        <View style={{ paddingTop: t.space['3xl'], paddingHorizontal: t.space.screen, gap: t.space.sm }}>
+          <Text accessibilityRole="header" style={[t.type.h2, { color: t.color.text, textAlign: 'center' }]}>
+            Нет интернета
+          </Text>
+          <Text style={[t.type.body, { color: t.color.textMuted, textAlign: 'center' }]}>
+            Подбор специалистов работает только с сетью. Избранные контакты и SOS доступны и без неё.
+          </Text>
+          <Button fullWidth onPress={retry}>
+            Повторить
+          </Button>
+          <Button variant="outline" icon="heart" fullWidth onPress={openFavorites}>
+            {`Открыть избранные${count}`}
+          </Button>
+        </View>
       ) : (
         <>
           <View style={{ paddingTop: t.space['3xl'] }}>

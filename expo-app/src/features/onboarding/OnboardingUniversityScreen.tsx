@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button, RadioCard, TextField } from '@/components/ui';
-import { universitiesRepo, type University, type UniversityId } from '@/data/repos';
+import type { University, UniversityId } from '@/data/repos';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { useTheme } from '@/theme';
 import { OnboardingStep } from './OnboardingStep';
@@ -22,14 +22,16 @@ function matches(university: University, query: string): boolean {
 /**
  * Шаг 5 (эталон OnbUniversity): выбор вуза — от него зависит «Помощь в моём вузе» в SOS.
  * Вуз заранее не отмечен: «Готово» включается после выбора, а «Выберу позже» ведёт на Главную без вуза.
+ * Стрелки «Назад» нет: человек уже вошёл, и возвращаться ко входу незачем. Системная «Назад»
+ * ведёт на Главную без вуза — как «Выберу позже».
  */
 export function OnboardingUniversityScreen() {
   const t = useTheme();
   const router = useRouter();
-  const { universityId, select } = useSelectedUniversity();
+  const { universityId, universities, select } = useSelectedUniversity();
   const [picked, setPicked] = useState<UniversityId | null>(universityId);
   const [query, setQuery] = useState('');
-  const shown = universitiesRepo.all().filter((university) => matches(university, query.trim().toLowerCase()));
+  const shown = universities.filter((university) => matches(university, query.trim().toLowerCase()));
 
   // Весь онбординг — один экран корневого стека: замена убирает его целиком, «Назад» с Главной сюда не вернёт.
   const enter = () => router.replace('/?s=home');
@@ -37,7 +39,6 @@ export function OnboardingUniversityScreen() {
   return (
     <OnboardingStep
       step={5}
-      onBack={router.canGoBack() ? () => router.back() : undefined}
       footer={
         <View style={{ gap: t.space.xxs }}>
           <Button

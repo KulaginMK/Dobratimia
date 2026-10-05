@@ -100,6 +100,7 @@ export const mockLikesRepo: LikesRepo = {
     const likes = await readLikes(userId);
     await AsyncStorage.setItem(likesKey(userId), JSON.stringify(likes.filter((id) => id !== specialistId)));
   },
+  flush: async () => {},
 };
 
 export const mockSpecialistsRepo: SpecialistsRepo = {

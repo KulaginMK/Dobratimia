@@ -1,5 +1,5 @@
 // ЗАГЛУШКА: вымышленный пользователь из макетов (handoff/docs/10-placeholders.md) и вход-имитация.
-// На этапе 12 имя и почта придут из Google-аккаунта, а вместо mockAuthRepo будет вход через Supabase.
+// Работает, пока не подключён сервер (нет expo-app/.env.local): тогда вместо неё — вход через Supabase.
 import { GUEST_USER_ID } from '@/data/local/session';
 import type { AuthRepo, SessionUser } from '@/data/repos/AuthRepo';
 
@@ -13,8 +13,12 @@ export const mockUser: SessionUser = {
 
 // Кнопка «Войти через Google» никуда не ходит: сразу «входит» вымышленный пользователь.
 export const mockAuthRepo: AuthRepo = {
-  signInWithGoogle: async () => mockUser,
+  signInWithGoogle: async () => ({ user: mockUser, universityId: null }),
+  completeSignIn: async () => ({ user: mockUser, universityId: null }),
+  restore: async (user) => user,
+  onSignedOut: () => () => {},
   signOut: async () => {},
   // Отметки «Нравится» заглушки лежат на устройстве и стираются вместе с остальными данными.
   deleteAccount: async () => {},
+  saveUniversity: async () => {},
 };

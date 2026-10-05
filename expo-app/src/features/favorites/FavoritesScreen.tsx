@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { ContactRow, SectionLetter } from '@/components/blocks';
 import { TextField } from '@/components/ui';
-import { universitiesRepo } from '@/data/repos';
 import { MATCH_INDEX } from '@/features/feed/feedScreens';
 import { SlideFromTopScreen } from '@/features/navigation/SlideFromTopScreen';
 import { useSpecialists } from '@/features/specialists/Specialists';
@@ -17,14 +16,14 @@ export function FavoritesScreen() {
   const t = useTheme();
   const router = useRouter();
   const call = useCallPhone();
-  const { universityId } = useSelectedUniversity();
+  const { universityId, byId } = useSelectedUniversity();
   const { liked, toneOf, contactsOf } = useSpecialists();
   const [query, setQuery] = useState('');
 
   const needle = query.trim().toLowerCase();
   const matches = (...fields: string[]) => needle === '' || fields.some((field) => field.toLowerCase().includes(needle));
 
-  const service = universitiesRepo.byId(universityId)?.service ?? null;
+  const service = byId(universityId)?.service ?? null;
   const showService = service !== null && matches(service.name);
   // По алфавиту — по фамилии; буква-разделитель тоже по ней (docs/07).
   const found = liked

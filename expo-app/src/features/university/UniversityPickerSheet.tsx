@@ -1,7 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import { BottomSheet, RadioCard } from '@/components/ui';
-import { universitiesRepo, type UniversityId } from '@/data/repos';
+import type { UniversityId } from '@/data/repos';
+import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { useTheme } from '@/theme';
 
 type Props = {
@@ -14,10 +15,11 @@ type Props = {
 /** Шторка выбора вуза: тот же список, что на шаге онбординга «Где вы учитесь?». Тап по вузу — выбор. */
 export function UniversityPickerSheet({ open, selectedId, onSelect, onClose }: Props) {
   const t = useTheme();
+  const { universities } = useSelectedUniversity();
   return (
     <BottomSheet open={open} title="Где вы учитесь?" onClose={onClose}>
       <View accessibilityRole="radiogroup" accessibilityLabel="Вуз" style={{ gap: t.space.sm }}>
-        {universitiesRepo.all().map((university) => (
+        {universities.map((university) => (
           <RadioCard
             key={university.id}
             title={university.shortName}

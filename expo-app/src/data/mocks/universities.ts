@@ -68,6 +68,7 @@ const UNIVERSITIES: University[] = [
 export const mockUniversitiesRepo: UniversitiesRepo = {
   all: () => UNIVERSITIES,
   byId: (id) => UNIVERSITIES.find((university) => university.id === id) ?? null,
+  fresh: async () => null,
 };
 
 // ЗАГЛУШКА: почты команды пока нет ([ПОЧТА КОМАНДЫ] в docs/10). Пока её нет — ссылки «напишите нам» неактивны.
