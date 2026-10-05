@@ -61,7 +61,7 @@ export async function saveSessionUser(user: SessionUser | null): Promise<void> {
 
 /**
  * «Удалить мои данные»: стирает с устройства всё, что приложение сохранило об этом пользователе —
- * дневник, тесты, КРИК, отметки и фразы, выбранный вуз, вход и флаг онбординга. Остаётся только тема.
+ * дневник, тесты, КРИК, отметки специалистам и фразам, выбранный вуз, вход и флаг онбординга. Остаётся только тема.
  * Данные других аккаунтов на этом телефоне не трогаем. Чужие ключи тоже: в вебе хранилище общее на весь сайт.
  */
 export async function clearUserData(userId: string): Promise<void> {
@@ -69,8 +69,9 @@ export async function clearUserData(userId: string): Promise<void> {
   const own = keys.filter(
     (key) =>
       key.startsWith(`user:${userId}:`) ||
-      // Отметки «Нравится» заглушки (src/data/mocks/specialists.ts); на этапе 12 они уйдут на сервер.
+      // Отметки «Нравится» специалистам и сердечки фраз из заглушек (src/data/mocks); на этапе 12 они уйдут на сервер.
       key === `mock:likes:${userId}` ||
+      key === `mock:phraseLikes:${userId}` ||
       (key.startsWith('app:') && !KEPT_ON_DELETE.includes(key)),
   );
   await AsyncStorage.multiRemove(own);

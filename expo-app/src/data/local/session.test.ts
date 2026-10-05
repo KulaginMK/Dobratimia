@@ -39,8 +39,8 @@ describe('«Удалить мои данные»', () => {
       ['user:anna:dass', '[]'],
       ['user:anna:scream2', '[]'],
       ['user:anna:rejected', '[]'],
-      ['user:anna:phrases', '[]'],
       ['mock:likes:anna', '[]'],
+      ['mock:phraseLikes:anna', '[]'],
       ['app:session', JSON.stringify(anna)],
       ['app:onboarded', '1'],
       ['app:university', 'vsmu'],
@@ -59,6 +59,7 @@ describe('«Удалить мои данные»', () => {
       ['app:theme', 'dark'],
       ['user:boris:mood', '[]'],
       ['mock:likes:boris', '[]'],
+      ['mock:phraseLikes:boris', '[]'],
       // В вебе хранилище общее на весь сайт: ключи других страниц трогать нельзя.
       ['other-app:settings', '{}'],
     ]);
@@ -68,6 +69,7 @@ describe('«Удалить мои данные»', () => {
     expect([...(await AsyncStorage.getAllKeys())].sort()).toEqual([
       'app:theme',
       'mock:likes:boris',
+      'mock:phraseLikes:boris',
       'other-app:settings',
       'user:boris:mood',
     ]);

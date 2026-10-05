@@ -2,8 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { FeedHeader, PhraseCard } from '@/components/blocks';
-import { BottomSheet, Button, SegmentedControl, useToast } from '@/components/ui';
-import { loadSavedPhrases, saveSavedPhrases } from '@/data/local/match';
+import { BottomSheet, Button, SegmentedControl } from '@/components/ui';
 import { phrasesRepo, type Phrase, type PhraseTone, type Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
 import { useUserId } from '@/features/session/Session';
@@ -27,11 +26,13 @@ const TITLE_GENITIVE: Record<string, string> = { Психотерапевт: 'п
 
 type Shown = Record<PhraseTone, Phrase | null>;
 
-/** Доброе слово: фраза в одном из двух тонов, «Ещё» и сердечко. Автор фразы открывается шторкой. */
+/**
+ * Доброе слово: фраза в одном из двух тонов, «Ещё» и сердечко. Автор фразы открывается шторкой.
+ * Сердечко — отметка «нравится», а не закладка: команда видит число отметок у фразы, списка у пользователя нет.
+ */
 export function WordPage({ active }: FeedPageProps) {
   const t = useTheme();
   const router = useRouter();
-  const toast = useToast();
   const { byId } = useSpecialists();
   const userId = useUserId();
 
@@ -40,17 +41,17 @@ export function WordPage({ active }: FeedPageProps) {
   const [shown, setShown] = useState<Shown>({ sweet: null, spicy: null });
   // Уже показанные фразы каждого тона: «Ещё» не повторяет последние двадцать (docs/07).
   const [recent, setRecent] = useState<Record<PhraseTone, string[]>>({ sweet: [], spicy: [] });
-  const [saved, setSaved] = useState<string[]>([]);
+  const [liked, setLiked] = useState<string[]>([]);
   const [authorOpen, setAuthorOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    Promise.all([phrasesRepo.all(), loadSavedPhrases(userId)])
-      .then(([all, savedIds]) => {
+    Promise.all([phrasesRepo.all(), phrasesRepo.liked(userId).catch(() => [])])
+      .then(([all, likedIds]) => {
         if (!alive) return;
         const first: Shown = { sweet: nextPhrase(all, 'sweet', []), spicy: nextPhrase(all, 'spicy', []) };
         setPhrases(all);
-        setSaved(savedIds);
+        setLiked(likedIds);
         setShown(first);
         setRecent({ sweet: first.sweet ? [first.sweet.id] : [], spicy: first.spicy ? [first.spicy.id] : [] });
       })
@@ -62,7 +63,7 @@ export function WordPage({ active }: FeedPageProps) {
 
   const phrase = shown[tone];
   const author: Specialist | null = phrase?.authorSpecialistId ? byId(phrase.authorSpecialistId) : null;
-  const isSaved = phrase ? saved.includes(phrase.id) : false;
+  const isLiked = phrase ? liked.includes(phrase.id) : false;
 
   const more = () => {
     const next = nextPhrase(phrases, tone, recent[tone]);
@@ -71,12 +72,11 @@ export function WordPage({ active }: FeedPageProps) {
     setRecent({ ...recent, [tone]: [...recent[tone], next.id].slice(-NO_REPEAT) });
   };
 
-  const toggleSaved = () => {
+  const toggleLiked = () => {
     if (!phrase) return;
-    const next = isSaved ? saved.filter((id) => id !== phrase.id) : [...saved, phrase.id];
-    setSaved(next);
-    saveSavedPhrases(userId, next).catch(() => {});
-    if (!isSaved) toast.show({ message: 'Фраза сохранена', tone: 'success' });
+    setLiked(isLiked ? liked.filter((id) => id !== phrase.id) : [...liked, phrase.id]);
+    // Не отправилось — сердечко всё равно остаётся нажатым до перезапуска.
+    phrasesRepo.setLiked(userId, phrase.id, !isLiked).catch(() => {});
   };
 
   return (
@@ -105,13 +105,13 @@ export function WordPage({ active }: FeedPageProps) {
               paddingHorizontal: t.space.screen,
             }}
           >
-            {/* Сохранённая фраза: кнопка залита и для скринридера названа иначе — не только цветом. */}
+            {/* Отмеченная фраза: кнопка залита и для скринридера названа иначе — не только цветом. */}
             <Button
-              variant={isSaved ? 'secondary' : 'outline'}
+              variant={isLiked ? 'secondary' : 'outline'}
               size="lg"
               icon="heart"
-              accessibilityLabel={isSaved ? 'Убрать фразу из сохранённых' : 'Сохранить фразу'}
-              onPress={toggleSaved}
+              accessibilityLabel={isLiked ? 'Убрать отметку «Нравится»' : 'Нравится'}
+              onPress={toggleLiked}
             />
             <View style={{ flex: 1 }}>
               <Button size="lg" fullWidth onPress={more}>

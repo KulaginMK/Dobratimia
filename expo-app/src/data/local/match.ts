@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { userKey } from './session';
 
-// Отклонённые специалисты и сохранённые фразы хранятся только на устройстве: серверу они не нужны (docs/08).
+// Отклонённые специалисты хранятся только на устройстве: серверу они не нужны (docs/08).
 
 async function loadIds(key: string): Promise<string[]> {
   try {
@@ -20,13 +20,4 @@ export function loadRejected(userId: string): Promise<string[]> {
 
 export async function saveRejected(userId: string, ids: string[]): Promise<void> {
   await AsyncStorage.setItem(userKey(userId, 'rejected'), JSON.stringify(ids));
-}
-
-/** Фразы «Доброго слова», сохранённые сердечком. */
-export function loadSavedPhrases(userId: string): Promise<string[]> {
-  return loadIds(userKey(userId, 'phrases'));
-}
-
-export async function saveSavedPhrases(userId: string, ids: string[]): Promise<void> {
-  await AsyncStorage.setItem(userKey(userId, 'phrases'), JSON.stringify(ids));
 }
