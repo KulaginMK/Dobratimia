@@ -9,17 +9,29 @@ import {
   AnatomyFigure,
   AnswerOption,
   BulletItem,
+  CareNote,
+  CheckPoint,
   ContactAction,
   ContactRow,
+  DangerButton,
   EmergencyCard,
   EmergencyStrip,
+  FeatureRow,
+  FeedScheme,
+  GestureRow,
+  GoogleButton,
+  GroupLabel,
+  HeroIcon,
   HistoryChart,
   InfoNote,
+  InlineLink,
   LevelBar,
   LikeStamp,
   LinkRow,
   ListItemCard,
   LoudnessWave,
+  MapIllustration,
+  MapKind,
   MicButton,
   MicOffBadge,
   MoodCalendar,
@@ -31,7 +43,9 @@ import {
   PeakNumber,
   PhraseCard,
   PhaseTiles,
+  PrincipleRow,
   PrivacyNote,
+  ProfileHead,
   PullHint,
   ReactionCard,
   ReactionScale,
@@ -40,11 +54,14 @@ import {
   ScreamButton,
   ScreenHeader,
   SectionLetter,
+  SettingsGroup,
+  SettingsRow,
   SosAction,
   SosRound,
   SpecialistCard,
   SpecialistPhoto,
   StatTile,
+  StepsHeader,
   StopButton,
   SuccessBanner,
   Ticker,
@@ -77,6 +94,7 @@ import {
 import { ORGANS, type OrganId } from '@/data/anatomy';
 import { PSYCH_HELPLINE } from '@/data/emergency';
 import { demoSpecialist, demoUniversityService } from '@/data/mocks/demo';
+import { mockUser } from '@/data/mocks/user';
 import { ThemeProvider, useTheme, useThemePreference, type ThemePreference } from '@/theme';
 
 // Экран разработчика: размеры ниже — только для этой витрины, как на handoff/reference/kitchen-sink.png.
@@ -551,6 +569,59 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
             onPress={() => setRadio(1)}
           />
         </View>
+      </Section>
+
+      <Section title="Онбординг: StepsHeader · FeatureRow · HeroIcon · CheckPoint · CareNote">
+        <StepsHeader step={1} total={5} onSkip={() => {}} />
+        <StepsHeader step={3} total={5} onBack={() => {}} />
+        <FeatureRow icon="diary">Тест DASS-21 и дневник настроения</FeatureRow>
+        <HeroIcon icon="heart" />
+        <CheckPoint
+          title="Тесты — это ориентир"
+          text="DASS-21 подсказывает, на что обратить внимание. Это не медицинское заключение."
+        />
+        <CareNote title="Если очень тяжело прямо сейчас">
+          {'Звоните на номер экстренной психологической помощи '}
+          <InlineLink strong onPress={() => {}}>
+            {PSYCH_HELPLINE}
+          </InlineLink>
+          {' или в службу своего вуза. Кнопка SOS есть на каждом экране.'}
+        </CareNote>
+        <CareNote>Приложение не заменяет медицинскую и психологическую помощь.</CareNote>
+      </Section>
+
+      <Section title="Онбординг: FeedScheme · GestureRow · GoogleButton">
+        <FeedScheme />
+        <GestureRow kind="sides" title="Влево и вправо" text="Свайп переносит на соседний экран." />
+        <GestureRow
+          kind="down"
+          title="Вниз"
+          text="На «Техниках» откроются медитации, на «Специалистах» — избранные контакты."
+        />
+        <GestureRow kind="dots" title="Точки внизу" text="Показывают, где вы, и тоже переключают экраны." />
+        <GoogleButton onPress={() => {}}>Войти через Google</GoogleButton>
+      </Section>
+
+      <Section title="Профиль: ProfileHead · GroupLabel · SettingsGroup · SettingsRow · DangerButton">
+        <ProfileHead name={mockUser.name} email={mockUser.email} />
+        <GroupLabel>Мой вуз</GroupLabel>
+        <SettingsGroup>
+          <SettingsRow title="ВГМУ · Витебск" action="Сменить" onPress={() => {}} />
+        </SettingsGroup>
+        <SettingsGroup>
+          <Switch label="Дневник настроения" description="Каждый день в 21:00" defaultChecked />
+          <SettingsRow title="Политика конфиденциальности" onPress={() => {}} />
+          <SettingsRow title="О проекте" onPress={() => {}} />
+        </SettingsGroup>
+        <DangerButton onPress={() => {}}>Удалить мои данные</DangerButton>
+      </Section>
+
+      <Section title="О проекте и карта: PrincipleRow · MapIllustration · MapKind">
+        <PrincipleRow icon="heart">Добрый, тёплый тон — без нотаций и стыда</PrincipleRow>
+        <MapIllustration />
+        <MapKind tone="primary">Тихие кафе и коворкинги</MapKind>
+        <MapKind tone="growth">Парки и скверы</MapKind>
+        <MapKind tone="accent">Психологические службы вузов</MapKind>
       </Section>
 
       <Section title="ProgressBar · ScaleBar">

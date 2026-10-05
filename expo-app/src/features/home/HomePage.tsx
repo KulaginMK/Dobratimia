@@ -6,11 +6,11 @@ import { useTopInset } from '@/components/blocks/useTopInset';
 import { Logo } from '@/components/brand';
 import { Button, useToast } from '@/components/ui';
 import type { MoodLevel } from '@/data/local/mood';
-import { mockUser } from '@/data/mocks/user';
 import { presenceRepo } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
 import { useMoodDiary } from '@/features/mood/MoodDiary';
 import { moodLabel } from '@/features/mood/moodMeta';
+import { useSession } from '@/features/session/Session';
 import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
 
@@ -47,6 +47,7 @@ export function HomePage({ active }: FeedPageProps) {
   const toast = useToast();
   const topInset = useTopInset();
   const { today, mark, restore } = useMoodDiary();
+  const { user } = useSession();
   const count = usePresenceCount();
 
   // ?focus=mood — пришли из напоминания о дневнике или после КРИКа: прокручиваем к лицам (docs/06).
@@ -111,7 +112,7 @@ export function HomePage({ active }: FeedPageProps) {
           }}
         >
           <Text style={[t.type.bodyStrong, { fontFamily: t.fontFamily.text[700], color: t.color.onPrimarySoft }]}>
-            {initials(mockUser.name)}
+            {initials(user?.name ?? '')}
           </Text>
         </Pressable>
       </View>

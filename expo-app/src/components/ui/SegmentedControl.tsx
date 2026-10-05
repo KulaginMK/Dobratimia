@@ -8,6 +8,8 @@ const PAD = 4;
 const GAP = 4;
 const FONT_SIZE = 15;
 const LINE_HEIGHT = 20;
+// Тема в профиле (макет Profile): три сегмента, подпись «Как в системе» — шрифт мельче, чтобы она шла в одну строку.
+const DENSE_FONT_SIZE = 14;
 
 type Option<T extends string> = { value: T; label: string };
 
@@ -17,10 +19,18 @@ type Props<T extends string> = {
   onChange: (value: T) => void;
   /** Что переключаем: «Тон фраз», «Тема оформления». */
   accessibilityLabel: string;
+  /** Три сегмента с длинными подписями: шрифт и поля меньше. */
+  dense?: boolean;
 };
 
 /** Сегменты-вкладки: «Сахарный / С перчиком», «Голосом / Выплеснуть текстом», тема в профиле. */
-export function SegmentedControl<T extends string>({ options, value, onChange, accessibilityLabel }: Props<T>) {
+export function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+  accessibilityLabel,
+  dense,
+}: Props<T>) {
   const t = useTheme();
   return (
     <View
@@ -46,7 +56,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, a
               {
                 flex: 1,
                 minHeight: t.size.touch,
-                paddingHorizontal: t.space.xs,
+                paddingHorizontal: dense ? t.space.xxs : t.space.xs,
                 borderRadius: t.radius.full,
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -59,7 +69,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, a
             <Text
               style={{
                 fontFamily: t.fontFamily.text[600],
-                fontSize: FONT_SIZE,
+                fontSize: dense ? DENSE_FONT_SIZE : FONT_SIZE,
                 lineHeight: LINE_HEIGHT,
                 textAlign: 'center',
                 color: selected ? t.color.text : t.color.textMuted,

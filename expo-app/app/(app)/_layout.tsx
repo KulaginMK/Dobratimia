@@ -1,20 +1,23 @@
-import { Stack } from 'expo-router';
-import { GUEST_USER_ID } from '@/data/local/session';
+import { Redirect, Stack } from 'expo-router';
 import { DassHistoryProvider } from '@/features/dass/DassHistory';
 import { MoodDiaryProvider } from '@/features/mood/MoodDiary';
+import { useSession } from '@/features/session/Session';
 import { SpecialistsProvider } from '@/features/specialists/Specialists';
 import { useTheme } from '@/theme';
 
 // Лента всегда лежит в основании стека: «Назад» с экрана, открытого по ссылке, ведёт на неё.
 export const unstable_settings = { anchor: 'index' };
 
-// Этапы 11–12: здесь появится проверка входа — экраны группы доступны только после входа через Google.
+// Экраны группы доступны только после входа (docs/05). Без него — онбординг, а если его уже показывали
+// (человек вышел из аккаунта) — сразу экран входа. SOS и медитации лежат вне группы и открываются без входа.
 export default function AppLayout() {
   const t = useTheme();
+  const { user, onboarded } = useSession();
+  if (!user) return <Redirect href={onboarded ? '/onboarding/sign-in' : '/onboarding'} />;
   return (
-    <MoodDiaryProvider userId={GUEST_USER_ID}>
-      <DassHistoryProvider userId={GUEST_USER_ID}>
-        <SpecialistsProvider userId={GUEST_USER_ID}>
+    <MoodDiaryProvider userId={user.id}>
+      <DassHistoryProvider userId={user.id}>
+        <SpecialistsProvider userId={user.id}>
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }}>
             {/* Лента объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
             <Stack.Screen name="index" />

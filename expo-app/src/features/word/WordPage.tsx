@@ -4,9 +4,9 @@ import { ScrollView, Text, View } from 'react-native';
 import { FeedHeader, PhraseCard } from '@/components/blocks';
 import { BottomSheet, Button, SegmentedControl, useToast } from '@/components/ui';
 import { loadSavedPhrases, saveSavedPhrases } from '@/data/local/match';
-import { GUEST_USER_ID } from '@/data/local/session';
 import { phrasesRepo, type Phrase, type PhraseTone, type Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
+import { useUserId } from '@/features/session/Session';
 import { useSpecialists } from '@/features/specialists/Specialists';
 import { fullName, initials, roleExperienceFormat } from '@/features/specialists/labels';
 import { useTheme } from '@/theme';
@@ -33,8 +33,7 @@ export function WordPage({ active }: FeedPageProps) {
   const router = useRouter();
   const toast = useToast();
   const { byId } = useSpecialists();
-  // Этапы 11–12: вместо гостя — id вошедшего пользователя.
-  const userId = GUEST_USER_ID;
+  const userId = useUserId();
 
   const [phrases, setPhrases] = useState<Phrase[]>([]);
   const [tone, setTone] = useState<PhraseTone>('sweet');

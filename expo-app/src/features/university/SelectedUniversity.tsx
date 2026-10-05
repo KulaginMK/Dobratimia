@@ -8,12 +8,15 @@ type SelectedUniversityValue = {
   /** false, пока сохранённый выбор читается с устройства. */
   ready: boolean;
   select: (id: UniversityId) => void;
+  /** Забыть выбор в памяти: «Удалить мои данные» уже стёрло его с устройства. */
+  reset: () => void;
 };
 
 const SelectedUniversityContext = createContext<SelectedUniversityValue>({
   universityId: null,
   ready: false,
   select: () => {},
+  reset: () => {},
 });
 
 /**
@@ -43,7 +46,7 @@ export function SelectedUniversityProvider({ children }: { children: React.React
   };
 
   return (
-    <SelectedUniversityContext.Provider value={{ universityId, ready, select }}>
+    <SelectedUniversityContext.Provider value={{ universityId, ready, select, reset: () => setUniversityId(null) }}>
       {children}
     </SelectedUniversityContext.Provider>
   );

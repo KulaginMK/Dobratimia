@@ -1,11 +1,1 @@
-import { PlaceholderScreen } from '@/features/navigation/PlaceholderScreen';
-
-export default function MapStub() {
-  return (
-    <PlaceholderScreen
-      title="Карта"
-      stage={11}
-      etalon="MapStub"
-    />
-  );
-}
+export { MapScreen as default } from '@/features/map/MapScreen';

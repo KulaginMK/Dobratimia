@@ -7,13 +7,14 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ToastProvider } from '@/components/ui';
-import { SelectedUniversityProvider } from '@/features/university/SelectedUniversity';
+import { SessionProvider, useSession } from '@/features/session/Session';
+import { SelectedUniversityProvider, useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { ThemePreferenceProvider, appFonts, useTheme, useThemePreference } from '@/theme';
 
 // Основание стека — лента: «Назад» с экрана, открытого по ссылке (SOS, медитации), ведёт на неё.
 export const unstable_settings = { anchor: '(app)' };
 
-// Сплэш держится, пока не загрузятся шрифты и сохранённая настройка темы.
+// Сплэш держится, пока не загрузятся шрифты и не прочитаются с устройства тема, вход и выбранный вуз.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -21,7 +22,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemePreferenceProvider>
         <SelectedUniversityProvider>
-          <RootStack />
+          <SessionProvider>
+            <RootStack />
+          </SessionProvider>
         </SelectedUniversityProvider>
       </ThemePreferenceProvider>
     </GestureHandlerRootView>
@@ -31,9 +34,11 @@ export default function RootLayout() {
 function RootStack() {
   const t = useTheme();
   const { ready: themeReady } = useThemePreference();
+  const { ready: sessionReady } = useSession();
+  const { ready: universityReady } = useSelectedUniversity();
   const [fontsLoaded, fontError] = useFonts(appFonts);
   // Шрифты не загрузились — показываем приложение системным шрифтом, а не вечный сплэш.
-  const ready = themeReady && (fontsLoaded || fontError != null);
+  const ready = themeReady && sessionReady && universityReady && (fontsLoaded || fontError != null);
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
@@ -56,7 +61,9 @@ function RootStack() {
         }}
       >
         {/* Группа с лентой объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
-        <Stack.Screen name="(app)" />
+        <Stack.Screen name="(app)" options={{ animation: 'fade' }} />
+        {/* Вход и выход меняют онбординг и приложение местами — мягким проявлением, без сдвига. */}
+        <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
         {/* Из ленты медитации выезжают сверху над «Техниками»: прозрачное окно без системной анимации (docs/06). */}
         <Stack.Screen
           name="meditation"
