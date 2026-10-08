@@ -1,12 +1,18 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Platform, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DangerButton, GroupLabel, ProfileHead, ScreenHeader, SettingsGroup, SettingsRow } from '@/components/blocks';
 import { BottomSheet, Button, SegmentedControl, Switch, useToast } from '@/components/ui';
-import { DEFAULT_REMINDERS, loadReminders, saveReminders, type Reminders } from '@/data/local/reminders';
 import { CONSENT_URL, PRIVACY_URL } from '@/data/mocks/links';
 import { NEXT_TEST_DAYS, useDassHistory } from '@/features/dass/DassHistory';
+import { useMoodDiary } from '@/features/mood/MoodDiary';
+import {
+  syncDassReminder,
+  syncDiaryReminders,
+  useAllowNotifications,
+  useReminders,
+} from '@/features/reminders/reminders';
 import { useSession } from '@/features/session/Session';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
@@ -26,26 +32,6 @@ const REMINDERS_AVAILABLE = Platform.OS !== 'web';
 // Данные лежат на устройстве: в вебе это браузер, а не телефон.
 const DEVICE = Platform.OS === 'web' ? 'в этом браузере' : 'на этом телефоне';
 
-/** Переключатели напоминаний. Пока только запоминают выбор: сами уведомления появятся на этапе 14. */
-function useReminders() {
-  const [reminders, setReminders] = useState<Reminders>(DEFAULT_REMINDERS);
-  useEffect(() => {
-    let alive = true;
-    loadReminders().then((stored) => {
-      if (alive) setReminders(stored);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
-  const change = (next: Reminders) => {
-    setReminders(next);
-    // Не сохранилось — выбор всё равно действует до перезапуска.
-    saveReminders(next).catch(() => {});
-  };
-  return [reminders, change] as const;
-}
-
 /** Профиль и настройки (эталон Profile): вуз, напоминания, тема, документы, выход и удаление данных. */
 export function ProfileScreen() {
   const t = useTheme();
@@ -57,7 +43,9 @@ export function ProfileScreen() {
   const { universityId, byId, select } = useSelectedUniversity();
   const { preference, setPreference } = useThemePreference();
   const { entries } = useDassHistory();
+  const mood = useMoodDiary();
   const [reminders, setReminders] = useReminders();
+  const allowNotifications = useAllowNotifications();
   const [sheet, setSheet] = useState<'university' | 'signOut' | 'delete' | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -71,6 +59,18 @@ export function ProfileScreen() {
     nextTest && nextTest >= toDateKey(new Date())
       ? `Раз в ${NEXT_TEST_DAYS} дней · следующий ${dayAndMonth(nextTest)}`
       : `Раз в ${NEXT_TEST_DAYS} дней`;
+
+  // Разрешение на уведомления спрашиваем здесь, при включении, а не при запуске приложения (docs/07).
+  const remindDiary = async (diary: boolean) => {
+    if (diary && !(await allowNotifications())) return;
+    await setReminders({ ...reminders, diary, diarySince: diary ? mood.todayKey : null });
+    syncDiaryReminders(mood.entries[mood.entries.length - 1]?.date ?? null);
+  };
+  const remindDass = async (dass: boolean) => {
+    if (dass && !(await allowNotifications())) return;
+    await setReminders({ ...reminders, dass });
+    syncDassReminder(latest?.date ?? null);
+  };
 
   const onDelete = async () => {
     if (deleting) return;
@@ -126,13 +126,13 @@ export function ProfileScreen() {
                 label="Дневник настроения"
                 description="Каждый день в 21:00"
                 checked={reminders.diary}
-                onChange={(diary) => setReminders({ ...reminders, diary })}
+                onChange={remindDiary}
               />
               <Switch
                 label="Тест DASS-21"
                 description={dassSchedule}
                 checked={reminders.dass}
-                onChange={(dass) => setReminders({ ...reminders, dass })}
+                onChange={remindDass}
               />
             </SettingsGroup>
           ) : (

@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ToastProvider } from '@/components/ui';
 import { SessionProvider, useSession } from '@/features/session/Session';
 import { SelectedUniversityProvider, useSelectedUniversity } from '@/features/university/SelectedUniversity';
+import { useNotificationTaps } from '@/lib/notifications';
 import { ThemePreferenceProvider, appFonts, useTheme, useThemePreference } from '@/theme';
 
 // Основание стека — лента: «Назад» с экрана, открытого по ссылке (SOS, медитации), ведёт на неё.
@@ -43,6 +44,8 @@ function RootStack() {
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
+
+  useNotificationTaps(ready);
 
   // Фон под экранами: чтобы при переходах в тёмной теме не мелькал белый.
   useEffect(() => {

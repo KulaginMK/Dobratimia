@@ -1,6 +1,7 @@
 import { Redirect, Stack } from 'expo-router';
 import { DassHistoryProvider } from '@/features/dass/DassHistory';
 import { MoodDiaryProvider } from '@/features/mood/MoodDiary';
+import { ReminderSync } from '@/features/reminders/reminders';
 import { useSession } from '@/features/session/Session';
 import { SpecialistsProvider } from '@/features/specialists/Specialists';
 import { useTheme } from '@/theme';
@@ -18,6 +19,7 @@ export default function AppLayout() {
     <MoodDiaryProvider userId={user.id}>
       <DassHistoryProvider userId={user.id}>
         <SpecialistsProvider userId={user.id}>
+          <ReminderSync />
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }}>
             {/* Лента объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
             <Stack.Screen name="index" />

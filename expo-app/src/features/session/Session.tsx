@@ -9,7 +9,9 @@ import {
   saveSessionUser,
 } from '@/data/local/session';
 import { authRepo, universitiesRepo, type SessionUser, type SignInCallback, type SignedIn } from '@/data/repos';
+import { cancelPersonalReminders } from '@/features/reminders/reminders';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
+import { cancelAllNotifications } from '@/lib/notifications';
 
 type SessionValue = {
   /** false, пока вход и флаг онбординга читаются с устройства: в это время держится сплэш. */
@@ -95,6 +97,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     };
   }, [ready, user]);
 
+  // Никто не вошёл (выход, отозванный вход): напоминания о дневнике и тесте больше не приходят.
+  useEffect(() => {
+    if (ready && !user) cancelPersonalReminders();
+  }, [ready, user]);
+
   // Выбранный вуз хранится и в профиле на сервере; источник правды — устройство (SOS работает без сети).
   const userId = user?.id;
   const universityId = university.universityId;
@@ -137,6 +144,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     // Сначала аккаунт: если сервер не ответил, на устройстве ничего не трогаем и говорим об ошибке.
     await authRepo.deleteAccount(user.id);
     await clearUserData(user.id);
+    // Переключатели стёрты вместе с данными — убираем и уже поставленные уведомления, включая таймер Pomodoro.
+    await cancelAllNotifications().catch(() => {});
     university.reset();
     setOnboarded(false);
     setUser(null);

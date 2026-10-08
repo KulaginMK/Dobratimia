@@ -26,8 +26,9 @@ export const MODE_LABEL: Record<PomodoroMode, string> = {
 /**
  * Таймер Pomodoro. Состояние хранится на устройстве, время считается от endsAt:
  * таймер идёт, пока приложение свёрнуто или экран заблокирован, и догоняет время при возвращении.
+ * onChange — человек сам изменил таймер: запустил, поставил на паузу, пропустил фазу или выбрал другую.
  */
-export function usePomodoro() {
+export function usePomodoro(onChange?: (state: PomodoroState) => void) {
   const [state, setState] = useState<PomodoroState>(INITIAL_POMODORO);
   const [ready, setReady] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -76,6 +77,7 @@ export function usePomodoro() {
     setNow(Date.now());
     setState(next);
     savePomodoro(next).catch(() => {});
+    onChange?.(next);
   };
 
   const duration = durationOf(state.mode);

@@ -3,6 +3,8 @@ import { Platform, Text, View } from 'react-native';
 import { TimerRing, TomatoDots } from '@/components/blocks';
 import { Button, Chip, Switch } from '@/components/ui';
 import { loadPomodoroNotify, savePomodoroNotify } from '@/data/local/pomodoro';
+import { syncPomodoroBreaks, useAllowNotifications } from '@/features/reminders/reminders';
+import { notificationsAllowed } from '@/lib/notifications';
 import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
 import { TOMATOES, clock, type PomodoroMode } from './pomodoro';
@@ -20,14 +22,20 @@ function spokenTime(ms: number): string {
 /** Вкладка Pomodoro: фокус 25 минут, перерыв 5, четыре «помидора». */
 export function PomodoroTab() {
   const t = useTheme();
-  const pomodoro = usePomodoro();
+  const allowNotifications = useAllowNotifications();
+  const [notify, setNotify] = useState(false);
+  // Уведомления стоят на конец каждого оставшегося фокуса и пересчитываются, только когда человек сам меняет
+  // таймер. Когда фаза сменяется сама, их не трогаем: иначе отменили бы то, что система ещё не успела показать.
+  const pomodoro = usePomodoro((next) => {
+    if (notify) syncPomodoroBreaks(next);
+  });
   const { state } = pomodoro;
 
-  const [notify, setNotify] = useState(false);
   useEffect(() => {
     let alive = true;
-    loadPomodoroNotify().then((stored) => {
-      if (alive) setNotify(stored);
+    Promise.all([loadPomodoroNotify(), notificationsAllowed()]).then(([stored, allowed]) => {
+      // Уведомления запретили в настройках телефона — переключатель показан выключенным.
+      if (alive) setNotify(stored && allowed);
     });
     return () => {
       alive = false;
@@ -92,14 +100,16 @@ export function PomodoroTab() {
             boxShadow: t.shadow.sm,
           }}
         >
-          {/* Этап 14: при включении спросить разрешение и поставить локальное уведомление на конец фокуса. */}
           <Switch
             label="Уведомить о перерыве"
             description="Звук и вибрация, даже если экран выключен"
             checked={notify}
-            onChange={(next) => {
+            onChange={async (next) => {
+              // Разрешение спрашиваем при включении переключателя (docs/07).
+              if (next && !(await allowNotifications())) return;
               setNotify(next);
               savePomodoroNotify(next).catch(() => {});
+              syncPomodoroBreaks(next ? state : null);
             }}
           />
         </View>
