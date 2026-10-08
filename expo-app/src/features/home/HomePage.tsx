@@ -52,6 +52,18 @@ export function HomePage({ active }: FeedPageProps) {
 
   // ?focus=mood — пришли из напоминания о дневнике или после КРИКа: прокручиваем к лицам (docs/06).
   const { focus } = useLocalSearchParams<{ focus?: string }>();
+
+  // Решение владельца (этап 14): после отметки ячейка сворачивается в кнопку «Дневник».
+  // Лица возвращает «Изменить», а на следующий день они появляются сами.
+  // «Отметить, как вы теперь» после КРИКа или дыхания (?focus=mood) тоже возвращает лица.
+  const [editing, setEditing] = useState(focus === 'mood');
+  const [seenFocus, setSeenFocus] = useState(focus);
+  if (focus !== seenFocus) {
+    setSeenFocus(focus);
+    if (focus === 'mood') setEditing(true);
+  }
+  const picking = !today || editing;
+
   const scrollRef = useRef<ScrollView>(null);
   const moodTitleRef = useRef<Text>(null);
   const moodTop = useRef(0);
@@ -65,6 +77,7 @@ export function HomePage({ active }: FeedPageProps) {
   }, [focus, active, router]);
 
   const onMood = (level: MoodLevel) => {
+    setEditing(false);
     const change = mark(level);
     if (!change) return;
     toast.show({
@@ -166,8 +179,8 @@ export function HomePage({ active }: FeedPageProps) {
             {today ? `Сегодня вам ${moodLabel(today.level).toLowerCase()}` : 'Как вы сегодня?'}
           </Text>
           <Pressable
-            onPress={() => router.push('/diary')}
-            accessibilityRole="link"
+            onPress={() => (picking ? router.push('/diary') : setEditing(true))}
+            accessibilityRole={picking ? 'link' : 'button'}
             hitSlop={t.space.md}
           >
             <Text
@@ -178,16 +191,21 @@ export function HomePage({ active }: FeedPageProps) {
                 color: t.color.primary,
               }}
             >
-              Дневник
+              {picking ? 'Дневник' : 'Изменить'}
             </Text>
           </Pressable>
         </View>
-        <MoodPicker value={today?.level ?? null} onChange={onMood} />
+        {picking ? <MoodPicker value={today?.level ?? null} onChange={onMood} /> : null}
         {today ? (
           <Text style={[t.type.caption, { paddingHorizontal: t.space.xs, color: t.color.textMuted }]}>
-            {`Отмечено в ${today.time}. Нажмите на другое лицо, чтобы изменить.`}
+            {picking ? `Отмечено в ${today.time}. Нажмите на другое лицо, чтобы изменить.` : `Отмечено в ${today.time}`}
           </Text>
         ) : null}
+        {picking ? null : (
+          <Button variant="secondary" icon="diary" iconRight="chevronRight" fullWidth onPress={() => router.push('/diary')}>
+            Дневник
+          </Button>
+        )}
       </View>
 
       <View
