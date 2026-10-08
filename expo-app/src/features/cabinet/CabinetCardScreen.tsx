@@ -19,7 +19,7 @@ function statusOf({ draft, published }: Cabinet): { tone: CardStatusTone; text: 
     return {
       tone: 'pending',
       text: published
-        ? 'На проверке. До проверки студенты видят прежнюю версию карточки.'
+        ? 'На проверке. Пока студенты видят прежнюю версию карточки.'
         : 'На проверке. Карточка появится у студентов после проверки.',
     };
   }
