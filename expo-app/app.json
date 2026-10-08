@@ -45,7 +45,14 @@
           "enableBackgroundPlayback": false
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Доступ к фото нужен, только чтобы вы выбрали снимок для своей карточки специалиста",
+          "cameraPermission": false
+        }
+      ]
     ],
     "experiments": {
       "baseUrl": "/Dobratimia",

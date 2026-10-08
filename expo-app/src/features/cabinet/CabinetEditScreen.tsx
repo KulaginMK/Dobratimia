@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PhotoRow, ScreenHeader, SettingsGroup } from '@/components/blocks';
 import { Button, Chip, Switch, TextField, useToast } from '@/components/ui';
-import { OfflineError, type Cabinet } from '@/data/repos';
+import { OfflineError, cabinetRepo, type Cabinet } from '@/data/repos';
 import { useTheme } from '@/theme';
 import { CabinetFallback, useCabinet } from './Cabinet';
 import {
@@ -15,8 +15,8 @@ import {
   toForm,
   validate,
   type CardForm,
-  type FormErrors,
 } from './form';
+import { pickPhoto } from './photo';
 
 /** Редактирование карточки (эталон CabEdit). Открывается поверх вкладок кабинета, без индикатора. */
 export function CabinetEditScreen() {
@@ -40,24 +40,22 @@ function EditForm({ cabinet, onClose }: { cabinet: Cabinet; onClose: () => void 
   const toast = useToast();
   const { submit } = useCabinet();
   const [form, setForm] = useState<CardForm>(() => toForm(cabinet.fields));
-  const [errors, setErrors] = useState<FormErrors>({});
+  // После первого «Сохранить» подсказки обновляются по ходу правки: исправленное поле перестаёт быть красным.
+  const [checked, setChecked] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const errors = checked ? validate(form) : {};
 
-  const set = (patch: Partial<CardForm>) => {
-    const next = { ...form, ...patch };
-    setForm(next);
-    // После неудачного «Сохранить» подсказки обновляются по ходу правки: исправленное поле перестаёт быть красным.
-    if (Object.keys(errors).length > 0) setErrors(validate(next));
-  };
+  // От прежнего состояния, а не от form: фото приходит после загрузки, когда другие поля уже могли поменяться.
+  const set = (patch: Partial<CardForm>) => setForm((prev) => ({ ...prev, ...patch }));
   // Специализация не из списка (её вписал администратор) остаётся чипом: иначе она молча пропала бы при сохранении.
   const options = [...SPECIALIZATIONS, ...form.specializations.filter((tag) => !SPECIALIZATIONS.includes(tag))];
   const full = form.specializations.length >= MAX_SPECIALIZATIONS;
 
   const save = async () => {
-    if (saving) return;
-    const found = validate(form);
-    setErrors(found);
-    if (Object.keys(found).length > 0) {
+    if (saving || uploading) return;
+    setChecked(true);
+    if (Object.keys(validate(form)).length > 0) {
       toast.show({ message: 'Проверьте поля с подсказками', tone: 'error' });
       return;
     }
@@ -76,6 +74,28 @@ function EditForm({ cabinet, onClose }: { cabinet: Cabinet; onClose: () => void 
     }
   };
 
+  const replacePhoto = async () => {
+    if (uploading) return;
+    setUploading(true);
+    try {
+      const localUri = await pickPhoto();
+      if (!localUri) return;
+      const newPhotoPath = await cabinetRepo.uploadPhoto(cabinet.card.id, localUri);
+      // Показываем снимок с устройства: скачивать только что загруженное незачем.
+      set({ photoUri: localUri, newPhotoPath });
+    } catch (error) {
+      toast.show({
+        message:
+          error instanceof OfflineError
+            ? 'Нет интернета. Фото не загружено.'
+            : 'Не удалось загрузить фото. Попробуйте ещё раз.',
+        tone: 'error',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const section = { paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.md };
   const heading = [t.type.h3, { color: t.color.text }];
   const chips = { flexDirection: 'row', flexWrap: 'wrap', columnGap: t.space.xs } as const;
@@ -89,7 +109,7 @@ function EditForm({ cabinet, onClose }: { cabinet: Cabinet; onClose: () => void 
         leadingLabel="Отменить"
         onLeadingPress={onClose}
         trailing={
-          <Button variant="text" disabled={saving} onPress={save}>
+          <Button variant="text" disabled={saving || uploading} onPress={save}>
             Сохранить
           </Button>
         }
@@ -105,10 +125,11 @@ function EditForm({ cabinet, onClose }: { cabinet: Cabinet; onClose: () => void 
             </Text>
             <PhotoRow
               name={form.name}
+              photoUri={form.photoUri}
               actionLabel="Заменить фото"
-              hint="Лицо крупно, светлый фон"
-              // Загрузка фото — следующий шаг этапа 13 (TODO.md).
-              onAction={() => toast.show({ message: 'Загрузка фото скоро появится' })}
+              hint={uploading ? 'Загружаем фото…' : 'Лицо крупно, светлый фон'}
+              disabled={uploading}
+              onAction={replacePhoto}
             />
             <TextField label="Имя и фамилия" value={form.name} error={errors.name} onChange={(name) => set({ name })} />
             <TextField
@@ -236,7 +257,7 @@ function EditForm({ cabinet, onClose }: { cabinet: Cabinet; onClose: () => void 
             <Text style={caption}>
               После сохранения изменения проверит администратор. До проверки студенты видят прежнюю версию карточки.
             </Text>
-            <Button size="lg" fullWidth disabled={saving} onPress={save}>
+            <Button size="lg" fullWidth disabled={saving || uploading} onPress={save}>
               Сохранить
             </Button>
             <Button variant="outline" fullWidth onPress={onClose}>

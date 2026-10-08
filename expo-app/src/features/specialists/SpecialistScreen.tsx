@@ -106,7 +106,7 @@ export function SpecialistScreen() {
           </View>
         ) : null}
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen }}>
-          <SpecialistPhoto name={name} tone={toneOf(specialist.id)} />
+          <SpecialistPhoto name={name} tone={toneOf(specialist.id)} photoUri={specialist.photoUri} />
         </View>
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen, gap: t.space.xs }}>
           <Text accessibilityRole="header" style={[t.type.h1, { color: t.color.text }]}>

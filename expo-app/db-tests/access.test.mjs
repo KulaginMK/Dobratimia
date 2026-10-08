@@ -373,6 +373,62 @@ describe('черновик карточки специалиста', () => {
   });
 });
 
+describe('фото специалиста', () => {
+  let db;
+  let anna;
+  let olgaUser;
+  const RLS = /row-level security/;
+  const upload = (q, name, bucket = 'specialist-photos') =>
+    q('insert into storage.objects (bucket_id, name) values ($1, $2)', [bucket, name]);
+  before(async () => {
+    db = await createDatabase();
+    anna = await createUser(db, 'anna@example.com');
+    olgaUser = await createUser(db, 'olga@example.com');
+    await asOwner(db, 'insert into specialist_accounts (specialist_id, email) values ($1, $2)', [
+      OLGA,
+      'olga@example.com',
+    ]);
+    await as(db, olgaUser, (q) => q('select link_specialist()'));
+    await asOwner(db, "insert into storage.buckets (id, name) values ('other', 'other')");
+  });
+
+  test('специалист загружает фото только в свою папку', async () => {
+    await as(db, olgaUser, (q) => upload(q, `${OLGA}/1.jpg`));
+    await assert.rejects(as(db, olgaUser, (q) => upload(q, `${DMITRY}/1.jpg`)), RLS);
+    await assert.rejects(as(db, olgaUser, (q) => upload(q, '1.jpg')), RLS);
+    await assert.rejects(as(db, olgaUser, (q) => upload(q, `${OLGA}/1.jpg`, 'other')), RLS);
+  });
+
+  test('студент и человек без входа загрузить ничего не могут', async () => {
+    await assert.rejects(as(db, anna, (q) => upload(q, `${OLGA}/2.jpg`)), RLS);
+    await assert.rejects(as(db, null, (q) => upload(q, `${OLGA}/2.jpg`)), RLS);
+  });
+
+  test('загруженный файл нельзя ни заменить, ни удалить; чужих файлов в списке нет', async () => {
+    await as(db, olgaUser, (q) => q("update storage.objects set name = 'x'"));
+    await as(db, olgaUser, (q) => q('delete from storage.objects'));
+    assert.deepEqual(await asOwner(db, 'select name from storage.objects'), [{ name: `${OLGA}/1.jpg` }]);
+    assert.deepEqual(await as(db, anna, (q) => q('select name from storage.objects')), []);
+    assert.equal((await as(db, olgaUser, (q) => q('select name from storage.objects'))).length, 1);
+  });
+
+  test('в карточку попадает только фото из её же папки — и только после одобрения', async () => {
+    await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ photo_path: `${DMITRY}/1.jpg` }]));
+    await assert.rejects(asOwner(db, 'select approve_draft($1)', [OLGA]), /photo_path_own/);
+
+    await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ photo_path: `${OLGA}/1.jpg` }]));
+    const photoOf = () => asOwner(db, 'select photo_path from specialists where id = $1', [OLGA]);
+    assert.equal((await photoOf())[0].photo_path, null);
+    await asOwner(db, 'select approve_draft($1)', [OLGA]);
+    assert.equal((await photoOf())[0].photo_path, `${OLGA}/1.jpg`);
+
+    // Черновик без фото его не трогает.
+    await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ quote: 'Без фото' }]));
+    await asOwner(db, 'select approve_draft($1)', [OLGA]);
+    assert.equal((await photoOf())[0].photo_path, `${OLGA}/1.jpg`);
+  });
+});
+
 test('supabase/setup.sql собран из актуальных миграций', () => {
   const onDisk = readFileSync(join(SUPABASE_DIR, 'setup.sql'), 'utf8');
   assert.equal(onDisk, buildSetupSql(), 'Запустите npm run db:bundle');

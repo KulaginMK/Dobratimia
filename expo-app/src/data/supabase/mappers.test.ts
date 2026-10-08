@@ -44,6 +44,7 @@ describe('строки сервера', () => {
       format_online: false,
       format_offline: true,
       city: 'Витебск',
+      photo_path: null,
     });
     expect(specialist).toMatchObject({ firstName: 'Елена', nameDative: 'Елене Савчук', specializations: [] });
     expect(specialist.quote).toBeUndefined();
@@ -93,6 +94,7 @@ describe('строки сервера', () => {
       format_online: true,
       format_offline: true,
       city: 'Витебск',
+      photo_path: 'id-1/100.jpg',
       published: true,
     };
     const contacts = { phone: '+375 29 555-12-34', telegram: null, booking_url: null, consent: true };
@@ -116,6 +118,15 @@ describe('строки сервера', () => {
       firstName: 'Ольга',
     });
     expect(edited.stats.weeks).toHaveLength(8);
+
+    // Фото: опубликованное показывается и уходит в черновик, только если его заменили.
+    expect(clean.card.photoUri).toMatch(/\/storage\/v1\/object\/public\/specialist-photos\/id-1\/100\.jpg$/);
+    expect(clean.fields.photoUri).toBe(clean.card.photoUri);
+    expect(toPayload(clean.fields)).not.toHaveProperty('photo_path');
+    const replaced = toCabinet(card, contacts, { payload: { photo_path: 'id-1/200.jpg' }, status: 'pending', admin_comment: null }, stats);
+    expect(replaced.card.photoUri).toBe(clean.card.photoUri);
+    expect(replaced.fields.photoUri).toMatch(/id-1\/200\.jpg$/);
+    expect(toPayload(replaced.fields)).toMatchObject({ photo_path: 'id-1/200.jpg' });
   });
 
   test('кабинет: очищенное поле уходит в черновик как null, названия — как колонки', () => {
@@ -135,6 +146,7 @@ describe('строки сервера', () => {
         format_online: true,
         format_offline: false,
         city: null,
+        photo_path: null,
         published: false,
       },
       null,

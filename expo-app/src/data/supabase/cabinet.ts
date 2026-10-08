@@ -1,6 +1,7 @@
 import { cardFields, type Cabinet, type CabinetRepo, type CardFields } from '@/data/repos/CabinetRepo';
-import { request } from './client';
-import { CARD_COLUMNS, toContacts, toSpecialist, type SpecialistRow } from './specialists';
+import { OfflineError } from '@/data/repos/errors';
+import { request, supabase } from './client';
+import { CARD_COLUMNS, PHOTO_BUCKET, photoUrl, toContacts, toSpecialist, type SpecialistRow } from './specialists';
 
 type CardRow = SpecialistRow & { published: boolean };
 type ContactsRow = { phone: string | null; telegram: string | null; booking_url: string | null; consent: boolean };
@@ -14,6 +15,7 @@ type StatsRow = { total: number; weeks: number[] | null };
 /**
  * Поля формы → черновик. Названия — как колонки таблиц: так их читает approve_draft().
  * Очищенное поле уходит как null. Имя в дательном падеже и пол не трогаем: их правит администратор.
+ * Фото попадает в черновик, только если его заменили: чего в черновике нет, approve_draft() не меняет.
  */
 export function toPayload(fields: CardFields) {
   return {
@@ -32,6 +34,7 @@ export function toPayload(fields: CardFields) {
     telegram: fields.telegram || null,
     booking_url: fields.bookingUrl || null,
     consent: fields.consent,
+    ...(fields.newPhotoPath ? { photo_path: fields.newPhotoPath } : {}),
   };
 }
 
@@ -44,6 +47,7 @@ export function withDraft(base: CardFields, payload: Record<string, unknown>): C
   };
   const flag = (key: string, was: boolean) => (typeof payload[key] === 'boolean' ? (payload[key] as boolean) : was);
   const tags = payload.specializations;
+  const photo = typeof payload.photo_path === 'string' && payload.photo_path ? payload.photo_path : undefined;
   return {
     // Имя пустым не бывает: approve_draft() пустое имя не принимает.
     firstName: text('first_name', base.firstName) || base.firstName,
@@ -63,6 +67,9 @@ export function withDraft(base: CardFields, payload: Record<string, unknown>): C
     telegram: text('telegram', base.telegram),
     bookingUrl: text('booking_url', base.bookingUrl),
     consent: flag('consent', base.consent),
+    // Новое фото из черновика остаётся в нём и при следующем «Сохранить», пока его не одобрят.
+    photoUri: photo ? photoUrl(photo) : base.photoUri,
+    newPhotoPath: photo,
   };
 }
 
@@ -106,5 +113,22 @@ export const supabaseCabinetRepo: CabinetRepo = {
   },
   submit: async (fields) => {
     await request((db) => db.rpc('submit_draft', { p_payload: toPayload(fields) }));
+  },
+  uploadPhoto: async (cardId, localUri) => {
+    // Имя файла каждый раз новое: прежнее фото остаётся на карточке, пока черновик не одобрен.
+    // ponytail: старые файлы никто не удаляет; когда их накопится много — чистить по расписанию.
+    const path = `${cardId}/${Date.now()}.jpg`;
+    const body = await (await fetch(localUri)).arrayBuffer();
+    let failure: { name: string; message: string } | null;
+    try {
+      const { error } = await supabase().storage.from(PHOTO_BUCKET).upload(path, body, { contentType: 'image/jpeg' });
+      failure = error;
+    } catch {
+      throw new OfflineError();
+    }
+    // Так хранилище помечает запрос, который не дошёл до сервера.
+    if (failure?.name === 'StorageUnknownError') throw new OfflineError();
+    if (failure) throw new Error(failure.message);
+    return path;
   },
 };

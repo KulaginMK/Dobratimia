@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { Icon, type IconName } from '@/components/brand';
 import { Button } from '@/components/ui/Button';
 import { focusRing, isFocused } from '@/components/ui/focus';
@@ -290,13 +290,17 @@ export function WeekLikesBars({ title, caption, weeks, accessibilityLabel }: Wee
 type PhotoRowProps = {
   /** Чьё фото — для скринридера. */
   name: string;
+  /** Фото специалиста. Пока его нет — силуэт. */
+  photoUri?: string;
   actionLabel: string;
   hint: string;
+  /** Пока фото загружается, заменить его ещё раз нельзя. */
+  disabled?: boolean;
   onAction: () => void;
 };
 
-/** Фото в редактировании карточки: круг с силуэтом, кнопка замены и подсказка. */
-export function PhotoRow({ name, actionLabel, hint, onAction }: PhotoRowProps) {
+/** Фото в редактировании карточки: круг с фото или силуэтом, кнопка замены и подсказка. */
+export function PhotoRow({ name, photoUri, actionLabel, hint, disabled, onAction }: PhotoRowProps) {
   const t = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: PHOTO_GAP }}>
@@ -315,10 +319,14 @@ export function PhotoRow({ name, actionLabel, hint, onAction }: PhotoRowProps) {
           flexShrink: 0,
         }}
       >
-        <Silhouette width={PHOTO_FIGURE.width} height={PHOTO_FIGURE.height} />
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} resizeMode="cover" style={{ width: PHOTO, height: PHOTO }} />
+        ) : (
+          <Silhouette width={PHOTO_FIGURE.width} height={PHOTO_FIGURE.height} />
+        )}
       </View>
       <View style={{ flexShrink: 1, alignItems: 'flex-start', gap: PHOTO_TEXT_GAP }}>
-        <Button variant="outline" onPress={onAction}>
+        <Button variant="outline" disabled={disabled} onPress={onAction}>
           {actionLabel}
         </Button>
         <Text style={[t.type.caption, { color: t.color.textMuted }]}>{hint}</Text>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Icon, svgA11y, type IconName } from '@/components/brand';
 import { Button } from '@/components/ui/Button';
@@ -126,7 +126,7 @@ export function SuccessBanner({ lead, text }: { lead: string; text: string }) {
 }
 
 /** Фото специалиста в профиле: пока фотографии нет — силуэт. */
-export function SpecialistPhoto({ name, tone }: { name: string; tone?: PhotoTone }) {
+export function SpecialistPhoto({ name, tone, photoUri }: { name: string; tone?: PhotoTone; photoUri?: string }) {
   const t = useTheme();
   return (
     <View
@@ -142,7 +142,11 @@ export function SpecialistPhoto({ name, tone }: { name: string; tone?: PhotoTone
         overflow: 'hidden',
       }}
     >
-      <Silhouette width={PHOTO_FIGURE_WIDTH} height={PHOTO_FIGURE_HEIGHT} tone={tone} />
+      {photoUri ? (
+        <Image source={{ uri: photoUri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
+      ) : (
+        <Silhouette width={PHOTO_FIGURE_WIDTH} height={PHOTO_FIGURE_HEIGHT} tone={tone} />
+      )}
     </View>
   );
 }

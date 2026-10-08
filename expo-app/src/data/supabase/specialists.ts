@@ -1,6 +1,7 @@
 import type { Specialist, SpecialistContacts, SpecialistsRepo } from '@/data/repos/SpecialistsRepo';
 import type { SetRemote } from '@/data/sync/syncedSet';
 import { request } from './client';
+import { SUPABASE_URL } from './config';
 
 export type SpecialistRow = {
   id: string;
@@ -17,12 +18,18 @@ export type SpecialistRow = {
   format_online: boolean;
   format_offline: boolean;
   city: string | null;
+  photo_path: string | null;
 };
 
 type ContactsRow = { phone: string | null; telegram: string | null; booking_url: string | null };
 
 export const CARD_COLUMNS =
-  'id, first_name, last_name, name_dative, gender, title, experience, education, specializations, quote, about, format_online, format_offline, city';
+  'id, first_name, last_name, name_dative, gender, title, experience, education, specializations, quote, about, format_online, format_offline, city, photo_path';
+
+export const PHOTO_BUCKET = 'specialist-photos';
+
+/** Адрес фото по пути в хранилище. Bucket публичный: фото читается по прямой ссылке (docs/08). */
+export const photoUrl = (path: string) => `${SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/${path}`;
 
 /** Строка таблицы specialists → карточка приложения. Пустые поля сервера — это «нет значения». */
 export function toSpecialist(row: SpecialistRow): Specialist {
@@ -41,6 +48,7 @@ export function toSpecialist(row: SpecialistRow): Specialist {
     formatOnline: row.format_online,
     formatOffline: row.format_offline,
     city: row.city ?? undefined,
+    photoUri: row.photo_path ? photoUrl(row.photo_path) : undefined,
   };
 }
 

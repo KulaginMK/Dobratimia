@@ -1,5 +1,5 @@
 // Тесты базы идут на PGlite — настоящем Postgres, собранном для Node: ни Docker, ни установленной базы не нужно.
-// Здесь воспроизводится то, что в проекте Supabase уже есть до наших миграций: роли, схема auth и права по умолчанию.
+// Здесь воспроизводится то, что в проекте Supabase уже есть до наших миграций: роли, схемы auth и storage и права по умолчанию.
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +24,28 @@ const SUPABASE_BASELINE = `
   $$;
   grant usage on schema auth to anon, authenticated, service_role;
   grant execute on function auth.uid() to anon, authenticated, service_role;
+
+  -- Хранилище файлов: в Supabase эти таблицы уже есть, права ролям выданы, доступ решает RLS.
+  create schema storage;
+  create table storage.buckets (
+    id text primary key,
+    name text not null,
+    public boolean default false,
+    file_size_limit bigint,
+    allowed_mime_types text[]
+  );
+  create table storage.objects (
+    id uuid primary key default gen_random_uuid(),
+    bucket_id text references storage.buckets (id),
+    name text
+  );
+  alter table storage.objects enable row level security;
+  create function storage.foldername(name text) returns text[] language sql immutable as $$
+    select (string_to_array(name, '/'))[1 : array_length(string_to_array(name, '/'), 1) - 1];
+  $$;
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant all on storage.objects to anon, authenticated, service_role;
+  grant execute on function storage.foldername(text) to anon, authenticated, service_role;
 
   -- Supabase по умолчанию выдаёт ролям приложения все права на новые объекты схемы public
   -- и рассчитывает на RLS. Миграции должны быть безопасны именно при таких умолчаниях.

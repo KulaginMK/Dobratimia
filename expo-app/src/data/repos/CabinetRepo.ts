@@ -23,6 +23,10 @@ export type CardFields = {
   bookingUrl: string;
   /** «Согласие на публикацию контактов»: без него контакты не показываются никому. */
   consent: boolean;
+  /** Фото для показа: новое из черновика или опубликованное. Нет — силуэт. */
+  photoUri?: string;
+  /** Путь нового фото в хранилище. Есть, только если фото заменили: тогда оно уходит на проверку вместе с правками. */
+  newPhotoPath?: string;
 };
 
 /** Отклики «Нравится»: только числа, без имён (docs/08). */
@@ -50,6 +54,11 @@ export interface CabinetRepo {
   load(): Promise<Cabinet>;
   /** «Сохранить»: черновик уходит администратору, студенты видят прежнюю версию. */
   submit(fields: CardFields): Promise<void>;
+  /**
+   * «Заменить фото»: загрузить подготовленный снимок (JPEG) в хранилище. Возвращает путь файла — он уходит
+   * в черновик (newPhotoPath). На карточке у студентов фото сменится только после одобрения черновика.
+   */
+  uploadPhoto(cardId: string, localUri: string): Promise<string>;
 }
 
 /** Поля редактирования из опубликованной карточки и контактов. */
@@ -70,5 +79,6 @@ export function cardFields(card: Specialist, contacts: SpecialistContacts | null
     telegram: contacts?.telegram ?? '',
     bookingUrl: contacts?.bookingUrl ?? '',
     consent,
+    photoUri: card.photoUri,
   };
 }
