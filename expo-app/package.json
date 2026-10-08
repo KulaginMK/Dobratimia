@@ -46,7 +46,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "phone": "REACT_NATIVE_PACKAGER_HOSTNAME=$(ipconfig getifaddr en0) expo start",
+    "phone": "REACT_NATIVE_PACKAGER_HOSTNAME=$(scutil --get LocalHostName | tr '[:upper:]' '[:lower:]').local expo start",
     "test": "jest",
     "test:db": "node --test \"db-tests/*.test.mjs\"",
     "db:bundle": "node db-tests/bundle.mjs"
