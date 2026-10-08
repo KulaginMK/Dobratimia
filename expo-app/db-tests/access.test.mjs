@@ -357,6 +357,20 @@ describe('черновик карточки специалиста', () => {
     await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ specializations: ['1', '2', '3', '4', '5', '6'] }]));
     await assert.rejects(asOwner(db, 'select approve_draft($1)', [OLGA]), /check constraint/);
   });
+
+  test('ссылка «Записаться» — только обычная веб-страница', async () => {
+    for (const url of ['javascript:alert(1)', 'example.com', 'https://example.com/ и текст']) {
+      await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ booking_url: url }]));
+      await assert.rejects(asOwner(db, 'select approve_draft($1)', [OLGA]), /booking_url_web/, url);
+    }
+    await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ booking_url: 'https://example.com/zapis' }]));
+    await asOwner(db, 'select approve_draft($1)', [OLGA]);
+    // Ссылку можно и убрать.
+    await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ booking_url: null }]));
+    await asOwner(db, 'select approve_draft($1)', [OLGA]);
+    const [contacts] = await asOwner(db, 'select booking_url from specialist_contacts where specialist_id = $1', [OLGA]);
+    assert.equal(contacts.booking_url, null);
+  });
 });
 
 test('supabase/setup.sql собран из актуальных миграций', () => {
