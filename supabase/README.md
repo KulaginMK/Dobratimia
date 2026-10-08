@@ -26,17 +26,18 @@
 ## Шаг 1. Создать проект
 
 1. https://supabase.com → **Start your project** → войдите (через GitHub или почту).
-2. **New project**:
+2. Если проектов у вас ещё не было, Supabase сначала попросит создать организацию: Name — любое, Plan — **Free**.
+3. **New project**:
    - Name: `dobratimia`
    - Database Password: нажмите **Generate a password** и сохраните его у себя. Мне его присылать не нужно.
    - Region: **Central EU (Frankfurt)** — ближайший к Беларуси.
-3. **Create new project** и подождите минуту-две.
+4. **Create new project** и подождите минуту-две.
 
 ## Шаг 2. Создать таблицы
 
 1. В левом меню — **SQL Editor** → **New query**.
 2. Откройте файл `supabase/setup.sql`, скопируйте всё его содержимое и вставьте в окно.
-3. Нажмите **Run**. Должно появиться «Success. No rows returned».
+3. Нажмите **Run**. Supabase предупредит о «destructive operations» — так он реагирует на слово `delete` внутри функций; нажмите **Run query**. Должно появиться «Success. No rows returned».
 4. Проверьте: **Table Editor** → в списке 11 таблиц, в таблице `universities` пять строк.
 
 Запускать `setup.sql` нужно один раз. Если нажать второй раз, будет ошибка «already exists» — это не страшно, база уже создана.
@@ -49,7 +50,7 @@
 
 ## Шаг 4. Разрешить вход через Google — в Google Cloud
 
-1. https://console.cloud.google.com → вверху выберите **New Project**, назовите `Dobratimia`, **Create**.
+1. https://console.cloud.google.com → вверху выберите **New Project**, назовите `Dobratimia`, **Create**. Если вместо формы написано «Google Cloud access blocked», включите в Google-аккаунте двухэтапную проверку (кнопка **Enable MFA**) и через пару минут обновите страницу.
 2. Меню → **APIs & Services** → **OAuth consent screen** (в новой панели это называется **Google Auth Platform**) → **Get started**:
    - App name: `Добратимия`
    - User support email: ваша почта
@@ -60,7 +61,7 @@
    - Application type: **Web application**
    - Name: `Supabase`
    - **Authorized redirect URIs** → **Add URI**. Адрес возьмите в Supabase: **Authentication** → **Sign In / Providers** → **Google** → поле **Callback URL (for OAuth)**. Он выглядит как `https://xxxxxxxx.supabase.co/auth/v1/callback`.
-5. **Create**. Появятся **Client ID** и **Client secret** — они нужны на следующем шаге.
+5. **Create**. Появятся **Client ID** и **Client secret** — они нужны на следующем шаге. Скопируйте их сразу: секрет Google показывает целиком только в этом окне.
 
 ## Шаг 5. Включить Google в Supabase
 
