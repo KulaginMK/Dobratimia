@@ -78,11 +78,11 @@ function EditForm({ cabinet, onClose }: { cabinet: Cabinet; onClose: () => void 
     if (uploading) return;
     setUploading(true);
     try {
-      const localUri = await pickPhoto();
-      if (!localUri) return;
-      const newPhotoPath = await cabinetRepo.uploadPhoto(cabinet.card.id, localUri);
+      const picked = await pickPhoto();
+      if (!picked) return;
+      const newPhotoPath = await cabinetRepo.uploadPhoto(cabinet.card.id, picked.base64);
       // Показываем снимок с устройства: скачивать только что загруженное незачем.
-      set({ photoUri: localUri, newPhotoPath });
+      set({ photoUri: picked.uri, newPhotoPath });
     } catch (error) {
       toast.show({
         message:

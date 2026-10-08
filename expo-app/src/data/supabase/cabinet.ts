@@ -73,6 +73,13 @@ export function withDraft(base: CardFields, payload: Record<string, unknown>): C
   };
 }
 
+/** Base64 → байты снимка. В хранилище уходит только настоящий JPEG: он начинается с байтов FF D8. */
+export function jpegBytes(base64: string): Uint8Array<ArrayBuffer> {
+  const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) throw new Error('Файл не похож на снимок JPEG');
+  return bytes;
+}
+
 export function toCabinet(
   cardRow: CardRow,
   contactsRow: ContactsRow | null,
@@ -114,11 +121,11 @@ export const supabaseCabinetRepo: CabinetRepo = {
   submit: async (fields) => {
     await request((db) => db.rpc('submit_draft', { p_payload: toPayload(fields) }));
   },
-  uploadPhoto: async (cardId, localUri) => {
+  uploadPhoto: async (cardId, jpegBase64) => {
+    const body = jpegBytes(jpegBase64);
     // Имя файла каждый раз новое: прежнее фото остаётся на карточке, пока черновик не одобрен.
     // ponytail: старые файлы никто не удаляет; когда их накопится много — чистить по расписанию.
     const path = `${cardId}/${Date.now()}.jpg`;
-    const body = await (await fetch(localUri)).arrayBuffer();
     let failure: { name: string; message: string } | null;
     try {
       const { error } = await supabase().storage.from(PHOTO_BUCKET).upload(path, body, { contentType: 'image/jpeg' });

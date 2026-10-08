@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { parseCallbackUrl } from './auth';
-import { toCabinet, toPayload } from './cabinet';
+import { jpegBytes, toCabinet, toPayload } from './cabinet';
 import { toContacts, toSpecialist } from './specialists';
 import { toUniversities } from './universities';
 
@@ -127,6 +127,13 @@ describe('строки сервера', () => {
     expect(replaced.card.photoUri).toBe(clean.card.photoUri);
     expect(replaced.fields.photoUri).toMatch(/id-1\/200\.jpg$/);
     expect(toPayload(replaced.fields)).toMatchObject({ photo_path: 'id-1/200.jpg' });
+  });
+
+  test('фото: в хранилище уходит только JPEG, а не текст ошибки вместо файла', () => {
+    expect(Array.from(jpegBytes(btoa('\xff\xd8\xff\xe0JFIF')).slice(0, 3))).toEqual([0xff, 0xd8, 0xff]);
+    // Так выглядел сбой на телефоне: вместо снимка прочиталось «File not found».
+    expect(() => jpegBytes(btoa('File not found'))).toThrow();
+    expect(() => jpegBytes('')).toThrow();
   });
 
   test('кабинет: очищенное поле уходит в черновик как null, названия — как колонки', () => {

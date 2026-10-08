@@ -131,6 +131,6 @@ export const mockCabinetRepo: CabinetRepo = {
   submit: async (fields) => {
     draft = fields;
   },
-  // Хранилища у заглушки нет: снимок остаётся на устройстве.
-  uploadPhoto: async (_cardId, localUri) => localUri,
+  // Хранилища у заглушки нет: снимок остаётся на устройстве, путь условный.
+  uploadPhoto: async (cardId) => `${cardId}/mock.jpg`,
 };
