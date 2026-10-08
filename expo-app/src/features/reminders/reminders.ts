@@ -22,9 +22,13 @@ function replace(ids: string[], plan: () => Promise<LocalNotification[]>): Promi
   const job = async () => {
     try {
       await cancelNotifications(ids);
-      for (const notification of await plan()) await scheduleNotification(notification);
-    } catch {
+      const planned = await plan();
+      for (const notification of planned) await scheduleNotification(notification);
+      // При разработке расписание видно в терминале сервера: иначе пришлось бы ждать самого уведомления.
+      if (__DEV__) console.log('Уведомления:', ids[0], planned.map((n) => `${n.at.toLocaleString('ru')} — ${n.title}`));
+    } catch (error) {
       // Не поставилось — приложение работает дальше, просто без этого напоминания.
+      if (__DEV__) console.warn('Уведомления: не удалось поставить', error);
     }
   };
   queue = queue.then(job);

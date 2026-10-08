@@ -49,13 +49,20 @@ export async function notificationsAllowed(): Promise<boolean> {
 
 /** Спросить разрешение на уведомления. Вызывается, только когда человек сам включил переключатель. */
 export async function allowNotifications(): Promise<boolean> {
+  // Свои каналы создаются до запроса: Android 13+ показывает его, только когда у приложения есть хотя бы один.
+  // В Expo Go создать их нельзя (модуль отвечает ошибкой) — там уведомления идут через канал по умолчанию.
+  await Promise.all([
+    setNotificationChannelAsync('reminders', { name: 'Напоминания', importance: AndroidImportance.DEFAULT }),
+    setNotificationChannelAsync('pomodoro', { name: 'Таймер Pomodoro', importance: AndroidImportance.HIGH }),
+  ]).catch(() => {});
   try {
-    // Android 13+ показывает запрос, только когда у приложения есть хотя бы один канал.
-    await setNotificationChannelAsync('reminders', { name: 'Напоминания', importance: AndroidImportance.DEFAULT });
-    await setNotificationChannelAsync('pomodoro', { name: 'Таймер Pomodoro', importance: AndroidImportance.HIGH });
     if (await notificationsAllowed()) return true;
-    return (await requestPermissionsAsync()).granted;
-  } catch {
+    const answer = await requestPermissionsAsync();
+    // При разработке причина отказа видна в терминале сервера: на телефоне её иначе не узнать.
+    if (__DEV__ && !answer.granted) console.warn('Уведомления: разрешение не дано', JSON.stringify(answer));
+    return answer.granted;
+  } catch (error) {
+    if (__DEV__) console.warn('Уведомления: запрос разрешения не удался', error);
     return false;
   }
 }
