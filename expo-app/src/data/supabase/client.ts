@@ -1,9 +1,20 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { digest, getRandomValues, type CryptoDigestAlgorithm } from 'expo-crypto';
 import { AppState, Platform } from 'react-native';
 import { OfflineError } from '@/data/repos/errors';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
+
+// На телефоне нет встроенного WebCrypto. Без него supabase-js защищает вход слабее:
+// проверочную строку берёт из Math.random и отправляет её без хэша. В вебе crypto даёт браузер.
+if (Platform.OS !== 'web' && typeof globalThis.crypto?.subtle === 'undefined') {
+  globalThis.crypto = {
+    ...globalThis.crypto,
+    getRandomValues,
+    subtle: { digest: (algorithm: string, data: BufferSource) => digest(algorithm as CryptoDigestAlgorithm, data) },
+  } as unknown as Crypto;
+}
 
 // Общий ключ с префиксом app: — «Удалить мои данные» стирает и сохранённый вход (src/data/local/session.ts).
 export const AUTH_STORAGE_KEY = 'app:supabase-auth';
