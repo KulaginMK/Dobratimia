@@ -214,14 +214,14 @@ type InfoNoteProps = {
   icon: IconName;
   /** Текст до ссылки: «Нужна помощь сегодня? Загляните в ». */
   text: string;
-  /** Ссылка внутри текста: «службу вашего вуза». */
-  linkLabel: string;
+  /** Ссылка внутри текста: «службу вашего вуза». Без неё — просто подсказка. */
+  linkLabel?: string;
   /** Текст после ссылки: «.». */
   tail?: string;
-  onLinkPress: () => void;
+  onLinkPress?: () => void;
 };
 
-/** Тихая подсказка со ссылкой внутри текста. */
+/** Тихая подсказка; внутри текста может быть ссылка. */
 export function InfoNote({ icon, text, linkLabel, tail = '', onLinkPress }: InfoNoteProps) {
   const t = useTheme();
   const font = { fontSize: NOTE_FONT, lineHeight: NOTE_LINE };
@@ -240,13 +240,15 @@ export function InfoNote({ icon, text, linkLabel, tail = '', onLinkPress }: Info
       <Icon name={icon} color={t.color.primary} />
       <Text style={[{ flex: 1, fontFamily: t.type.body.fontFamily, color: t.color.text }, font]}>
         {text}
-        <Text
-          accessibilityRole="link"
-          onPress={onLinkPress}
-          style={[{ fontFamily: t.fontFamily.text[600], color: t.color.primary, textDecorationLine: 'underline' }, font]}
-        >
-          {linkLabel}
-        </Text>
+        {linkLabel ? (
+          <Text
+            accessibilityRole="link"
+            onPress={onLinkPress}
+            style={[{ fontFamily: t.fontFamily.text[600], color: t.color.primary, textDecorationLine: 'underline' }, font]}
+          >
+            {linkLabel}
+          </Text>
+        ) : null}
         {tail}
       </Text>
     </View>

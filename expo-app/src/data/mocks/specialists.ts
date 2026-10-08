@@ -3,6 +3,7 @@
 // новые телефоны не выдумываем. Специализации Дмитрия Гайдука и Елены Савчук, ссылки на запись (example.com)
 // придуманы для заглушки. Перед публикацией здесь будут настоящие специалисты — с сервера (этап 12).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cardFields, type CabinetRepo, type CardFields } from '@/data/repos/CabinetRepo';
 import type { LikesRepo } from '@/data/repos/LikesRepo';
 import type { Specialist, SpecialistContacts, SpecialistsRepo } from '@/data/repos/SpecialistsRepo';
 
@@ -109,5 +110,25 @@ export const mockSpecialistsRepo: SpecialistsRepo = {
   contacts: async (userId, specialistId) => {
     const likes = await readLikes(userId);
     return likes.includes(specialistId) ? (CONTACTS[specialistId] ?? null) : null;
+  },
+};
+
+// Кабинет заглушки — карточка Ольги Мирошник; числа откликов — из макетов CabCard и CabStats.
+// Черновик живёт до перезапуска приложения: проверять его здесь некому.
+let draft: CardFields | null = null;
+
+export const mockCabinetRepo: CabinetRepo = {
+  load: async () => {
+    const card = SPECIALISTS[0];
+    return {
+      card,
+      published: true,
+      draft: draft ? { status: 'pending' } : null,
+      fields: draft ?? cardFields(card, CONTACTS[card.id], true),
+      stats: { total: 37, weeks: [2, 4, 3, 5, 6, 4, 8, 5] },
+    };
+  },
+  submit: async (fields) => {
+    draft = fields;
   },
 };

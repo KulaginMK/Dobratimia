@@ -1,5 +1,6 @@
 export * from './AnatomyFigure';
 export * from './BreathCircle';
+export * from './CabinetParts';
 export * from './ContactRow';
 export * from './DassParts';
 export * from './Emergency';

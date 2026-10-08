@@ -76,6 +76,12 @@ export function dayAndShortMonth(key: string): string {
   return `${date.getDate()} ${MONTHS_SHORT[date.getMonth()]}`;
 }
 
+/** «3.08» — короткая дата под столбиком графика. */
+export function dayDotMonth(key: string): string {
+  const date = fromDateKey(key);
+  return `${date.getDate()}.${pad(date.getMonth() + 1)}`;
+}
+
 /** «Сегодня», «Вчера» или «22 сентября». */
 export function relativeDay(key: string, todayKey: string): string {
   if (key === todayKey) return 'Сегодня';

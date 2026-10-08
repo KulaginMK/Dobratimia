@@ -2,7 +2,7 @@ import type { Specialist, SpecialistContacts, SpecialistsRepo } from '@/data/rep
 import type { SetRemote } from '@/data/sync/syncedSet';
 import { request } from './client';
 
-type SpecialistRow = {
+export type SpecialistRow = {
   id: string;
   first_name: string;
   last_name: string;
@@ -21,7 +21,7 @@ type SpecialistRow = {
 
 type ContactsRow = { phone: string | null; telegram: string | null; booking_url: string | null };
 
-const CARD_COLUMNS =
+export const CARD_COLUMNS =
   'id, first_name, last_name, name_dative, gender, title, experience, education, specializations, quote, about, format_online, format_offline, city';
 
 /** Строка таблицы specialists → карточка приложения. Пустые поля сервера — это «нет значения». */

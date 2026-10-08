@@ -27,10 +27,12 @@ type Props = {
   onLeadingPress?: () => void;
   /** Кнопка SOS справа. Без обработчика её нет — так в онбординге, на самом SOS и в кабинете специалиста. */
   onSosPress?: () => void;
+  /** Действие справа вместо SOS: «Сохранить» в редактировании карточки специалиста. */
+  trailing?: React.ReactNode;
 };
 
 /** Шапка экранов вне ленты: «Назад» или «Закрыть», заголовок и SOS справа. */
-export function ScreenHeader({ title, leading = 'back', leadingLabel, onLeadingPress, onSosPress }: Props) {
+export function ScreenHeader({ title, leading = 'back', leadingLabel, onLeadingPress, onSosPress, trailing }: Props) {
   const t = useTheme();
   const topInset = useTopInset();
   return (
@@ -81,6 +83,7 @@ export function ScreenHeader({ title, leading = 'back', leadingLabel, onLeadingP
             <Text style={{ fontFamily: t.fontFamily.text[700], fontSize: SOS_FONT, color: t.color.onSos }}>SOS</Text>
           </Pressable>
         ) : null}
+        {trailing}
       </View>
     </View>
   );

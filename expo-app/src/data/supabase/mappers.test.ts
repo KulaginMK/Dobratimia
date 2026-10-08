@@ -1,5 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { parseCallbackUrl } from './auth';
+import { toCabinet, toPayload } from './cabinet';
 import { toContacts, toSpecialist } from './specialists';
 import { toUniversities } from './universities';
 
@@ -74,5 +75,88 @@ describe('строки сервера', () => {
     expect(universities.map((university) => university.id)).toEqual(['vsmu', 'bsmu']);
     expect(universities[0].service?.staff.map((person) => person.name)).toEqual(['Наталья Бусько']);
     expect(universities[1].service).toBeNull();
+  });
+
+  test('кабинет: редактирование открывается с черновиком, а превью остаётся опубликованным', () => {
+    const card = {
+      id: 'id-1',
+      first_name: 'Ольга',
+      last_name: 'Мирошник',
+      name_dative: 'Ольге Мирошник',
+      gender: 'f' as const,
+      title: 'Психолог',
+      experience: '8 лет',
+      education: null,
+      specializations: ['Тревога'],
+      quote: 'Прежняя цитата',
+      about: null,
+      format_online: true,
+      format_offline: true,
+      city: 'Витебск',
+      published: true,
+    };
+    const contacts = { phone: '+375 29 555-12-34', telegram: null, booking_url: null, consent: true };
+    const stats = { total: 37, weeks: [2, 4, 3, 5, 6, 4, 8, 5] };
+
+    const clean = toCabinet(card, contacts, null, stats);
+    expect(clean.draft).toBeNull();
+    expect(clean.fields).toMatchObject({ quote: 'Прежняя цитата', phone: '+375 29 555-12-34', consent: true, education: '' });
+
+    // Черновик: цитата изменена, город очищен (null), согласие снято; телефона в черновике нет — остаётся прежний.
+    const payload = { quote: 'Новая цитата', city: null, consent: false, specializations: ['Сон', 'Утрата'] };
+    const edited = toCabinet(card, contacts, { payload, status: 'changes_requested', admin_comment: 'Короче' }, stats);
+    expect(edited.draft).toEqual({ status: 'changes_requested', comment: 'Короче' });
+    expect(edited.card.quote).toBe('Прежняя цитата');
+    expect(edited.fields).toMatchObject({
+      quote: 'Новая цитата',
+      city: '',
+      consent: false,
+      specializations: ['Сон', 'Утрата'],
+      phone: '+375 29 555-12-34',
+      firstName: 'Ольга',
+    });
+    expect(edited.stats.weeks).toHaveLength(8);
+  });
+
+  test('кабинет: очищенное поле уходит в черновик как null, названия — как колонки', () => {
+    const { fields } = toCabinet(
+      {
+        id: 'id-1',
+        first_name: 'Ольга',
+        last_name: 'Мирошник',
+        name_dative: 'Ольге Мирошник',
+        gender: 'f',
+        title: 'Психолог',
+        experience: null,
+        education: null,
+        specializations: [],
+        quote: null,
+        about: null,
+        format_online: true,
+        format_offline: false,
+        city: null,
+        published: false,
+      },
+      null,
+      null,
+      { total: 0, weeks: null },
+    );
+    expect(toPayload({ ...fields, bookingUrl: 'https://example.com/' })).toEqual({
+      first_name: 'Ольга',
+      last_name: 'Мирошник',
+      title: 'Психолог',
+      experience: null,
+      education: null,
+      specializations: [],
+      quote: null,
+      about: null,
+      format_online: true,
+      format_offline: false,
+      city: null,
+      phone: null,
+      telegram: null,
+      booking_url: 'https://example.com/',
+      consent: false,
+    });
   });
 });

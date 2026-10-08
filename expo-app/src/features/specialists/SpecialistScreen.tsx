@@ -4,6 +4,7 @@ import { Linking, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContactAction, ScreenHeader, SpecialistPhoto, SuccessBanner } from '@/components/blocks';
 import { BottomSheet, Button, ChipBadge } from '@/components/ui';
+import { isWebUrl } from '@/lib/url';
 import { useCallPhone } from '@/lib/phone';
 import { useTheme } from '@/theme';
 import { useSpecialists } from './Specialists';
@@ -74,7 +75,7 @@ export function SpecialistScreen() {
               },
             }
           : null,
-        contacts.bookingUrl
+        contacts.bookingUrl && isWebUrl(contacts.bookingUrl)
           ? {
               key: 'booking',
               icon: 'diary' as const,

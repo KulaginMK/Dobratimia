@@ -1,10 +1,11 @@
 import { userKey } from '@/data/local/session';
 import { mockPhrasesRepo } from '@/data/mocks/phrases';
 import { mockPresenceRepo } from '@/data/mocks/presence';
-import { mockLikesRepo, mockSpecialistsRepo } from '@/data/mocks/specialists';
+import { mockCabinetRepo, mockLikesRepo, mockSpecialistsRepo } from '@/data/mocks/specialists';
 import { mockUniversitiesRepo } from '@/data/mocks/universities';
 import { mockAuthRepo } from '@/data/mocks/user';
 import { supabaseAuthRepo } from '@/data/supabase/auth';
+import { supabaseCabinetRepo } from '@/data/supabase/cabinet';
 import { SUPABASE_CONFIGURED } from '@/data/supabase/config';
 import { supabasePhrasesRepo } from '@/data/supabase/phrases';
 import { supabasePresenceRepo } from '@/data/supabase/presence';
@@ -12,6 +13,7 @@ import { supabaseLikesRemote, supabaseSpecialistsRepo } from '@/data/supabase/sp
 import { fetchUniversities } from '@/data/supabase/universities';
 import { createSyncedSet } from '@/data/sync/syncedSet';
 import type { AuthRepo } from './AuthRepo';
+import type { CabinetRepo } from './CabinetRepo';
 import type { LikesRepo } from './LikesRepo';
 import type { PhrasesRepo } from './PhrasesRepo';
 import type { PresenceRepo } from './PresenceRepo';
@@ -39,9 +41,11 @@ export const specialistsRepo: SpecialistsRepo = SUPABASE_CONFIGURED ? supabaseSp
 export const likesRepo: LikesRepo = SUPABASE_CONFIGURED ? supabaseLikesRepo : mockLikesRepo;
 export const phrasesRepo: PhrasesRepo = SUPABASE_CONFIGURED ? supabasePhrasesRepo : mockPhrasesRepo;
 export const authRepo: AuthRepo = SUPABASE_CONFIGURED ? supabaseAuthRepo : mockAuthRepo;
+export const cabinetRepo: CabinetRepo = SUPABASE_CONFIGURED ? supabaseCabinetRepo : mockCabinetRepo;
 
 export * from './errors';
 export type * from './AuthRepo';
+export type * from './CabinetRepo';
 export type * from './LikesRepo';
 export type * from './PhrasesRepo';
 export type * from './PresenceRepo';
