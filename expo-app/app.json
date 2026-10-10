@@ -56,7 +56,6 @@
       ]
     ],
     "experiments": {
-      "baseUrl": "/Dobratimia",
       "typedRoutes": true,
       "reactCompiler": true
     }

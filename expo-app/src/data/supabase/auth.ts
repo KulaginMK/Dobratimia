@@ -83,7 +83,8 @@ let finishing: { key: string; result: Promise<SignedIn> } | null = null;
 export const supabaseAuthRepo: AuthRepo = {
   signInWithGoogle: async () => {
     const auth = supabase().auth;
-    const redirectTo = Linking.createURL(SIGN_IN_CALLBACK_PATH);
+    // Веб-версия на GitHub Pages лежит в подпапке, а createURL в вебе её не добавляет. На телефоне подпапки нет.
+    const redirectTo = Linking.createURL(`${process.env.EXPO_BASE_URL ?? ''}${SIGN_IN_CALLBACK_PATH}`);
 
     if (Platform.OS === 'web') {
       // Без сети браузер показал бы свою страницу ошибки вместо Google — говорим об этом сами.
