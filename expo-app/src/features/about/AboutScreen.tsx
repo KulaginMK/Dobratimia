@@ -61,12 +61,9 @@ export function AboutScreen() {
         </View>
 
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen }}>
-          <CareNote>
+          <CareNote onPress={() => call(PSYCH_HELPLINE)} accessibilityHint={`Позвонить на номер ${PSYCH_HELPLINE}`}>
             {'Приложение не заменяет медицинскую и психологическую помощь. Если тяжело — звоните '}
-            <InlineLink strong onPress={() => call(PSYCH_HELPLINE)}>
-              {PSYCH_HELPLINE}
-            </InlineLink>
-            .
+            <InlineLink strong>{PSYCH_HELPLINE}</InlineLink>.
           </CareNote>
         </View>
 

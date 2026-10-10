@@ -580,14 +580,18 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           title="Тесты — это ориентир"
           text="DASS-21 подсказывает, на что обратить внимание. Это не медицинское заключение."
         />
-        <CareNote title="Если очень тяжело прямо сейчас">
+        <CareNote
+          title="Если очень тяжело прямо сейчас"
+          onPress={() => toast.show({ message: 'Звонок 133' })}
+          accessibilityHint="Позвонить на номер 133"
+        >
           {'Звоните на номер экстренной психологической помощи '}
-          <InlineLink strong onPress={() => {}}>
-            {PSYCH_HELPLINE}
-          </InlineLink>
+          <InlineLink strong>{PSYCH_HELPLINE}</InlineLink>
           {' или в службу своего вуза. Кнопка SOS есть на каждом экране.'}
         </CareNote>
-        <CareNote>Приложение не заменяет медицинскую и психологическую помощь.</CareNote>
+        <CareNote onPress={() => toast.show({ message: 'Звонок 133' })} accessibilityHint="Позвонить на номер 133">
+          Приложение не заменяет медицинскую и психологическую помощь.
+        </CareNote>
       </Section>
 
       <Section title="Онбординг: FeedScheme · GestureRow · GoogleButton">

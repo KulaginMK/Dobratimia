@@ -5,6 +5,7 @@ import { MoodPicker, RoundAction, ScreamButton, SosAction, Ticker } from '@/comp
 import { useTopInset } from '@/components/blocks/useTopInset';
 import { Logo } from '@/components/brand';
 import { Button, useToast } from '@/components/ui';
+import { focusRing, isFocused } from '@/components/ui/focus';
 import type { MoodLevel } from '@/data/local/mood';
 import { presenceRepo } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
@@ -107,7 +108,7 @@ export function HomePage({ active }: FeedPageProps) {
           onPress={() => router.push('/about')}
           accessibilityRole="button"
           accessibilityLabel="Добратимия — о проекте"
-          style={{ minHeight: t.size.touch, justifyContent: 'center' }}
+          style={(state) => [{ minHeight: t.size.touch, justifyContent: 'center' }, focusRing(t, isFocused(state))]}
         >
           <Logo />
         </Pressable>
@@ -115,14 +116,17 @@ export function HomePage({ active }: FeedPageProps) {
           onPress={() => router.push('/profile')}
           accessibilityRole="button"
           accessibilityLabel="Профиль и настройки"
-          style={{
-            width: t.size.avatar,
-            height: t.size.avatar,
-            borderRadius: t.radius.full,
-            backgroundColor: t.color.primarySoft,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          style={(state) => [
+            {
+              width: t.size.avatar,
+              height: t.size.avatar,
+              borderRadius: t.radius.full,
+              backgroundColor: t.color.primarySoft,
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            focusRing(t, isFocused(state)),
+          ]}
         >
           <Text style={[t.type.bodyStrong, { fontFamily: t.fontFamily.text[700], color: t.color.onPrimarySoft }]}>
             {initials(user?.name ?? '')}
@@ -182,6 +186,7 @@ export function HomePage({ active }: FeedPageProps) {
             onPress={() => (picking ? router.push('/diary') : setEditing(true))}
             accessibilityRole={picking ? 'link' : 'button'}
             hitSlop={t.space.md}
+            style={(state) => focusRing(t, isFocused(state))}
           >
             <Text
               style={{

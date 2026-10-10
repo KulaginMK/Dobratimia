@@ -68,7 +68,8 @@ export function Slider({ value, onChange, min = 0, max = 100, accessibilityLabel
           if (event.nativeEvent.actionName === 'decrement') set(value - A11Y_STEP);
         }}
         {...keyboard}
-        style={{ flex: 1, height: HEIGHT, justifyContent: 'center' }}
+        // Область касания — 48 (docs/09), а места в ряду ползунок занимает столько же, сколько в макете.
+        style={{ flex: 1, height: t.size.touch, marginVertical: (HEIGHT - t.size.touch) / 2, justifyContent: 'center' }}
       >
         <View style={{ height: TRACK, borderRadius: TRACK / 2, backgroundColor: t.color.border, overflow: 'hidden' }}>
           <View style={{ width: share * travel + THUMB / 2, height: TRACK, backgroundColor: t.color.primary }} />

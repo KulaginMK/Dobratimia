@@ -217,7 +217,8 @@ export function CheckPoint({ title, text }: { title: string; text: string }) {
 
 type InlineLinkProps = {
   children: string;
-  onPress: () => void;
+  /** Без onPress — просто выделение: нажимается весь блок вокруг (номер 133 в CareNote). */
+  onPress?: () => void;
   /** По умолчанию — цвет окружающего текста. */
   color?: string;
   /** Полужирная: номер телефона внутри фразы. */
@@ -229,7 +230,7 @@ export function InlineLink({ children, onPress, color, strong }: InlineLinkProps
   const t = useTheme();
   return (
     <Text
-      accessibilityRole="link"
+      accessibilityRole={onPress ? 'link' : undefined}
       onPress={onPress}
       style={[
         { textDecorationLine: 'underline' },
@@ -245,28 +246,35 @@ export function InlineLink({ children, onPress, color, strong }: InlineLinkProps
 type CareNoteProps = {
   /** С заголовком — крупный блок онбординга; без него — строка-предупреждение на «О проекте». */
   title?: string;
-  /** Текст; внутри может быть InlineLink. */
+  /** Текст; номер внутри выделяется InlineLink без onPress. */
   children: React.ReactNode;
+  /** Нажимается весь блок: номер в строке мельче 48 dp, попасть в него трудно (docs/09). */
+  onPress: () => void;
+  /** Что сделает нажатие, для скринридера: «Позвонить на номер 133». */
+  accessibilityHint: string;
 };
 
-/** Бережный блок color.sosSoft: что делать, если очень тяжело. */
-export function CareNote({ title, children }: CareNoteProps) {
+/** Бережный блок color.sosSoft: что делать, если очень тяжело. Нажатие — звонок. */
+export function CareNote({ title, children, onPress, accessibilityHint }: CareNoteProps) {
   const t = useTheme();
   return (
-    <View
-      style={{
-        paddingVertical: title ? NOTE_PAD_V : NOTE_PLAIN_PAD_V,
-        paddingHorizontal: title ? NOTE_PAD_H : NOTE_PLAIN_PAD_H,
-        borderRadius: title ? t.radius.xl : NOTE_PLAIN_RADIUS,
-        backgroundColor: t.color.sosSoft,
-        gap: NOTE_GAP,
-      }}
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityHint={accessibilityHint}
+      style={(state) => [
+        {
+          paddingVertical: title ? NOTE_PAD_V : NOTE_PLAIN_PAD_V,
+          paddingHorizontal: title ? NOTE_PAD_H : NOTE_PLAIN_PAD_H,
+          borderRadius: title ? t.radius.xl : NOTE_PLAIN_RADIUS,
+          backgroundColor: t.color.sosSoft,
+          gap: NOTE_GAP,
+          transform: [{ scale: state.pressed ? 0.98 : 1 }],
+        },
+        focusRing(t, isFocused(state)),
+      ]}
     >
-      {title ? (
-        <Text accessibilityRole="header" style={[t.type.h3, { color: t.color.onSosSoft }]}>
-          {title}
-        </Text>
-      ) : null}
+      {title ? <Text style={[t.type.h3, { color: t.color.onSosSoft }]}>{title}</Text> : null}
       <Text
         style={{
           fontFamily: t.type.body.fontFamily,
@@ -277,7 +285,7 @@ export function CareNote({ title, children }: CareNoteProps) {
       >
         {children}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 

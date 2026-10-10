@@ -12,7 +12,7 @@ import { OnboardingStep, useStepBack } from './OnboardingStep';
 const HEAD_GAP = 14;
 const POINTS_GAP = 18;
 
-/** Шаг 2 (эталон OnbWarning): приложение не заменяет специалиста. Кнопки SOS в шапке нет — номер 133 в тексте. */
+/** Шаг 2 (эталон OnbWarning): приложение не заменяет специалиста. Кнопки SOS в шапке нет — по блоку с номером 133 можно позвонить. */
 export function OnboardingWarningScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -49,11 +49,13 @@ export function OnboardingWarningScreen() {
         />
       </View>
       <View style={{ paddingTop: t.space.xl + t.space.xxs, paddingHorizontal: t.space.screen }}>
-        <CareNote title="Если очень тяжело прямо сейчас">
+        <CareNote
+          title="Если очень тяжело прямо сейчас"
+          onPress={() => call(PSYCH_HELPLINE)}
+          accessibilityHint={`Позвонить на номер ${PSYCH_HELPLINE}`}
+        >
           {'Звоните на номер экстренной психологической помощи '}
-          <InlineLink strong onPress={() => call(PSYCH_HELPLINE)}>
-            {PSYCH_HELPLINE}
-          </InlineLink>
+          <InlineLink strong>{PSYCH_HELPLINE}</InlineLink>
           {' или в службу своего вуза. Кнопка SOS есть на каждом экране.'}
         </CareNote>
       </View>

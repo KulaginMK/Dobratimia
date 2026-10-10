@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { AnatomyFigure, BulletItem, FeedHeader } from '@/components/blocks';
 import { Chip } from '@/components/ui';
+import { focusRing, isFocused } from '@/components/ui/focus';
 import { DEFAULT_ORGAN, ORGANS, type OrganId } from '@/data/anatomy';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
@@ -78,7 +79,10 @@ export function AnatomyPage({ active, onScrollAtTop }: FeedPageProps) {
           <Pressable
             onPress={() => router.push(`/technique/${organ.technique!.id}`)}
             accessibilityRole="link"
-            style={{ minHeight: t.size.touch, justifyContent: 'center', alignSelf: 'flex-start' }}
+            style={(state) => [
+              { minHeight: t.size.touch, justifyContent: 'center', alignSelf: 'flex-start' },
+              focusRing(t, isFocused(state)),
+            ]}
           >
             <Text style={[t.type.bodyStrong, { color: t.color.primary }]}>{organ.technique.linkLabel}</Text>
           </Pressable>
