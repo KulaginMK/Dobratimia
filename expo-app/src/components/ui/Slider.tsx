@@ -5,7 +5,6 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { useTheme } from '@/theme';
 
 // Размеры по макету Meditation (ползунок громкости).
-const HEIGHT = 32;
 const TRACK = 6;
 const THUMB = 20;
 const DRAG_START = 4;
@@ -68,8 +67,8 @@ export function Slider({ value, onChange, min = 0, max = 100, accessibilityLabel
           if (event.nativeEvent.actionName === 'decrement') set(value - A11Y_STEP);
         }}
         {...keyboard}
-        // Область касания — 48 (docs/09), а места в ряду ползунок занимает столько же, сколько в макете.
-        style={{ flex: 1, height: t.size.touch, marginVertical: (HEIGHT - t.size.touch) / 2, justifyContent: 'center' }}
+        // Высота — область касания 48 (docs/09); сама дорожка с бегунком по макету занимает 32.
+        style={{ flex: 1, height: t.size.touch, justifyContent: 'center' }}
       >
         <View style={{ height: TRACK, borderRadius: TRACK / 2, backgroundColor: t.color.border, overflow: 'hidden' }}>
           <View style={{ width: share * travel + THUMB / 2, height: TRACK, backgroundColor: t.color.primary }} />

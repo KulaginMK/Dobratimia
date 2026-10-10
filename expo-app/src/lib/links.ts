@@ -10,7 +10,7 @@ export const DOCUMENT_PENDING = 'Документ пока готовится';
  */
 export function useOpenLink() {
   const toast = useToast();
-  return (url: string | null, pendingMessage: string) => {
+  return (url: string | null, pendingMessage = '') => {
     if (!url) {
       toast.show({ message: pendingMessage });
       return;

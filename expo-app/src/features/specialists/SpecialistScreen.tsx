@@ -57,8 +57,8 @@ export function SpecialistScreen() {
           ? {
               key: 'phone',
               icon: 'phone' as const,
-              // Если номер не помещается в строку, он переносится по пробелу, а не после дефиса: «…555-12-» / «34».
-              title: contacts.phone.replace(/-/g, '-\u2060'),
+              // Неразрывный дефис: если номер не помещается в строку, он переносится по пробелу, а не как «…555-12-» / «34».
+              title: contacts.phone.replace(/-/g, '\u2011'),
               caption: 'Телефон',
               actionLabel: 'Позвонить',
               accessibilityLabel: `Позвонить ${specialist.nameDative}`,
@@ -73,7 +73,7 @@ export function SpecialistScreen() {
               caption: 'Telegram',
               actionLabel: 'Написать',
               accessibilityLabel: `Написать ${specialist.nameDative} в Telegram`,
-              onAction: () => openLink(`https://t.me/${(contacts.telegram as string).replace(/^@/, '')}`, ''),
+              onAction: () => openLink(`https://t.me/${(contacts.telegram as string).replace(/^@/, '')}`),
             }
           : null,
         contacts.bookingUrl && isWebUrl(contacts.bookingUrl)
@@ -84,7 +84,7 @@ export function SpecialistScreen() {
               caption: 'Свободные окна на неделе',
               actionLabel: 'Записаться',
               accessibilityLabel: `Записаться к ${specialist.nameDative}`,
-              onAction: () => openLink(contacts.bookingUrl as string, ''),
+              onAction: () => openLink(contacts.bookingUrl as string),
             }
           : null,
       ].filter((way) => way !== null)

@@ -77,7 +77,8 @@ export function BreathTab({ initialScheme, cycles }: Props) {
         </Text>
       </View>
 
-      <View style={{ gap: t.space.xs, paddingHorizontal: t.space.screen }}>
+      {/* Ряд с ползунком выше макета на 16 (область касания 48 вместо 32): по 8 сверху и снизу уходят в отступы. */}
+      <View style={{ paddingHorizontal: t.space.screen, marginBottom: -t.space.xs }}>
         <View
           accessibilityLabel="Фоновый звук"
           style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: t.space.xs }}

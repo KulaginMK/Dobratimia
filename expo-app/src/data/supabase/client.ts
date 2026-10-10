@@ -64,6 +64,8 @@ type Result<T> = { data: T | null; error: { message: string; code?: string } | n
  */
 export function unwrap<T>(result: Result<T>): T {
   if (result.error) {
+    // ponytail: отметка, на которую сервер всегда отвечает 5xx, останется первой в очереди и задержит остальные.
+    // Если такое встретится — считать попытки и после нескольких убирать её из очереди.
     if (result.status === 0 || (result.status ?? 0) >= 500) throw new OfflineError();
     throw Object.assign(new Error(result.error.message), { code: result.error.code });
   }
