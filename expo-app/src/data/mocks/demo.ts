@@ -1,5 +1,5 @@
 // ЗАГЛУШКА: вымышленные люди и контакты из макетов (handoff/docs/10-placeholders.md).
-// Нужны только витрине компонентов app/dev/kitchen-sink.tsx.
+// Нужны только витрине компонентов src/features/dev/KitchenSinkScreen.tsx.
 
 export const demoSpecialist = {
   name: 'Ольга Мирошник',
