@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Icon, svgA11y, type IconName } from '@/components/brand';
@@ -32,6 +32,8 @@ const CONTACT_PAD_V = 12;
 const CONTACT_GAP = 12;
 const CONTACT_ICON_BOX = 44;
 const CONTACT_ICON_RADIUS = 14;
+// Мерка контакта в одну строку: заведомо шире любого телефона или имени в Telegram.
+const CONTACT_MEASURE_WIDTH = 1000;
 const NOTE_PAD_V = 14;
 const NOTE_PAD_H = 16;
 const NOTE_RADIUS = 18;
@@ -179,6 +181,14 @@ export function ContactAction({
   onAction,
 }: ContactActionProps) {
   const t = useTheme();
+  const [column, setColumn] = useState(0);
+  const [natural, setNatural] = useState(0);
+  const titleStyle = [t.type.bodyStrong, { fontFamily: t.fontFamily.text[700], color: t.color.text }];
+  // Контакт держим в одну строку (решение владельца, этап 15): не помещается — уменьшаем шрифт,
+  // но не мельче подписей (type.label). На совсем узком экране — обычный шрифт и перенос.
+  const full = t.type.bodyStrong.fontSize;
+  const fitted = column > 0 && natural > column ? Math.floor((full * column) / natural) : full;
+  const fontSize = fitted >= t.type.label.fontSize ? fitted : full;
   return (
     <View
       style={{
@@ -203,8 +213,20 @@ export function ContactAction({
       >
         <Icon name={icon} color={t.color.onPrimarySoft} />
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={[t.type.bodyStrong, { fontFamily: t.fontFamily.text[700], color: t.color.text }]}>{title}</Text>
+      <View style={{ flex: 1, overflow: 'hidden' }} onLayout={(e) => setColumn(e.nativeEvent.layout.width)}>
+        {/* Невидимая мерка: ширина контакта в одну строку обычным шрифтом. */}
+        <View
+          aria-hidden
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          pointerEvents="none"
+          style={{ position: 'absolute', width: CONTACT_MEASURE_WIDTH, flexDirection: 'row', opacity: 0 }}
+        >
+          <Text onLayout={(e) => setNatural(e.nativeEvent.layout.width)} style={titleStyle}>
+            {title}
+          </Text>
+        </View>
+        <Text style={[titleStyle, { fontSize }]}>{title}</Text>
         <Text style={[t.type.caption, { color: t.color.textMuted }]}>{caption}</Text>
       </View>
       <Button variant={primary ? 'primary' : 'outline'} accessibilityLabel={accessibilityLabel} onPress={onAction}>

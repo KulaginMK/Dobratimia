@@ -1,9 +1,10 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Linking, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContactAction, ScreenHeader, SpecialistPhoto, SuccessBanner } from '@/components/blocks';
 import { BottomSheet, Button, ChipBadge } from '@/components/ui';
+import { useOpenLink } from '@/lib/links';
 import { isWebUrl } from '@/lib/url';
 import { useCallPhone } from '@/lib/phone';
 import { useTheme } from '@/theme';
@@ -32,6 +33,7 @@ export function SpecialistScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const call = useCallPhone();
+  const openLink = useOpenLink();
   const { id, from, opened } = useLocalSearchParams<{ id: string; from?: string; opened?: string }>();
   const { ready, offline, retry, byId, toneOf, isLiked, contactsOf, like, unlike } = useSpecialists();
   // «Нравится» нажали прямо здесь — плашку показываем так же, как после подбора.
@@ -55,7 +57,8 @@ export function SpecialistScreen() {
           ? {
               key: 'phone',
               icon: 'phone' as const,
-              title: contacts.phone,
+              // Если номер не помещается в строку, он переносится по пробелу, а не после дефиса: «…555-12-» / «34».
+              title: contacts.phone.replace(/-/g, '-\u2060'),
               caption: 'Телефон',
               actionLabel: 'Позвонить',
               accessibilityLabel: `Позвонить ${specialist.nameDative}`,
@@ -70,9 +73,7 @@ export function SpecialistScreen() {
               caption: 'Telegram',
               actionLabel: 'Написать',
               accessibilityLabel: `Написать ${specialist.nameDative} в Telegram`,
-              onAction: () => {
-                Linking.openURL(`https://t.me/${(contacts.telegram as string).replace(/^@/, '')}`).catch(() => {});
-              },
+              onAction: () => openLink(`https://t.me/${(contacts.telegram as string).replace(/^@/, '')}`, ''),
             }
           : null,
         contacts.bookingUrl && isWebUrl(contacts.bookingUrl)
@@ -83,9 +84,7 @@ export function SpecialistScreen() {
               caption: 'Свободные окна на неделе',
               actionLabel: 'Записаться',
               accessibilityLabel: `Записаться к ${specialist.nameDative}`,
-              onAction: () => {
-                Linking.openURL(contacts.bookingUrl as string).catch(() => {});
-              },
+              onAction: () => openLink(contacts.bookingUrl as string, ''),
             }
           : null,
       ].filter((way) => way !== null)
