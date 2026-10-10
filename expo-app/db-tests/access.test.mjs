@@ -358,6 +358,18 @@ describe('черновик карточки специалиста', () => {
     await assert.rejects(asOwner(db, 'select approve_draft($1)', [OLGA]), /check constraint/);
   });
 
+  test('черновик с посторонним полем или слишком большой база не принимает', async () => {
+    await assert.rejects(
+      as(db, olgaUser, (q) => q('select submit_draft($1)', [{ quote: 'Цитата', role: 'admin' }])),
+      /payload_fields/,
+    );
+    await assert.rejects(
+      as(db, olgaUser, (q) => q('select submit_draft($1)', [{ about: 'я'.repeat(20001) }])),
+      /payload_size/,
+    );
+    await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ about: 'я'.repeat(5000) }]));
+  });
+
   test('ссылка «Записаться» — только обычная веб-страница', async () => {
     for (const url of ['javascript:alert(1)', 'example.com', 'https://example.com/ и текст']) {
       await as(db, olgaUser, (q) => q('select submit_draft($1)', [{ booking_url: url }]));
