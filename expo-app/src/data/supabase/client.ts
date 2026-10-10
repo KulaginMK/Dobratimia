@@ -59,12 +59,12 @@ export async function forgetSession(): Promise<void> {
 type Result<T> = { data: T | null; error: { message: string; code?: string } | null; status?: number };
 
 /**
- * Достаёт данные из ответа Supabase. Статус 0 — запрос не дошёл до сервера: это OfflineError,
- * действие можно повторить. Остальные ошибки — отказ сервера.
+ * Достаёт данные из ответа Supabase. Статус 0 — запрос не дошёл до сервера, 5xx — сервер сбоит:
+ * это OfflineError, действие можно повторить, а отметка остаётся в очереди. Остальные ошибки — отказ сервера.
  */
 export function unwrap<T>(result: Result<T>): T {
   if (result.error) {
-    if (result.status === 0) throw new OfflineError();
+    if (result.status === 0 || (result.status ?? 0) >= 500) throw new OfflineError();
     throw Object.assign(new Error(result.error.message), { code: result.error.code });
   }
   return result.data as T;
