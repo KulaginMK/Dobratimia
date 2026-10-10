@@ -53,6 +53,13 @@
       ],
       "expo-web-browser",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#B4532F"
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "Доступ к фото нужен, только чтобы вы выбрали снимок для своей карточки специалиста",
