@@ -438,8 +438,8 @@ type GoogleButtonProps = {
 };
 
 /**
- * Кнопка «Войти через Google» из макета. Знак «G» — заглушка: на этапе 12 её заменит
- * официальная кнопка Google Sign-In (handoff/docs/10-placeholders.md).
+ * ЗАГЛУШКА: кнопка «Войти через Google» из макета со знаком «G» в пунктирном кружке. Перед публикацией её
+ * заменит официальная кнопка Google Sign-In (handoff/docs/10-placeholders.md, TODO.md).
  */
 export function GoogleButton({ children, disabled, onPress }: GoogleButtonProps) {
   const t = useTheme();

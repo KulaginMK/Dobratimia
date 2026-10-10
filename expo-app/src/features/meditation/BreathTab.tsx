@@ -11,7 +11,7 @@ import { useBreathSession } from './useBreathSession';
 
 type SoundId = 'rain' | 'wind' | 'forest' | 'silence';
 
-// Звуковых файлов пока нет (лицензия не решена, docs/07): работает только выбор и громкость.
+// ЗАГЛУШКА: звуковых файлов пока нет (лицензия не решена, docs/07, docs/10): работает только выбор и громкость.
 const SOUNDS: { id: SoundId; label: string }[] = [
   { id: 'rain', label: 'Дождь' },
   { id: 'wind', label: 'Ветер' },
