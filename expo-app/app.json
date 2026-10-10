@@ -9,6 +9,7 @@
     "icon": "./assets/images/icon.png",
     "android": {
       "package": "by.dobratimia.app",
+      "allowBackup": false,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
         "monochromeImage": "./assets/images/adaptive-icon-monochrome.png",
