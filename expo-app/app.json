@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/icon.png",
     "android": {
-      "package": "by.dobratimia.app",
+      "package": "dobratimia.app",
       "allowBackup": false,
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
