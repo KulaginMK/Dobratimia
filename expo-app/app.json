@@ -70,6 +70,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1f12ba0e-2f8e-4ac0-9665-e9c28aa34ade"
+      }
+    },
+    "owner": "kulaginmk"
   }
 }
