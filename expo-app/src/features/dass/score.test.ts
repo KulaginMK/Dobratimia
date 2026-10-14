@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { DASS_COUNT } from '@/data/dass';
+import { DASS_COUNT, DASS_STATEMENTS } from '@/data/dass';
 import {
   DASS_MAX,
   SCALE_ITEMS,
@@ -38,6 +38,12 @@ describe('ключ DASS-21', () => {
     expect(SCALE_ITEMS.stress).toEqual([1, 6, 8, 11, 12, 14, 18]);
     expect(SCALE_ITEMS.anxiety).toEqual([2, 4, 7, 9, 15, 19, 20]);
     expect(SCALE_ITEMS.depression).toEqual([3, 5, 10, 13, 16, 17, 21]);
+  });
+
+  test('утверждений 21, на своих местах: пункт 2 — тревога, пункт 3 — депрессия', () => {
+    expect(DASS_STATEMENTS).toHaveLength(DASS_COUNT);
+    expect(DASS_STATEMENTS[1]).toBe('Я чувствовал(а) сухость во рту');
+    expect(DASS_STATEMENTS[2]).toBe('Мне кажется, что я не испытывал(а) никаких позитивных чувств');
   });
 });
 
