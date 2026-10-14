@@ -18,7 +18,10 @@ type SessionValue = {
   ready: boolean;
   /** Онбординг уже показывали: после выхода из аккаунта открывается сразу экран входа. */
   onboarded: boolean;
-  /** Кто вошёл; null — никто. Без входа доступны только онбординг, SOS и медитации (docs/01). */
+  /**
+   * Кто вошёл; null — никто. До онбординга без входа открываются онбординг, SOS и медитации; после
+   * «Продолжить без входа» — и остальное, кроме подбора, «Доброго слова» и дневника (SignInGate).
+   */
   user: SessionUser | null;
   /**
    * «Войти через Google». signedIn — вход состоялся; redirected — открылась страница Google, вход завершит
@@ -27,6 +30,8 @@ type SessionValue = {
   signIn: () => Promise<'signedIn' | 'redirected' | 'cancelled'>;
   /** Завершить вход после возврата от Google. */
   completeSignIn: (callback: SignInCallback) => Promise<void>;
+  /** «Продолжить без входа»: онбординг пройден, войти можно позже из профиля. */
+  skipSignIn: () => void;
   /** «Выйти из аккаунта»: дневник и результаты остаются на устройстве под ключом пользователя. */
   signOut: () => Promise<void>;
   /** «Удалить мои данные»: аккаунт и всё сохранённое на устройстве, кроме темы. Дальше — онбординг с начала. */
@@ -39,6 +44,7 @@ const SessionContext = createContext<SessionValue>({
   user: null,
   signIn: async () => 'cancelled',
   completeSignIn: async () => {},
+  skipSignIn: () => {},
   signOut: async () => {},
   deleteData: async () => {},
 });
@@ -133,6 +139,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     await accept(await authRepo.completeSignIn(callback));
   };
 
+  const skipSignIn = () => {
+    setOnboarded(true);
+    // Не сохранилось — после перезапуска онбординг покажется снова, только и всего.
+    saveOnboarded().catch(() => {});
+  };
+
   const signOut = async () => {
     await authRepo.signOut().catch(() => {});
     setUser(null);
@@ -152,7 +164,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SessionContext.Provider value={{ ready, onboarded, user, signIn, completeSignIn, signOut, deleteData }}>
+    <SessionContext.Provider value={{ ready, onboarded, user, signIn, completeSignIn, skipSignIn, signOut, deleteData }}>
       {children}
     </SessionContext.Provider>
   );
@@ -162,7 +174,7 @@ export function useSession(): SessionValue {
   return useContext(SessionContext);
 }
 
-/** Id для ключей личных данных на устройстве. Экраны внутри (app) открываются только после входа. */
+/** Id для ключей личных данных на устройстве. Экраны, где он нужен, открываются только после входа (SignInGate). */
 export function useUserId(): string {
   return useSession().user?.id ?? GUEST_USER_ID;
 }

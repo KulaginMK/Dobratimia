@@ -20,7 +20,7 @@ const MODES: { value: Mode; label: string }[] = [
  * КРИК: выпустить пар голосом или текстом. Одно состояние за раз (docs/05):
  * Scream → ScreamLive → ScreamResult, ScreamNoMic при отказе в микрофоне и ScreamText.
  */
-export function ScreamScreen({ userId }: { userId: string }) {
+export function ScreamScreen({ userId }: { userId: string | null }) {
   const t = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();

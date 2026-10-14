@@ -9,10 +9,10 @@ const INTRO_STEPS: (string | undefined)[] = [undefined, 'warning', 'gestures'];
 // Доступен без входа; кнопки SOS в шапке нет — номер 133 есть в тексте шага 2 (docs/06).
 export default function OnboardingLayout() {
   const t = useTheme();
-  const { user } = useSession();
+  const { user, onboarded } = useSession();
   const [, step] = useSegments() as string[];
-  // Онбординг показывается один раз: вошедшего человека вводные шаги отправляют на Главную.
+  // Онбординг показывается один раз: после входа или «Продолжить без входа» вводные шаги отправляют на Главную.
   // В вебе сюда приводит кнопка «Назад» браузера.
-  if (user && INTRO_STEPS.includes(step)) return <Redirect href="/?s=home" />;
+  if ((user || onboarded) && INTRO_STEPS.includes(step)) return <Redirect href="/?s=home" />;
   return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }} />;
 }

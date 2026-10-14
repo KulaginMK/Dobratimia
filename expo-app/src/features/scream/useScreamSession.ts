@@ -27,8 +27,11 @@ const EMPTY_LIVE: ScreamLive = { elapsedMs: 0, level: 0, levels: [] };
 
 type Run = { startedAt: number; level: number; levels: number[] };
 
-/** Замер КРИКа: доступ к микрофону, до 10 секунд замера, итог и «рекорд недели» на устройстве. */
-export function useScreamSession(userId: string) {
+/**
+ * Замер КРИКа: доступ к микрофону, до 10 секунд замера, итог и «рекорд недели» на устройстве.
+ * userId null — человек не вошёл: рекорды живут, пока открыт экран, и не сохраняются.
+ */
+export function useScreamSession(userId: string | null) {
   const meter = useLoudnessMeter();
   const toast = useToast();
   const [phase, setPhase] = useState<ScreamPhase>('ready');
@@ -40,6 +43,7 @@ export function useScreamSession(userId: string) {
   const attempt = useRef(0);
 
   useEffect(() => {
+    if (!userId) return;
     let alive = true;
     loadScreamRecords(userId).then((stored) => {
       if (alive) setRecords(stored);
@@ -63,7 +67,7 @@ export function useScreamSession(userId: string) {
     const next = [...keepWeek(records, today), { date: today, ...summary }];
     setRecords(next);
     // Не сохранилось — результат всё равно виден, пострадает только «рекорд недели».
-    saveScreamRecords(userId, next).catch(() => {});
+    if (userId) saveScreamRecords(userId, next).catch(() => {});
     setResult({ ...summary, levels: finished.levels, weekRecord: weekRecord(next, today) });
     setPhase('result');
     AccessibilityInfo.announceForAccessibility(`Замер окончен. Ваш пик — ${summary.peak} условных децибел`);

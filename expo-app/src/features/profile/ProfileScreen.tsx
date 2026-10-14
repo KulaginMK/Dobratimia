@@ -49,8 +49,6 @@ export function ProfileScreen() {
   const [sheet, setSheet] = useState<'university' | 'signOut' | 'delete' | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  if (!user) return null;
-
   const university = byId(universityId);
   // Следующий тест — через 14 дней после последнего; если этот день уже прошёл, дату не показываем.
   const latest = entries[entries.length - 1];
@@ -94,7 +92,20 @@ export function ProfileScreen() {
       />
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + t.space.lg }}>
         <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
-          <ProfileHead name={user.name} email={user.email} />
+          {user ? (
+            <ProfileHead name={user.name} email={user.email} />
+          ) : (
+            // Вход необязателен (решение владельца от 14 октября 2026 года): гостю — что даёт вход.
+            <View style={{ gap: t.space.sm }}>
+              <Text style={[t.type.body, { color: t.color.textMuted }]}>
+                Вы не вошли. Тест и техники доступны и так, а дневник, результаты тестов и подбор специалиста
+                сохраняются, когда вы войдёте через Google.
+              </Text>
+              <Button fullWidth onPress={() => router.push('/onboarding/sign-in')}>
+                Войти через Google
+              </Button>
+            </View>
+          )}
         </View>
 
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.xl }}>
@@ -116,31 +127,36 @@ export function ProfileScreen() {
           </SettingsGroup>
         </View>
 
-        <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.xl }}>
-          <GroupLabel>Напоминания</GroupLabel>
-        </View>
-        <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
-          {REMINDERS_AVAILABLE ? (
-            <SettingsGroup>
-              <Switch
-                label="Дневник настроения"
-                description="Каждый день в 21:00"
-                checked={reminders.diary}
-                onChange={remindDiary}
-              />
-              <Switch
-                label="Тест DASS-21"
-                description={dassSchedule}
-                checked={reminders.dass}
-                onChange={remindDass}
-              />
-            </SettingsGroup>
-          ) : (
-            <Text style={[t.type.caption, { paddingHorizontal: t.space.xxs, color: t.color.textMuted }]}>
-              Напоминания работают в приложении для Android
-            </Text>
-          )}
-        </View>
+        {/* Напоминания — о дневнике и тесте, которые гость не сохраняет. */}
+        {user ? (
+          <>
+            <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.xl }}>
+              <GroupLabel>Напоминания</GroupLabel>
+            </View>
+            <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
+              {REMINDERS_AVAILABLE ? (
+                <SettingsGroup>
+                  <Switch
+                    label="Дневник настроения"
+                    description="Каждый день в 21:00"
+                    checked={reminders.diary}
+                    onChange={remindDiary}
+                  />
+                  <Switch
+                    label="Тест DASS-21"
+                    description={dassSchedule}
+                    checked={reminders.dass}
+                    onChange={remindDass}
+                  />
+                </SettingsGroup>
+              ) : (
+                <Text style={[t.type.caption, { paddingHorizontal: t.space.xxs, color: t.color.textMuted }]}>
+                  Напоминания работают в приложении для Android
+                </Text>
+              )}
+            </View>
+          </>
+        ) : null}
 
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.xl }}>
           <GroupLabel>Тема</GroupLabel>
@@ -158,7 +174,7 @@ export function ProfileScreen() {
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen }}>
           <SettingsGroup>
             {/* Кабинет виден только специалисту: его почту указал администратор (docs/07). */}
-            {user.role === 'specialist' ? (
+            {user?.role === 'specialist' ? (
               <SettingsRow title="Кабинет специалиста" onPress={() => router.push('/cabinet')} />
             ) : null}
             <SettingsRow title="Политика конфиденциальности" onPress={() => openLink(PRIVACY_URL, DOCUMENT_PENDING)} />
@@ -167,12 +183,14 @@ export function ProfileScreen() {
           </SettingsGroup>
         </View>
 
-        <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen, gap: t.space.xxs }}>
-          <Button variant="outline" fullWidth onPress={() => setSheet('signOut')}>
-            Выйти из аккаунта
-          </Button>
-          <DangerButton onPress={() => setSheet('delete')}>Удалить мои данные</DangerButton>
-        </View>
+        {user ? (
+          <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen, gap: t.space.xxs }}>
+            <Button variant="outline" fullWidth onPress={() => setSheet('signOut')}>
+              Выйти из аккаунта
+            </Button>
+            <DangerButton onPress={() => setSheet('delete')}>Удалить мои данные</DangerButton>
+          </View>
+        ) : null}
 
         <Text
           style={[
@@ -205,8 +223,14 @@ export function ProfileScreen() {
           <Text style={[t.type.body, { color: t.color.text }]}>
             {`Дневник и результаты останутся ${DEVICE} и вернутся, когда вы снова войдёте.`}
           </Text>
-          {/* После выхода (app) сам отправит на экран входа. */}
-          <Button fullWidth onPress={() => signOut()}>
+          {/* После выхода — экран входа: там можно войти снова или продолжить без входа. */}
+          <Button
+            fullWidth
+            onPress={async () => {
+              await signOut();
+              router.replace('/onboarding/sign-in');
+            }}
+          >
             Выйти
           </Button>
           <Button variant="outline" fullWidth onPress={() => setSheet(null)}>

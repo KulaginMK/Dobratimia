@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { Text, View, useWindowDimensions } from 'react-native';
 import { GoogleButton, InlineLink } from '@/components/blocks';
 import { Logo } from '@/components/brand';
-import { useToast } from '@/components/ui';
+import { Button, useToast } from '@/components/ui';
 import { CONSENT_URL, PRIVACY_URL } from '@/data/mocks/links';
 import { useSession } from '@/features/session/Session';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
@@ -21,6 +21,8 @@ const TITLE_MARGIN_TOP = 28;
 /**
  * Шаг 4 (эталон OnbSignIn): вход через Google. Сюда же приложение возвращает после «Выйти из аккаунта» —
  * тогда стрелки «Назад» нет. После входа — выбор вуза или сразу Главная, если вуз уже выбран.
+ * Вход необязателен (решение владельца от 14 октября 2026 года): «Продолжить без входа» ведёт туда же,
+ * но без сохранения данных. Кнопки нет в макете.
  * В вебе страница целиком уходит на Google и возвращается на экран /auth/callback: он и завершает вход.
  */
 export function OnboardingSignInScreen() {
@@ -29,16 +31,21 @@ export function OnboardingSignInScreen() {
   const toast = useToast();
   const openLink = useOpenLink();
   const { width } = useWindowDimensions();
-  const { user, signIn } = useSession();
+  const { user, signIn, skipSignIn } = useSession();
   const { universityId } = useSelectedUniversity();
   const [busy, setBusy] = useState(false);
 
-  // Человек вошёл (или открыл экран, уже войдя — в вебе кнопкой «Назад» браузера): ведём дальше.
   // Экран входа при этом заменяется: вернуться «назад ко входу» после входа нельзя.
+  const next = useCallback(
+    () => router.replace(universityId ? '/?s=home' : '/onboarding/university'),
+    [universityId, router],
+  );
+
+  // Человек вошёл (или открыл экран, уже войдя — в вебе кнопкой «Назад» браузера): ведём дальше.
   useFocusEffect(
     useCallback(() => {
-      if (user) router.replace(universityId ? '/?s=home' : '/onboarding/university');
-    }, [user, universityId, router]),
+      if (user) next();
+    }, [user, next]),
   );
 
   const onSignIn = async () => {
@@ -74,6 +81,17 @@ export function OnboardingSignInScreen() {
             </InlineLink>
             .
           </Text>
+          <Button
+            variant="text"
+            fullWidth
+            disabled={busy}
+            onPress={() => {
+              skipSignIn();
+              next();
+            }}
+          >
+            Продолжить без входа
+          </Button>
         </View>
       }
     >

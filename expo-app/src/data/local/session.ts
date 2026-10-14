@@ -30,7 +30,7 @@ function isUser(value: unknown): value is SessionUser {
   );
 }
 
-/** Онбординг показывается один раз: флаг ставится при первом входе. */
+/** Онбординг показывается один раз: флаг ставится при первом входе или по «Продолжить без входа». */
 export async function loadOnboarded(): Promise<boolean> {
   try {
     return (await AsyncStorage.getItem(ONBOARDED_KEY)) === '1';

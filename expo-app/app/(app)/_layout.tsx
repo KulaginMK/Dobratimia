@@ -9,30 +9,36 @@ import { useTheme } from '@/theme';
 // Лента всегда лежит в основании стека: «Назад» с экрана, открытого по ссылке, ведёт на неё.
 export const unstable_settings = { anchor: 'index' };
 
-// Экраны группы доступны только после входа (docs/05). Без него — онбординг, а если его уже показывали
-// (человек вышел из аккаунта) — сразу экран входа. SOS и медитации лежат вне группы и открываются без входа.
+// Экраны группы открываются после онбординга. Вход необязателен (решение владельца от 14 октября 2026 года):
+// гость проходит тест и пользуется техниками, но ничего не сохраняет, а подбор, «Доброе слово» и дневник
+// просят войти (SignInGate). SOS и медитации лежат вне группы и открываются и до онбординга.
 export default function AppLayout() {
   const t = useTheme();
   const { user, onboarded } = useSession();
-  if (!user) return <Redirect href={onboarded ? '/onboarding/sign-in' : '/onboarding'} />;
+  if (!user && !onboarded) return <Redirect href="/onboarding" />;
+  const stack = (
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }}>
+      {/* Лента объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
+      <Stack.Screen name="index" />
+      {/* Избранные выезжают сверху над лентой: прозрачное окно без системной анимации (docs/06). */}
+      <Stack.Screen
+        name="favorites"
+        options={{
+          presentation: 'transparentModal',
+          animation: 'none',
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      />
+    </Stack>
+  );
+  // Гостю — только результат теста в памяти: без дневника, специалистов и напоминаний.
+  if (!user) return <DassHistoryProvider userId={null}>{stack}</DassHistoryProvider>;
   return (
     <MoodDiaryProvider userId={user.id}>
       <DassHistoryProvider userId={user.id}>
         <SpecialistsProvider userId={user.id}>
           <ReminderSync />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.background } }}>
-            {/* Лента объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
-            <Stack.Screen name="index" />
-            {/* Избранные выезжают сверху над лентой: прозрачное окно без системной анимации (docs/06). */}
-            <Stack.Screen
-              name="favorites"
-              options={{
-                presentation: 'transparentModal',
-                animation: 'none',
-                contentStyle: { backgroundColor: 'transparent' },
-              }}
-            />
-          </Stack>
+          {stack}
         </SpecialistsProvider>
       </DassHistoryProvider>
     </MoodDiaryProvider>

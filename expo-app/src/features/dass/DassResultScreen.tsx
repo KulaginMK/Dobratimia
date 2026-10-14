@@ -9,6 +9,7 @@ import { TEXT_NEEDED } from '@/data/placeholders';
 import { techniqueById, type Technique } from '@/data/techniques';
 import { useReminders } from '@/features/reminders/reminders';
 import { dassReminder } from '@/features/reminders/schedule';
+import { useSession } from '@/features/session/Session';
 import { addDays, dayAndMonth } from '@/lib/dates';
 import { useCallPhone } from '@/lib/phone';
 import { useTheme } from '@/theme';
@@ -48,6 +49,7 @@ export function DassResultScreen() {
   const call = useCallPhone();
   const { entries, ready } = useDassHistory();
   const [reminders] = useReminders();
+  const { user } = useSession();
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: t.color.background }} />;
   const latest = entries[entries.length - 1];
@@ -121,8 +123,19 @@ export function DassResultScreen() {
           </Text>
         </View>
 
-        <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen }}>
-          <DassHistoryCard entries={entries} />
+        <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.sm }}>
+          {user ? (
+            <DassHistoryCard entries={entries} />
+          ) : (
+            <>
+              <Text style={[t.type.caption, { color: t.color.textMuted }]}>
+                Результат не сохранится. Историю тестов приложение хранит, когда вы войдёте через Google.
+              </Text>
+              <Button variant="secondary" fullWidth onPress={() => router.push('/onboarding/sign-in')}>
+                Войти через Google
+              </Button>
+            </>
+          )}
         </View>
 
         <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.sm }}>
@@ -145,7 +158,7 @@ export function DassResultScreen() {
           {/* «Мы напомним за день» — только когда напоминание включено в профиле и ещё впереди: зря не обещаем. */}
           <NextTestNote>
             {`Следующий тест — ${dayAndMonth(addDays(latest.date, NEXT_TEST_DAYS))}.${
-              reminders.dass && dassReminder(latest.date, new Date()) ? ' Мы напомним за день.' : ''
+              user && reminders.dass && dassReminder(latest.date, new Date()) ? ' Мы напомним за день.' : ''
             }`}
           </NextTestNote>
         </View>

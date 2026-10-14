@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { MoodPicker, RoundAction, ScreamButton, SosAction, Ticker } from '@/components/blocks';
 import { useTopInset } from '@/components/blocks/useTopInset';
-import { Logo } from '@/components/brand';
+import { Icon, Logo } from '@/components/brand';
 import { Button, useToast } from '@/components/ui';
 import { focusRing, isFocused } from '@/components/ui/focus';
 import type { MoodLevel } from '@/data/local/mood';
@@ -23,10 +23,14 @@ function initials(name: string): string {
     .slice(0, 2);
 }
 
-/** Сколько человек открыли приложение сегодня. null — число ещё не пришло или нет сети: строку не показываем. */
-function usePresenceCount(): number | null {
+/**
+ * Сколько человек открыли приложение сегодня. null — число ещё не пришло, нет сети или человек не вошёл
+ * (сервер считает только вошедших): строку не показываем.
+ */
+function usePresenceCount(signedIn: boolean): number | null {
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
+    if (!signedIn) return;
     let alive = true;
     presenceRepo
       .todayCount()
@@ -37,7 +41,7 @@ function usePresenceCount(): number | null {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [signedIn]);
   return count;
 }
 
@@ -49,7 +53,7 @@ export function HomePage({ active }: FeedPageProps) {
   const topInset = useTopInset();
   const { today, mark, restore } = useMoodDiary();
   const { user } = useSession();
-  const count = usePresenceCount();
+  const count = usePresenceCount(!!user);
 
   // ?focus=mood — пришли из напоминания о дневнике или после КРИКа: прокручиваем к лицам (docs/06).
   const { focus } = useLocalSearchParams<{ focus?: string }>();
@@ -128,9 +132,13 @@ export function HomePage({ active }: FeedPageProps) {
             focusRing(t, isFocused(state)),
           ]}
         >
-          <Text style={[t.type.bodyStrong, { fontFamily: t.fontFamily.text[700], color: t.color.onPrimarySoft }]}>
-            {initials(user?.name ?? '')}
-          </Text>
+          {user ? (
+            <Text style={[t.type.bodyStrong, { fontFamily: t.fontFamily.text[700], color: t.color.onPrimarySoft }]}>
+              {initials(user.name)}
+            </Text>
+          ) : (
+            <Icon name="specialist" size={t.size.icon} color={t.color.onPrimarySoft} />
+          )}
         </Pressable>
       </View>
 
@@ -182,25 +190,38 @@ export function HomePage({ active }: FeedPageProps) {
           >
             {today ? `Сегодня вам ${moodLabel(today.level).toLowerCase()}` : 'Как вы сегодня?'}
           </Text>
-          <Pressable
-            onPress={() => (picking ? router.push('/diary') : setEditing(true))}
-            accessibilityRole={picking ? 'link' : 'button'}
-            hitSlop={t.space.md}
-            style={(state) => focusRing(t, isFocused(state))}
-          >
-            <Text
-              style={{
-                fontFamily: t.fontFamily.text[600],
-                fontSize: t.type.caption.fontSize,
-                lineHeight: t.type.caption.lineHeight,
-                color: t.color.primary,
-              }}
+          {user ? (
+            <Pressable
+              onPress={() => (picking ? router.push('/diary') : setEditing(true))}
+              accessibilityRole={picking ? 'link' : 'button'}
+              hitSlop={t.space.md}
+              style={(state) => focusRing(t, isFocused(state))}
             >
-              {picking ? 'Дневник' : 'Изменить'}
-            </Text>
-          </Pressable>
+              <Text
+                style={{
+                  fontFamily: t.fontFamily.text[600],
+                  fontSize: t.type.caption.fontSize,
+                  lineHeight: t.type.caption.lineHeight,
+                  color: t.color.primary,
+                }}
+              >
+                {picking ? 'Дневник' : 'Изменить'}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
-        {picking ? <MoodPicker value={today?.level ?? null} onChange={onMood} /> : null}
+        {user && picking ? <MoodPicker value={today?.level ?? null} onChange={onMood} /> : null}
+        {/* Гость ничего не сохраняет: вместо лиц — приглашение войти (решение владельца от 14 октября 2026 года). */}
+        {user ? null : (
+          <>
+            <Text style={[t.type.caption, { paddingHorizontal: t.space.xs, color: t.color.textMuted }]}>
+              Отметки настроения сохраняются в дневник, когда вы войдёте через Google.
+            </Text>
+            <Button variant="secondary" fullWidth onPress={() => router.push('/onboarding/sign-in')}>
+              Войти через Google
+            </Button>
+          </>
+        )}
         {today ? (
           <Text style={[t.type.caption, { paddingHorizontal: t.space.xs, color: t.color.textMuted }]}>
             {picking ? `Отмечено в ${today.time}. Нажмите на другое лицо, чтобы изменить.` : `Отмечено в ${today.time}`}

@@ -19,12 +19,16 @@ type DassHistoryValue = {
 
 const DassHistoryContext = createContext<DassHistoryValue>({ entries: [], ready: false, add: () => {} });
 
-/** История тестов DASS-21 пользователя. Живёт только на устройстве и на сервер не уходит (docs/08). */
-export function DassHistoryProvider({ userId, children }: { userId: string; children: React.ReactNode }) {
+/**
+ * История тестов DASS-21 пользователя. Живёт только на устройстве и на сервер не уходит (docs/08).
+ * userId null — человек не вошёл: результат виден до закрытия приложения и не сохраняется.
+ */
+export function DassHistoryProvider({ userId, children }: { userId: string | null; children: React.ReactNode }) {
   const [entries, setEntries] = useState<DassEntry[]>([]);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(!userId);
 
   useEffect(() => {
+    if (!userId) return;
     let alive = true;
     loadDassEntries(userId).then((stored) => {
       if (!alive) return;
@@ -40,7 +44,7 @@ export function DassHistoryProvider({ userId, children }: { userId: string; chil
     const next = [...entries, { date: toDateKey(new Date()), answers, ...scoreDass(answers) }];
     setEntries(next);
     // Не сохранилось — результат всё равно виден до перезапуска.
-    saveDassEntries(userId, next).catch(() => {});
+    if (userId) saveDassEntries(userId, next).catch(() => {});
   };
 
   return <DassHistoryContext.Provider value={{ entries, ready, add }}>{children}</DassHistoryContext.Provider>;

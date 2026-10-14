@@ -1,6 +1,6 @@
 import { ScreamScreen } from '@/features/scream/ScreamScreen';
-import { useUserId } from '@/features/session/Session';
+import { useSession } from '@/features/session/Session';
 
 export default function Scream() {
-  return <ScreamScreen userId={useUserId()} />;
+  return <ScreamScreen userId={useSession().user?.id ?? null} />;
 }
