@@ -15,9 +15,11 @@ type DassHistoryValue = {
   ready: boolean;
   /** Сохранить законченный тест: 21 ответ по порядку пунктов. */
   add: (answers: number[]) => void;
+  /** Заменить историю целиком — после загрузки из файла (features/backup). */
+  setAll: (entries: DassEntry[]) => void;
 };
 
-const DassHistoryContext = createContext<DassHistoryValue>({ entries: [], ready: false, add: () => {} });
+const DassHistoryContext = createContext<DassHistoryValue>({ entries: [], ready: false, add: () => {}, setAll: () => {} });
 
 /**
  * История тестов DASS-21 пользователя. Живёт только на устройстве и на сервер не уходит (docs/08).
@@ -40,14 +42,14 @@ export function DassHistoryProvider({ userId, children }: { userId: string | nul
     };
   }, [userId]);
 
-  const add = (answers: number[]) => {
-    const next = [...entries, { date: toDateKey(new Date()), answers, ...scoreDass(answers) }];
+  const commit = (next: DassEntry[]) => {
     setEntries(next);
     // Не сохранилось — результат всё равно виден до перезапуска.
     if (userId) saveDassEntries(userId, next).catch(() => {});
   };
+  const add = (answers: number[]) => commit([...entries, { date: toDateKey(new Date()), answers, ...scoreDass(answers) }]);
 
-  return <DassHistoryContext.Provider value={{ entries, ready, add }}>{children}</DassHistoryContext.Provider>;
+  return <DassHistoryContext.Provider value={{ entries, ready, add, setAll: commit }}>{children}</DassHistoryContext.Provider>;
 }
 
 export function useDassHistory(): DassHistoryValue {

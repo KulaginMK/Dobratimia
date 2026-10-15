@@ -26,6 +26,8 @@ type MoodDiaryValue = {
   restore: (date: string, previous: MoodEntry | null) => void;
   /** Заметка «Что повлияло?» к отметке за день. Пустая строка убирает заметку. */
   setNote: (date: string, note: string) => void;
+  /** Заменить дневник целиком — после загрузки из файла (features/backup). */
+  setAll: (entries: MoodEntry[]) => void;
 };
 
 const MoodDiaryContext = createContext<MoodDiaryValue>({
@@ -36,6 +38,7 @@ const MoodDiaryContext = createContext<MoodDiaryValue>({
   mark: () => null,
   restore: () => {},
   setNote: () => {},
+  setAll: () => {},
 });
 
 function useTodayKey(): string {
@@ -103,7 +106,7 @@ export function MoodDiaryProvider({ userId, children }: { userId: string; childr
   const today = entries.find((entry) => entry.date === todayKey) ?? null;
 
   return (
-    <MoodDiaryContext.Provider value={{ entries, ready, todayKey, today, mark, restore, setNote }}>
+    <MoodDiaryContext.Provider value={{ entries, ready, todayKey, today, mark, restore, setNote, setAll: commit }}>
       {children}
     </MoodDiaryContext.Provider>
   );

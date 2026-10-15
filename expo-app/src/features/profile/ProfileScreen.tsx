@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DangerButton, GroupLabel, ProfileHead, ScreenHeader, SettingsGroup, SettingsRow } from '@/components/blocks';
 import { BottomSheet, Button, SegmentedControl, Switch, useToast } from '@/components/ui';
 import { CONSENT_URL, PRIVACY_URL } from '@/data/mocks/links';
+import { useDiaryBackup } from '@/features/backup/useDiaryBackup';
 import { NEXT_TEST_DAYS, useDassHistory } from '@/features/dass/DassHistory';
 import { useMoodDiary } from '@/features/mood/MoodDiary';
 import {
@@ -46,6 +47,7 @@ export function ProfileScreen() {
   const mood = useMoodDiary();
   const [reminders, setReminders] = useReminders();
   const allowNotifications = useAllowNotifications();
+  const backup = useDiaryBackup();
   const [sheet, setSheet] = useState<'university' | 'signOut' | 'delete' | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -171,6 +173,25 @@ export function ProfileScreen() {
           />
         </View>
 
+        {/* Выгрузка дневника и тестов в файл и загрузка обратно — решение владельца от 15 октября 2026 года. */}
+        {user ? (
+          <>
+            <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.xl }}>
+              <GroupLabel>Мои данные</GroupLabel>
+            </View>
+            <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen, gap: t.space.xs }}>
+              <SettingsGroup>
+                <SettingsRow title="Скачать дневник и результаты" onPress={backup.exportFile} />
+                <SettingsRow title="Загрузить из файла" onPress={backup.importFile} />
+              </SettingsGroup>
+              <Text style={[t.type.caption, { paddingHorizontal: t.space.xxs, color: t.color.textMuted }]}>
+                Отметки настроения и результаты DASS-21 одним файлом. Он хранится у вас и не уходит на сервер, а после
+                нового входа его можно загрузить обратно.
+              </Text>
+            </View>
+          </>
+        ) : null}
+
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen }}>
           <SettingsGroup>
             {/* Кабинет виден только специалисту: его почту указал администратор (docs/07). */}
@@ -245,6 +266,12 @@ export function ProfileScreen() {
           <Text style={[t.type.body, { color: t.color.text }]}>
             Дневник, результаты тестов, избранные и аккаунт будут удалены без возможности восстановления.
           </Text>
+          <Text style={[t.type.body, { color: t.color.text }]}>
+            Дневник и результаты можно сначала скачать файлом, а после нового входа загрузить обратно.
+          </Text>
+          <Button variant="outline" fullWidth onPress={backup.exportFile}>
+            Скачать дневник и результаты
+          </Button>
           <Button fullWidth onPress={() => setSheet(null)}>
             Не удалять
           </Button>
