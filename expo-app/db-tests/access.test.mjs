@@ -235,10 +235,10 @@ describe('справочники и фразы', () => {
 
   test('фразы читают только вошедшие и только опубликованные', async () => {
     await assert.rejects(as(db, null, (q) => q('select * from phrases')), DENIED);
-    assert.equal((await as(db, anna, (q) => q('select id from phrases'))).length, 6);
+    assert.equal((await as(db, anna, (q) => q('select id from phrases'))).length, 22);
 
     await asOwner(db, 'update phrases set published = false where id = $1', [PHRASE]);
-    assert.equal((await as(db, anna, (q) => q('select id from phrases'))).length, 5);
+    assert.equal((await as(db, anna, (q) => q('select id from phrases'))).length, 21);
     await asOwner(db, 'update phrases set published = true where id = $1', [PHRASE]);
   });
 

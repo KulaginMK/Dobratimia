@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AdviceCard, EmergencyStrip, ListItemCard, NextTestNote, ScaleBar, ScreenHeader } from '@/components/blocks';
 import { Button } from '@/components/ui';
 import { PSYCH_HELPLINE } from '@/data/emergency';
-import { TEXT_NEEDED } from '@/data/placeholders';
 import { techniqueById, type Technique } from '@/data/techniques';
 import { useReminders } from '@/features/reminders/reminders';
 import { dassReminder } from '@/features/reminders/schedule';
@@ -106,8 +105,11 @@ export function DassResultScreen() {
         ) : null}
         {advice === 'gentle' ? (
           <View style={{ paddingTop: t.space.lg, paddingHorizontal: t.space.screen }}>
-            {/* [текст] Мягкая карточка при умеренном уровне: текст пишет и проверяет психолог (docs/07, docs/10). */}
-            <AdviceCard tone="soft" body={TEXT_NEEDED} />
+            {/* Мягкая карточка при умеренном уровне (docs/07): черновик Claude от 15 октября 2026 года, ждёт психолога. */}
+            <AdviceCard
+              tone="soft"
+              body="Уровень по одной из шкал сейчас умеренный. Это не диагноз, а знак, что нагрузки много. Может помочь сон по режиму, короткие перерывы и разговор с тем, кому вы доверяете. Если такое состояние держится больше двух недель — стоит обсудить его с психологом."
+            />
           </View>
         ) : null}
 
