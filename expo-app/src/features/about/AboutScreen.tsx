@@ -2,11 +2,11 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CareNote, InlineLink, PrincipleRow, ScreenHeader } from '@/components/blocks';
+import { CareNote, GroupLabel, InlineLink, PrincipleRow, ScreenHeader, SettingsGroup, SettingsRow } from '@/components/blocks';
 import { Logo } from '@/components/brand';
 import { Button, Card } from '@/components/ui';
 import { PSYCH_HELPLINE } from '@/data/emergency';
-import { TEAM_EMAIL } from '@/data/mocks/universities';
+import { SOCIAL_LINKS, TEAM_EMAIL } from '@/data/team';
 import { APP_VERSION } from '@/lib/appVersion';
 import { useOpenLink } from '@/lib/links';
 import { useCallPhone } from '@/lib/phone';
@@ -67,17 +67,24 @@ export function AboutScreen() {
           </CareNote>
         </View>
 
+        {/* Страниц проекта в макете нет — добавлены по просьбе владельца (15 октября 2026 года). */}
+        <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.xl }}>
+          <GroupLabel>Мы в соцсетях</GroupLabel>
+        </View>
+        <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
+          <SettingsGroup>
+            {SOCIAL_LINKS.map((link) => (
+              <SettingsRow key={link.url} title={link.title} action={link.handle} onPress={() => openLink(link.url)} />
+            ))}
+          </SettingsGroup>
+        </View>
+
         <View style={{ marginTop: 'auto', paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.xs }}>
-          <Button
-            variant="outline"
-            icon="message"
-            fullWidth
-            onPress={() => openLink(TEAM_EMAIL ? `mailto:${TEAM_EMAIL}` : null, 'Почта команды скоро появится')}
-          >
+          <Button variant="outline" icon="message" fullWidth onPress={() => router.push('/feedback')}>
             Написать команде
           </Button>
-          <Text style={[t.type.caption, { color: t.color.textMuted, textAlign: 'center' }]}>
-            {TEAM_EMAIL ? `Версия ${APP_VERSION} · ${TEAM_EMAIL}` : `Версия ${APP_VERSION}`}
+          <Text selectable style={[t.type.caption, { color: t.color.textMuted, textAlign: 'center' }]}>
+            {`Версия ${APP_VERSION} · ${TEAM_EMAIL}`}
           </Text>
         </View>
       </ScrollView>

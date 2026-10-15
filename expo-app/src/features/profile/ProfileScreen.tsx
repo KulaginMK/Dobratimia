@@ -179,6 +179,7 @@ export function ProfileScreen() {
             ) : null}
             <SettingsRow title="Политика конфиденциальности" onPress={() => openLink(PRIVACY_URL, DOCUMENT_PENDING)} />
             <SettingsRow title="Согласие на обработку данных" onPress={() => openLink(CONSENT_URL, DOCUMENT_PENDING)} />
+            <SettingsRow title="Обратная связь" onPress={() => router.push('/feedback')} />
             <SettingsRow title="О проекте" onPress={() => router.push('/about')} />
           </SettingsGroup>
         </View>

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContactRow, EmergencyStrip, LinkRow, ScreenHeader } from '@/components/blocks';
 import { Button, Card, Chip } from '@/components/ui';
 import { PSYCH_HELPLINE } from '@/data/emergency';
-import { TEAM_EMAIL } from '@/data/mocks/universities';
+import { TEAM_EMAIL } from '@/data/team';
 import type { University, UniversityService } from '@/data/repos';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
@@ -109,11 +109,8 @@ function UniversityHelp({ university, onCall }: { university: University; onCall
             />
           ))}
         </View>
-        {/* Пока почты команды нет (заглушка), фраза остаётся текстом без ссылки. */}
-        <Text style={[t.type.caption, { color: t.color.textMuted }]}>
-          {TEAM_EMAIL
-            ? `Вашего вуза пока нет в списке — напишите нам: ${TEAM_EMAIL}`
-            : 'Вашего вуза пока нет в списке — напишите нам'}
+        <Text selectable style={[t.type.caption, { color: t.color.textMuted }]}>
+          {`Вашего вуза пока нет в списке — напишите нам: ${TEAM_EMAIL}`}
         </Text>
       </View>
     );

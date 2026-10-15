@@ -71,5 +71,3 @@ export const mockUniversitiesRepo: UniversitiesRepo = {
   fresh: async () => null,
 };
 
-// ЗАГЛУШКА: почты команды пока нет ([ПОЧТА КОМАНДЫ] в docs/10). Пока её нет — ссылки «напишите нам» неактивны.
-export const TEAM_EMAIL: string | null = null;
