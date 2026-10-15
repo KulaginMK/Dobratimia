@@ -59,9 +59,16 @@ describe('контакты специалиста', () => {
     await asOwner(db, 'update specialists set published = true where id = $1', [DMITRY]);
   });
 
-  test('без входа недоступны совсем', async () => {
+  test('без входа контакты и отметки закрыты, а карточки видны только опубликованные', async () => {
     await assert.rejects(as(db, null, (q) => q('select * from specialist_contacts')), DENIED);
-    await assert.rejects(as(db, null, (q) => q('select * from specialists')), DENIED);
+    await assert.rejects(as(db, null, (q) => q('select * from likes')), DENIED);
+    const published = await asOwner(db, 'select id from specialists where published');
+    assert.ok(published.length > 0);
+    assert.equal((await as(db, null, (q) => q('select id from specialists'))).length, published.length);
+    await asOwner(db, 'update specialists set published = false where id = $1', [DMITRY]);
+    assert.equal((await as(db, null, (q) => q('select id from specialists'))).length, published.length - 1);
+    await asOwner(db, 'update specialists set published = true where id = $1', [DMITRY]);
+    await assert.rejects(as(db, null, (q) => q("update specialists set first_name = 'X'")), DENIED);
   });
 
   test('студент не может изменить контакты и карточку', async () => {
@@ -233,13 +240,15 @@ describe('справочники и фразы', () => {
     await assert.rejects(as(db, anna, (q) => q("update universities set service_phone = '1'")), DENIED);
   });
 
-  test('фразы читают только вошедшие и только опубликованные', async () => {
-    await assert.rejects(as(db, null, (q) => q('select * from phrases')), DENIED);
+  test('фразы видны только опубликованные — и вошедшим, и без входа', async () => {
     assert.equal((await as(db, anna, (q) => q('select id from phrases'))).length, 22);
+    assert.equal((await as(db, null, (q) => q('select id from phrases'))).length, 22);
 
     await asOwner(db, 'update phrases set published = false where id = $1', [PHRASE]);
     assert.equal((await as(db, anna, (q) => q('select id from phrases'))).length, 21);
+    assert.equal((await as(db, null, (q) => q('select id from phrases'))).length, 21);
     await asOwner(db, 'update phrases set published = true where id = $1', [PHRASE]);
+    await assert.rejects(as(db, null, (q) => q('select * from phrase_likes')), DENIED);
   });
 
   test('сердечко фразе — только своё, а число сердечек видит только команда', async () => {

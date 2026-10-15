@@ -9,9 +9,9 @@ import { useTheme } from '@/theme';
 // Лента всегда лежит в основании стека: «Назад» с экрана, открытого по ссылке, ведёт на неё.
 export const unstable_settings = { anchor: 'index' };
 
-// Экраны группы открываются после онбординга. Вход необязателен (решение владельца от 14 октября 2026 года):
-// гость проходит тест и пользуется техниками, но ничего не сохраняет, а подбор, «Доброе слово» и дневник
-// просят войти (SignInGate). SOS и медитации лежат вне группы и открываются и до онбординга.
+// Экраны группы открываются после онбординга. Вход необязателен (решения владельца от 14 и 15 октября 2026 года):
+// гость проходит тест, пользуется техниками, смотрит специалистов и «Доброе слово», но ничего не сохраняет и не
+// отмечает; дневник и избранные просят войти (SignInGate). SOS и медитации открываются и до онбординга.
 export default function AppLayout() {
   const t = useTheme();
   const { user, onboarded } = useSession();
@@ -31,8 +31,14 @@ export default function AppLayout() {
       />
     </Stack>
   );
-  // Гостю — только результат теста в памяти: без дневника, специалистов и напоминаний.
-  if (!user) return <DassHistoryProvider userId={null}>{stack}</DassHistoryProvider>;
+  // Гостю — результат теста в памяти и специалисты без отметок; без дневника и напоминаний.
+  if (!user) {
+    return (
+      <DassHistoryProvider userId={null}>
+        <SpecialistsProvider userId={null}>{stack}</SpecialistsProvider>
+      </DassHistoryProvider>
+    );
+  }
   return (
     <MoodDiaryProvider userId={user.id}>
       <DassHistoryProvider userId={user.id}>

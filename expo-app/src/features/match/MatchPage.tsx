@@ -15,6 +15,7 @@ import { Button, EmptyState, Skeleton } from '@/components/ui';
 import type { Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
+import { useSession } from '@/features/session/Session';
 import { useSpecialists } from '@/features/specialists/Specialists';
 import { formatAndCity, fullName, roleAndExperience } from '@/features/specialists/labels';
 import { useTheme } from '@/theme';
@@ -56,6 +57,8 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
   const onScroll = useReportScrollTop(onScrollAtTop);
   const { ready, offline, retry, deck, deckPosition, deckTotal, liked, toneOf, like, reject, resetRejected } =
     useSpecialists();
+  // Гость смотрит колоду, но избранных у него нет: «Нравится» только открывает карточку (владелец, 15 октября 2026).
+  const { user } = useSession();
   const current = deck[0];
   const count = liked.length > 0 ? ` (${liked.length})` : '';
   const openFavorites = () => router.push('/favorites');
@@ -74,9 +77,11 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
         </View>
       ) : current ? (
         <>
-          <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
-            <PullHint label={`Потяните вниз — избранные контакты${count}`} onPress={openFavorites} />
-          </View>
+          {user ? (
+            <View style={{ paddingTop: t.space.sm, paddingHorizontal: t.space.screen }}>
+              <PullHint label={`Потяните вниз — избранные контакты${count}`} onPress={openFavorites} />
+            </View>
+          ) : null}
           {/* Новый специалист — новая колода: сдвиг карточки начинается с нуля. */}
           <Deck
             key={current.id}
@@ -85,6 +90,12 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
             counter={`${deckPosition} из ${deckTotal}`}
             toneOf={toneOf}
             onLike={() => {
+              if (!user) {
+                // Ничего не отмечаем: колода просто листается дальше, и это не сохраняется.
+                reject(current.id);
+                router.push(`/specialist/${current.id}?from=match`);
+                return;
+              }
               like(current.id);
               router.push(`/specialist/${current.id}?from=match&opened=1`);
             }}
@@ -103,9 +114,11 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
           <Button fullWidth onPress={retry}>
             Повторить
           </Button>
-          <Button variant="outline" icon="heart" fullWidth onPress={openFavorites}>
-            {`Открыть избранные${count}`}
-          </Button>
+          {user ? (
+            <Button variant="outline" icon="heart" fullWidth onPress={openFavorites}>
+              {`Открыть избранные${count}`}
+            </Button>
+          ) : null}
         </View>
       ) : (
         <>
@@ -119,9 +132,11 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
             />
           </View>
           <View style={{ paddingTop: t.space.xs, paddingHorizontal: t.space.screen, gap: t.space.sm }}>
-            <Button size="lg" icon="heart" fullWidth onPress={openFavorites}>
-              {`Открыть избранные${count}`}
-            </Button>
+            {user ? (
+              <Button size="lg" icon="heart" fullWidth onPress={openFavorites}>
+                {`Открыть избранные${count}`}
+              </Button>
+            ) : null}
             <Button variant="outline" fullWidth onPress={resetRejected}>
               Посмотреть всех заново
             </Button>

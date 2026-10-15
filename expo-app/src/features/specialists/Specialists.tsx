@@ -63,8 +63,9 @@ const SpecialistsContext = createContext<SpecialistsValue>({
 /**
  * Специалисты, отметки «Нравится» и отклонённые — общее состояние Подбора, Избранных и профиля специалиста.
  * Отметки — через репозиторий (на сервере), отклонённые — только на устройстве (docs/08).
+ * userId null — человек не вошёл: карточки видны, но отметок нет, и ничего не сохраняется (владелец, 15 октября 2026).
  */
-export function SpecialistsProvider({ userId, children }: { userId: string; children: React.ReactNode }) {
+export function SpecialistsProvider({ userId, children }: { userId: string | null; children: React.ReactNode }) {
   const toast = useToast();
   const { universityId, byId: universityById } = useSelectedUniversity();
   const [specialists, setSpecialists] = useState<Specialist[]>([]);
@@ -80,7 +81,9 @@ export function SpecialistsProvider({ userId, children }: { userId: string; chil
     let alive = true;
     (async () => {
       // Отметки и отклонённые читаются и без сети: отметки — с учётом ещё не отправленных.
-      const [likes, rejected] = await Promise.all([likesRepo.list(userId).catch((): string[] => []), loadRejected(userId)]);
+      const [likes, rejected] = userId
+        ? await Promise.all([likesRepo.list(userId).catch((): string[] => []), loadRejected(userId)])
+        : [[], []];
       if (!alive) return;
       setLikedIds(likes);
       setRejectedIds(rejected);
@@ -90,6 +93,7 @@ export function SpecialistsProvider({ userId, children }: { userId: string; chil
         setSpecialists(published);
         setOffline(false);
         setReady(true);
+        if (!userId) return;
 
         const opened = await Promise.all(likes.map((id) => specialistsRepo.contacts(userId, id)));
         if (!alive) return;
@@ -100,7 +104,9 @@ export function SpecialistsProvider({ userId, children }: { userId: string; chil
         saveFavoritesCache(userId, { cards, contacts: byId }).catch(() => {});
       } catch {
         // Нет сети: вместо подбора — «Нет интернета», избранные — из копии на устройстве.
-        const cache = await loadFavoritesCache<Specialist, SpecialistContacts>(userId);
+        const cache = userId
+          ? await loadFavoritesCache<Specialist, SpecialistContacts>(userId)
+          : { cards: [], contacts: {} };
         if (!alive) return;
         setSpecialists((current) => (current.length > 0 ? current : cache.cards));
         setContacts((current) => ({ ...cache.contacts, ...current }));
@@ -114,6 +120,10 @@ export function SpecialistsProvider({ userId, children }: { userId: string; chil
   }, [userId, attempt]);
 
   const retry = () => {
+    if (!userId) {
+      setAttempt((current) => current + 1);
+      return;
+    }
     likesRepo
       .flush(userId)
       .catch(() => {})
@@ -137,11 +147,11 @@ export function SpecialistsProvider({ userId, children }: { userId: string; chil
 
   const commitRejected = (next: string[]) => {
     setRejectedIds(next);
-    saveRejected(userId, next).catch(() => {});
+    if (userId) saveRejected(userId, next).catch(() => {});
   };
 
   const like = (id: string) => {
-    if (likedIds.includes(id)) return;
+    if (!userId || likedIds.includes(id)) return;
     setLikedIds([...likedIds, id]);
     likesRepo
       .add(userId, id)
@@ -158,6 +168,7 @@ export function SpecialistsProvider({ userId, children }: { userId: string; chil
   };
 
   const unlike = (id: string) => {
+    if (!userId) return;
     const stillLiked = likedIds.filter((item) => item !== id);
     const stillOpen = Object.fromEntries(Object.entries(contacts).filter(([key]) => key !== id));
     setLikedIds(stillLiked);

@@ -2,10 +2,10 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { FeedHeader, PhraseCard } from '@/components/blocks';
-import { BottomSheet, Button, SegmentedControl } from '@/components/ui';
+import { BottomSheet, Button, SegmentedControl, useToast } from '@/components/ui';
 import { phrasesRepo, type Phrase, type PhraseTone, type Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
-import { useUserId } from '@/features/session/Session';
+import { useSession } from '@/features/session/Session';
 import { useSpecialists } from '@/features/specialists/Specialists';
 import { fullName, initials, roleExperienceFormat } from '@/features/specialists/labels';
 import { useTheme } from '@/theme';
@@ -33,8 +33,10 @@ type Shown = Record<PhraseTone, Phrase | null>;
 export function WordPage({ active }: FeedPageProps) {
   const t = useTheme();
   const router = useRouter();
+  const toast = useToast();
   const { byId } = useSpecialists();
-  const userId = useUserId();
+  // Гость читает фразы, но сердечки ставить не может (владелец, 15 октября 2026).
+  const userId = useSession().user?.id ?? null;
 
   const [phrases, setPhrases] = useState<Phrase[]>([]);
   const [tone, setTone] = useState<PhraseTone>('sweet');
@@ -50,7 +52,7 @@ export function WordPage({ active }: FeedPageProps) {
 
   useEffect(() => {
     let alive = true;
-    Promise.all([phrasesRepo.all(), phrasesRepo.liked(userId).catch((): string[] => [])])
+    Promise.all([phrasesRepo.all(), userId ? phrasesRepo.liked(userId).catch((): string[] => []) : []])
       .then(([all, likedIds]) => {
         if (!alive) return;
         const first: Shown = { sweet: nextPhrase(all, 'sweet', []), spicy: nextPhrase(all, 'spicy', []) };
@@ -81,6 +83,14 @@ export function WordPage({ active }: FeedPageProps) {
 
   const toggleLiked = () => {
     if (!phrase) return;
+    if (!userId) {
+      toast.show({
+        message: 'Отмечать фразы можно после входа',
+        actionLabel: 'Войти',
+        onAction: () => router.push('/onboarding/sign-in'),
+      });
+      return;
+    }
     setLiked(isLiked ? liked.filter((id) => id !== phrase.id) : [...liked, phrase.id]);
     // Не отправилось — сердечко всё равно остаётся нажатым до перезапуска.
     phrasesRepo.setLiked(userId, phrase.id, !isLiked).catch(() => {});

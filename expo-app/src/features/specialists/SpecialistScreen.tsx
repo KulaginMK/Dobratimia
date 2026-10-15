@@ -4,6 +4,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ContactAction, ScreenHeader, SpecialistPhoto, SuccessBanner } from '@/components/blocks';
 import { BottomSheet, Button, ChipBadge } from '@/components/ui';
+import { useSession } from '@/features/session/Session';
 import { useOpenLink } from '@/lib/links';
 import { isWebUrl } from '@/lib/url';
 import { useCallPhone } from '@/lib/phone';
@@ -36,6 +37,7 @@ export function SpecialistScreen() {
   const openLink = useOpenLink();
   const { id, from, opened } = useLocalSearchParams<{ id: string; from?: string; opened?: string }>();
   const { ready, offline, retry, byId, toneOf, isLiked, contactsOf, like, unlike } = useSpecialists();
+  const { user } = useSession();
   // «Нравится» нажали прямо здесь — плашку показываем так же, как после подбора.
   const [likedHere, setLikedHere] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -185,6 +187,16 @@ export function SpecialistScreen() {
                   </View>
                 ) : null}
               </>
+            ) : !user ? (
+              // Гость смотрит карточку, но отметить «Нравится» и открыть контакты может только после входа.
+              <View style={{ paddingVertical: t.space.sm, gap: t.space.sm }}>
+                <Text accessibilityRole="header" style={[t.type.h3, { color: t.color.text }]}>
+                  Контакты откроются после входа
+                </Text>
+                <Button fullWidth onPress={() => router.push('/onboarding/sign-in')}>
+                  Войти через Google
+                </Button>
+              </View>
             ) : (
               // Без отметки «Нравится» контакты с сервера не запрашиваются вообще (docs/07).
               <View style={{ paddingVertical: t.space.sm, gap: t.space.sm }}>

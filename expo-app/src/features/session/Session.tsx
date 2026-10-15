@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
-  GUEST_USER_ID,
   adoptGuestData,
   clearUserData,
   loadOnboarded,
@@ -172,9 +171,4 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 export function useSession(): SessionValue {
   return useContext(SessionContext);
-}
-
-/** Id для ключей личных данных на устройстве. Экраны, где он нужен, открываются только после входа (SignInGate). */
-export function useUserId(): string {
-  return useSession().user?.id ?? GUEST_USER_ID;
 }
