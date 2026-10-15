@@ -1,32 +1,55 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
+import Svg, { Ellipse, G, Path, Rect } from 'react-native-svg';
 import { svgA11y } from '@/components/brand';
 import { focusRing, isFocused, pressedState } from '@/components/ui/focus';
 import type { OrganId } from '@/data/anatomy';
 import { useTheme } from '@/theme';
 
-// Рисунок и точки нажатия из макета Anatomy. Сетка рисунка — viewBox «20 18 372 300».
-const VIEW_BOX = '20 18 372 300';
-const WIDTH = 372;
-const HEIGHT = 300;
+// Рисунок перерисован по просьбе владельца (15 октября 2026 года): стиль и цвета макета Anatomy, но органы
+// стоят там, где они в теле при взгляде спереди. Человек смотрит на нас, поэтому его левая сторона — справа:
+// сердце между лёгкими со сдвигом вправо и верхушкой вниз-вправо, левое лёгкое уже правого (сердечная вырезка),
+// желудок под диафрагмой справа, печень — слева, почки с надпочечниками — у поясницы, правая почка ниже левой.
+// Печень и почки бледные и не нажимаются: про них в приложении карточек нет.
+const VIEW_BOX = '0 0 360 350';
+const WIDTH = 360;
+const HEIGHT = 350;
 const STROKE = 2;
+const TRACHEA = 4;
+const ARM = 26;
+const BACKGROUND_OPACITY = 0.55;
 const HOT = 48;
 const HOT_RING = 2;
-const TAG_SHIFT_X = 62;
-const TAG_SHIFT_Y = 8;
 const TAG_PAD_V = 6;
 const TAG_PAD_H = 12;
 const TAG_FONT = 14;
 const TAG_LINE = 18;
 
-/** Левый верхний угол точки нажатия 48×48 над органом, в координатах рисунка 372×300. */
-const HOT_SPOTS: Record<OrganId, { left: number; top: number }> = {
-  brain: { left: 162, top: 6 },
-  lungs: { left: 116, top: 116 },
-  heart: { left: 170, top: 148 },
-  stomach: { left: 192, top: 200 },
-  adrenals: { left: 126, top: 208 },
+/**
+ * Центры точек нажатия 48×48 в координатах рисунка 360×350. У лёгких и надпочечников по две — справа и слева.
+ * Центры разнесены не меньше чем на 48: точки не перекрывают друг друга.
+ */
+const HOT_SPOTS: Record<OrganId, { x: number; y: number }[]> = {
+  brain: [{ x: 180, y: 36 }],
+  lungs: [
+    { x: 144, y: 148 },
+    { x: 220, y: 138 },
+  ],
+  heart: [{ x: 186, y: 180 }],
+  stomach: [{ x: 228, y: 222 }],
+  adrenals: [
+    { x: 140, y: 276 },
+    { x: 220, y: 270 },
+  ],
+};
+
+/** Подпись выбранного органа — сбоку, где она не закрывает другие органы. x — край подписи со стороны органа. */
+const TAGS: Record<OrganId, { x: number; y: number; side: 'left' | 'right' }> = {
+  brain: { x: 222, y: 22, side: 'right' },
+  lungs: { x: 118, y: 132, side: 'left' },
+  heart: { x: 246, y: 166, side: 'right' },
+  stomach: { x: 254, y: 212, side: 'right' },
+  adrenals: { x: 124, y: 256, side: 'left' },
 };
 
 type Props = {
@@ -37,80 +60,102 @@ type Props = {
 
 /**
  * 2D-силуэт с органами: мягкие фигуры без контуров тела, цвета палитры (docs/02).
- * Выбранный орган закрашен color.primary и подписан — цвет не единственный признак.
+ * Выбранный орган закрашен color.primary, обведён и подписан — цвет не единственный признак.
  */
 export function AnatomyFigure({ organs, selected, onSelect }: Props) {
   const t = useTheme();
   const [available, setAvailable] = useState(WIDTH);
-  // На экране уже 372 dp рисунок уменьшается целиком, точки нажатия остаются 48 dp.
+  // На экране уже 360 dp рисунок уменьшается целиком, точки нажатия остаются 48 dp.
   const scale = Math.min(1, available / WIDTH);
 
-  const organStyle = (id: OrganId) =>
+  const style = (id: OrganId, fill: string = t.logo.apricot) =>
     id === selected
       ? { fill: t.color.primary, stroke: t.color.primaryPressed, strokeWidth: STROKE }
-      : { fill: t.logo.apricot, stroke: t.logo.warm, strokeWidth: STROKE };
-  const adrenalStyle =
-    selected === 'adrenals'
-      ? { fill: t.color.primary, stroke: t.color.primaryPressed, strokeWidth: STROKE }
-      : { fill: t.color.accent, stroke: t.logo.warm, strokeWidth: STROKE };
-  const kidneyStyle = { fill: t.logo.apricot, stroke: t.logo.warm, strokeWidth: STROKE };
+      : { fill, stroke: t.logo.warm, strokeWidth: STROKE };
+  const line = (id: OrganId, width: number) => ({
+    fill: 'none',
+    stroke: id === selected ? t.color.primaryPressed : t.logo.warm,
+    strokeWidth: width,
+    strokeLinecap: 'round' as const,
+  });
+  const background = { fill: t.logo.apricot, stroke: t.logo.warm, strokeWidth: STROKE, opacity: BACKGROUND_OPACITY };
   const selectedName = organs.find((organ) => organ.id === selected)?.name;
-  const spot = HOT_SPOTS[selected];
+  const tag = TAGS[selected];
 
   return (
     <View onLayout={(e) => setAvailable(e.nativeEvent.layout.width)} style={{ alignItems: 'center' }}>
       <View style={{ width: WIDTH * scale, height: HEIGHT * scale }}>
         <Svg width={WIDTH * scale} height={HEIGHT * scale} viewBox={VIEW_BOX} {...svgA11y()}>
+          {/* Тело: голова, шея, руки от плеч, торс до бёдер. */}
           <G fill={t.color.primarySoft}>
-            <Circle cx={206} cy={50} r={32} />
-            <Rect x={196} y={76} width={20} height={18} rx={6} />
-            <Path d="M146 98 Q206 84 266 98 Q282 102 284 120 L290 252 Q290 274 270 278 L142 278 Q122 274 122 252 L128 120 Q130 102 146 98Z" />
-            <Rect x={94} y={106} width={26} height={160} rx={13} transform="rotate(8 107 106)" />
-            <Rect x={292} y={106} width={26} height={160} rx={13} transform="rotate(-8 305 106)" />
-            <Rect x={148} y={270} width={48} height={80} rx={20} />
-            <Rect x={216} y={270} width={48} height={80} rx={20} />
+            <Ellipse cx={180} cy={46} rx={34} ry={40} />
+            <Rect x={166} y={78} width={28} height={30} rx={10} />
+            <Path
+              d="M126 102 Q180 92 234 102 Q262 108 264 132 L260 210 Q256 252 252 276 Q252 300 264 322 Q270 340 248 346 L112 346 Q90 340 96 322 Q108 300 108 276 Q104 252 100 210 L96 132 Q98 108 126 102Z"
+            />
           </G>
+          <Path d="M102 122 L76 290 M258 122 L284 290" fill="none" stroke={t.color.primarySoft} strokeWidth={ARM} strokeLinecap="round" />
+
+          {/* Мозг с продольной щелью. */}
           <Path
-            d="M184 52 Q180 32 198 28 Q206 20 216 28 Q232 28 230 46 Q234 60 218 62 L194 62 Q182 62 184 52Z"
-            {...organStyle('brain')}
+            d="M152 46 Q146 30 160 24 Q166 12 180 16 Q194 12 200 24 Q214 30 208 46 Q206 58 192 58 L168 58 Q154 58 152 46Z"
+            {...style('brain')}
+          />
+          <Path d="M180 20 L180 54" {...line('brain', STROKE)} />
+
+          {/* Трахея и лёгкие: левое (справа на рисунке) уже, с вырезкой под сердце. */}
+          <Path d="M180 90 L180 124 M180 124 Q172 128 166 134 M180 124 Q188 128 194 134" {...line('lungs', TRACHEA)} />
+          <Path
+            d="M164 116 Q150 110 140 124 Q124 148 124 182 Q124 202 142 204 Q160 206 172 196 L172 130 Q172 120 164 116Z"
+            {...style('lungs')}
           />
           <Path
-            d="M170 122 Q186 112 196 126 L198 188 Q190 198 174 194 Q160 188 162 162 Q164 132 170 122Z"
-            {...organStyle('lungs')}
+            d="M196 116 Q210 110 220 124 Q236 148 236 182 Q236 202 218 204 Q206 205 202 198 Q210 186 202 176 Q196 170 188 170 L188 130 Q188 120 196 116Z"
+            {...style('lungs')}
           />
+
+          {/* Сердце поверх лёгких: верхушка вниз и влево от человека (на рисунке — вправо). */}
           <Path
-            d="M242 122 Q226 112 216 126 L214 188 Q222 198 238 194 Q252 188 250 162 Q248 132 242 122Z"
-            {...organStyle('lungs')}
+            d="M0 16 L-16 0 Q-24 -10 -16 -17 Q-7 -23 0 -13 Q7 -23 16 -17 Q24 -10 16 0Z"
+            transform="translate(184 180) rotate(-20)"
+            {...style('heart')}
           />
+
+          {/* Печень под правым куполом диафрагмы (на рисунке — слева): толстая справа, сужается к середине. */}
           <Path
-            d="M214 204 L198 189 Q190 179 199 171 Q207 166 214 174 Q221 166 229 171 Q238 179 230 189Z"
-            {...organStyle('heart')}
+            d="M128 210 Q160 204 196 212 Q200 216 194 222 Q170 238 140 246 Q126 248 124 234 Q122 216 128 210Z"
+            {...background}
           />
+
+          {/* Желудок под диафрагмой слева от человека: дно вверху, привратник ближе к середине. */}
           <Path
-            d="M216 212 Q236 208 242 224 Q246 244 226 250 Q210 254 206 242 Q216 238 216 228 Q210 220 216 212Z"
-            {...organStyle('stomach')}
+            d="M198 208 Q206 196 224 198 Q246 202 246 224 Q246 248 222 252 Q204 254 192 248 Q184 244 186 236 Q190 230 198 232 Q214 234 220 226 Q224 216 214 212 Q206 210 198 208Z"
+            {...style('stomach')}
           />
-          <Ellipse cx={180} cy={256} rx={9} ry={13} {...kidneyStyle} />
-          <Ellipse cx={232} cy={256} rx={9} ry={13} {...kidneyStyle} />
-          <Path d="M171 244 L180 232 L189 244Z" {...adrenalStyle} />
-          <Path d="M223 244 L232 232 L241 244Z" {...adrenalStyle} />
+
+          {/* Почки у поясницы и надпочечники на их верхних полюсах. */}
+          <Ellipse cx={140} cy={286} rx={11} ry={17} {...background} />
+          <Ellipse cx={220} cy={280} rx={11} ry={17} {...background} />
+          <Path d="M132 272 L140 259 L148 272Z" {...style('adrenals', t.color.accent)} />
+          <Path d="M212 266 L220 253 L228 266Z" {...style('adrenals', t.color.accent)} />
         </Svg>
 
-        {organs.map((organ) => {
+        {organs.flatMap((organ) => {
           const isSelected = organ.id === selected;
-          const position = HOT_SPOTS[organ.id];
-          return (
+          return HOT_SPOTS[organ.id].map((spot, index) => (
             <Pressable
-              key={organ.id}
+              key={`${organ.id}-${index}`}
               onPress={() => onSelect(organ.id)}
               accessibilityRole="button"
               accessibilityLabel={isSelected ? `${organ.name}, выбрано` : organ.name}
+              // Вторая точка того же органа для скринридера лишняя: он прочитает орган один раз.
+              aria-hidden={index > 0}
               {...pressedState(isSelected)}
               style={(state) => [
                 {
                   position: 'absolute',
-                  left: (position.left + HOT / 2) * scale - HOT / 2,
-                  top: (position.top + HOT / 2) * scale - HOT / 2,
+                  left: spot.x * scale - HOT / 2,
+                  top: spot.y * scale - HOT / 2,
                   width: HOT,
                   height: HOT,
                   borderRadius: t.radius.full,
@@ -120,7 +165,7 @@ export function AnatomyFigure({ organs, selected, onSelect }: Props) {
                 focusRing(t, isFocused(state)),
               ]}
             />
-          );
+          ));
         })}
 
         {selectedName ? (
@@ -128,8 +173,8 @@ export function AnatomyFigure({ organs, selected, onSelect }: Props) {
             aria-hidden
             style={{
               position: 'absolute',
-              left: (spot.left + TAG_SHIFT_X) * scale,
-              top: (spot.top + HOT / 2) * scale - HOT / 2 + TAG_SHIFT_Y,
+              top: tag.y * scale,
+              ...(tag.side === 'right' ? { left: tag.x * scale } : { right: (WIDTH - tag.x) * scale }),
               paddingVertical: TAG_PAD_V,
               paddingHorizontal: TAG_PAD_H,
               borderRadius: t.radius.full,
