@@ -6,6 +6,3 @@ export const PRIVACY_URL: string | null = null;
 
 /** Согласие на обработку персональных данных — текст пишет юрист. */
 export const CONSENT_URL: string | null = null;
-
-/** Подборка «бережных мест» в Google My Maps — её ведёт команда. */
-export const MAP_URL: string | null = null;

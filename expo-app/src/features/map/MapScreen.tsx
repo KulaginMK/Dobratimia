@@ -4,7 +4,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapIllustration, MapKind, ScreenHeader } from '@/components/blocks';
 import { Button } from '@/components/ui';
-import { MAP_URL } from '@/data/mocks/links';
+import { MAP_URL } from '@/data/team';
 import { useOpenLink } from '@/lib/links';
 import { useTheme } from '@/theme';
 
@@ -45,12 +45,7 @@ export function MapScreen() {
         </View>
 
         <View style={{ marginTop: 'auto', paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.xs }}>
-          <Button
-            size="lg"
-            icon="map"
-            fullWidth
-            onPress={() => openLink(MAP_URL, 'Мы ещё собираем места. Карта откроется позже.')}
-          >
+          <Button size="lg" icon="map" fullWidth onPress={() => openLink(MAP_URL)}>
             Открыть карту в Google Maps
           </Button>
           <Text style={[t.type.caption, { color: t.color.textMuted, textAlign: 'center' }]}>
