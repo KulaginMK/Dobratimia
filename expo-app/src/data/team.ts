@@ -15,6 +15,9 @@ export const PRIVACY_URL = `${DOCS}privacy.html`;
 export const CONSENT_URL = `${DOCS}consent.html`;
 export const SPECIALIST_PRIVACY_URL = `${DOCS}specialists-privacy.html`;
 export const SPECIALIST_CONSENT_URL = `${DOCS}specialists-consent.html`;
+/** Редакции согласий — даты в начале legal/consent.md и legal/consent-specialists.md. Новая редакция — новая дата. */
+export const CONSENT_VERSION = '2026-10-16';
+export const SPECIALIST_CONSENT_VERSION = '2026-10-16';
 
 /** «Карта бережных мест — Витебск» в Google My Maps. Ссылка на просмотр (viewer), а не на правку (edit). */
 export const MAP_URL =

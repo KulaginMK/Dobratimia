@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Text, View, useWindowDimensions } from 'react-native';
-import { GoogleButton, InlineLink } from '@/components/blocks';
+import { ConsentCheck, GoogleButton } from '@/components/blocks';
 import { Logo } from '@/components/brand';
 import { Button, useToast } from '@/components/ui';
 import { CONSENT_URL, PRIVACY_URL } from '@/data/team';
@@ -24,6 +24,8 @@ const TITLE_MARGIN_TOP = 28;
  * Вход необязателен (решение владельца от 14 октября 2026 года): «Продолжить без входа» ведёт туда же,
  * но без сохранения данных. Кнопки нет в макете.
  * В вебе страница целиком уходит на Google и возвращается на экран /auth/callback: он и завершает вход.
+ * Согласие на обработку данных — отдельная отметка, без неё кнопка Google не нажимается; специалисты входят
+ * со своего экрана со своим согласием (решение владельца от 16 октября 2026 года). Этих элементов нет в макете.
  */
 export function OnboardingSignInScreen() {
   const t = useTheme();
@@ -34,6 +36,7 @@ export function OnboardingSignInScreen() {
   const { user, signIn, skipSignIn } = useSession();
   const { universityId } = useSelectedUniversity();
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   // Экран входа при этом заменяется: вернуться «назад ко входу» после входа нельзя.
   const next = useCallback(
@@ -53,7 +56,7 @@ export function OnboardingSignInScreen() {
     setBusy(true);
     try {
       // Закрыл окно Google — остаёмся на экране входа; остальное сделает переход выше.
-      await signIn();
+      await signIn('user');
     } catch {
       toast.show({ message: 'Не удалось войти. Проверьте интернет и попробуйте ещё раз.', tone: 'error' });
     } finally {
@@ -66,21 +69,19 @@ export function OnboardingSignInScreen() {
       step={4}
       onBack={router.canGoBack() ? () => router.back() : undefined}
       footer={
-        <View style={{ gap: t.space.md }}>
-          <GoogleButton disabled={busy} onPress={onSignIn}>
+        <View style={{ gap: t.space.sm }}>
+          <ConsentCheck
+            checked={agreed}
+            onChange={setAgreed}
+            label="Принимаю политику конфиденциальности и даю согласие на обработку персональных данных"
+            links={[
+              { title: 'Политика конфиденциальности', onPress: () => openLink(PRIVACY_URL) },
+              { title: 'Согласие', onPress: () => openLink(CONSENT_URL) },
+            ]}
+          />
+          <GoogleButton disabled={busy || !agreed} onPress={onSignIn}>
             Войти через Google
           </GoogleButton>
-          <Text style={[t.type.caption, { color: t.color.textMuted, textAlign: 'center' }]}>
-            {'Продолжая, вы принимаете '}
-            <InlineLink color={t.color.primary} onPress={() => openLink(PRIVACY_URL)}>
-              политику конфиденциальности
-            </InlineLink>
-            {' и даёте '}
-            <InlineLink color={t.color.primary} onPress={() => openLink(CONSENT_URL)}>
-              согласие на обработку персональных данных
-            </InlineLink>
-            .
-          </Text>
           <Button
             variant="text"
             fullWidth
@@ -91,6 +92,14 @@ export function OnboardingSignInScreen() {
             }}
           >
             Продолжить без входа
+          </Button>
+          <Button
+            variant="text"
+            fullWidth
+            disabled={busy}
+            onPress={() => router.push('/onboarding/specialist')}
+          >
+            Зарегистрироваться как специалист
           </Button>
         </View>
       }

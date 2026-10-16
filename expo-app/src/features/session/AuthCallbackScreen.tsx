@@ -8,7 +8,7 @@ import { useSession } from './Session';
 
 /**
  * Возврат от Google: в адресе — одноразовый код входа. Экран обменивает его на вход и ведёт дальше:
- * к выбору вуза или сразу на Главную. В вебе это обычная страница после перехода с Google;
+ * к выбору вуза или сразу на Главную, а специалиста — обратно на его экран входа (оттуда — в кабинет). В вебе это обычная страница после перехода с Google;
  * на телефоне сюда приводит ссылка dobratimia://auth/callback, если приложение успели закрыть.
  */
 export function AuthCallbackScreen() {
@@ -20,7 +20,7 @@ export function AuthCallbackScreen() {
     error?: string;
     error_description?: string;
   }>();
-  const { user, completeSignIn } = useSession();
+  const { user, signInKind, completeSignIn } = useSession();
   const { universityId } = useSelectedUniversity();
 
   useEffect(() => {
@@ -42,8 +42,9 @@ export function AuthCallbackScreen() {
       if (!user) return;
       // Под этим экраном мог остаться онбординг — убираем его, чтобы «Назад» с Главной туда не вернул.
       if (router.canDismiss()) router.dismissAll();
-      router.replace(universityId ? '/?s=home' : '/onboarding/university');
-    }, [user, universityId, router]),
+      if (signInKind === 'specialist') router.replace('/onboarding/specialist');
+      else router.replace(universityId ? '/?s=home' : '/onboarding/university');
+    }, [user, signInKind, universityId, router]),
   );
 
   return (

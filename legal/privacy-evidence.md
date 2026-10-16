@@ -86,4 +86,5 @@
 | «Выйти» ничего не удаляет | 10.4 | `expo-app/src/features/profile/ProfileScreen.tsx` (шторка «Выйти из аккаунта?») |
 | Согласие на публикацию контактов | 11.1 | `expo-app/src/features/cabinet/CabinetEditScreen.tsx:247` |
 | Ссылки на политику и согласие (у специалиста — свои) | 1.3 | `expo-app/src/data/team.ts`; `expo-app/src/features/profile/ProfileScreen.tsx` |
-| Под кнопкой входа — пассивное согласие («Продолжая, вы…») | заметки юристу 2 | `expo-app/src/features/onboarding/OnboardingSignInScreen.tsx:74` |
+| Согласие — отдельная отметка перед входом; у специалиста свой экран и своё согласие | 3.2, заметки юристу 2 | `expo-app/src/features/onboarding/OnboardingSignInScreen.tsx`; `expo-app/src/features/onboarding/OnboardingSpecialistScreen.tsx`; `expo-app/src/components/blocks/OnboardingParts.tsx` (`ConsentCheck`) |
+| Сервер хранит редакцию и время согласия; ставит их сам | 3.2 | `supabase/migrations/20261016000001_consent.sql`; `expo-app/src/features/session/Session.tsx` (`recordPendingConsent`) |

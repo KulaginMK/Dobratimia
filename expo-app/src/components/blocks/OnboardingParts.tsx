@@ -28,6 +28,9 @@ const HERO_RADIUS = 24;
 const HERO_ICON = 40;
 const POINT_DOT = 40;
 const POINT_ICON = 22;
+// Отметка согласия (ConsentCheck): своего эталона нет, размеры — от size.icon и радиусов токенов.
+const CONSENT_BORDER = 2;
+const CONSENT_ICON = 18;
 const TEXT_GAP = 2;
 const NOTE_FONT = 15;
 const NOTE_LINE = 22;
@@ -211,6 +214,71 @@ export function CheckPoint({ title, text }: { title: string; text: string }) {
         <Text style={[t.type.h3, { color: t.color.text }]}>{title}</Text>
         <Text style={[t.type.caption, { color: t.color.textMuted }]}>{text}</Text>
       </View>
+    </View>
+  );
+}
+
+type ConsentCheckProps = {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  /** «Принимаю политику конфиденциальности и даю согласие на обработку персональных данных». */
+  label: string;
+  /** Документы, к которым относится согласие. */
+  links: { title: string; onPress: () => void }[];
+};
+
+/**
+ * Отметка согласия на обработку данных перед входом (решение владельца от 16 октября 2026 года). По умолчанию
+ * не стоит; нажимается вся строка. Ссылки на документы — отдельной строкой: внутри отметки скринридер
+ * не смог бы до них добраться.
+ */
+export function ConsentCheck({ checked, onChange, label, links }: ConsentCheckProps) {
+  const t = useTheme();
+  return (
+    <View style={{ gap: t.space.xxs }}>
+      <Pressable
+        onPress={() => onChange(!checked)}
+        accessibilityRole="checkbox"
+        accessibilityLabel={label}
+        aria-checked={checked}
+        style={(state) => [
+          {
+            minHeight: t.size.touch,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: t.space.sm,
+            borderRadius: t.radius.sm,
+          },
+          focusRing(t, isFocused(state)),
+        ]}
+      >
+        <View
+          style={{
+            width: t.size.icon,
+            height: t.size.icon,
+            borderRadius: t.radius.sm,
+            borderWidth: CONSENT_BORDER,
+            borderColor: checked ? t.color.primary : t.color.borderStrong,
+            backgroundColor: checked ? t.color.primary : t.color.surface,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {checked ? <Icon name="check" size={CONSENT_ICON} color={t.color.onPrimary} /> : null}
+        </View>
+        <Text style={[t.type.caption, { flex: 1, color: t.color.text }]}>{label}</Text>
+      </Pressable>
+      <Text style={[t.type.caption, { paddingLeft: t.size.icon + t.space.sm, color: t.color.textMuted }]}>
+        {links.map((link, index) => (
+          <React.Fragment key={link.title}>
+            {index ? ' · ' : ''}
+            <InlineLink color={t.color.primary} onPress={link.onPress}>
+              {link.title}
+            </InlineLink>
+          </React.Fragment>
+        ))}
+      </Text>
     </View>
   );
 }

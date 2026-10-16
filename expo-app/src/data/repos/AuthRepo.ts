@@ -10,6 +10,9 @@ export type SessionUser = {
   role: UserRole;
 };
 
+/** Чьё согласие на обработку данных человек дал при входе: студента (legal/consent.md) или специалиста. */
+export type ConsentKind = 'user' | 'specialist';
+
 /** Итог входа: кто вошёл и какой вуз записан в его профиле на сервере (null — не записан). */
 export type SignedIn = { user: SessionUser; universityId: string | null };
 
@@ -37,6 +40,8 @@ export interface AuthRepo {
   signOut(): Promise<void>;
   /** «Удалить мои данные»: аккаунт, отметки «Нравится» и сердечки на сервере. Данные на устройстве стираются отдельно. */
   deleteAccount(userId: string): Promise<void>;
+  /** Записать на сервере, какую редакцию согласия вошедший принял; время ставит сервер. */
+  giveConsent(kind: ConsentKind, version: string): Promise<void>;
   /** Записать выбранный вуз в профиль на сервере (копия на устройстве нужна SOS без сети). */
   saveUniversity(userId: string, universityId: string): Promise<void>;
 }

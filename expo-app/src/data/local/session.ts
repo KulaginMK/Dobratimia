@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { SessionUser } from '@/data/repos/AuthRepo';
+import type { ConsentKind, SessionUser } from '@/data/repos/AuthRepo';
 
 /**
  * До появления входа личные данные лежали под ключом гостя, и вход-заглушка оставляет тот же ключ.
@@ -41,6 +41,28 @@ export async function loadOnboarded(): Promise<boolean> {
 
 export async function saveOnboarded(): Promise<void> {
   await AsyncStorage.setItem(ONBOARDED_KEY, '1');
+}
+
+// Согласие, отмеченное перед входом. В вебе страница уходит на Google и возвращается заново, поэтому оно ждёт
+// на устройстве, пока вход не завершится и сервер его не запишет. Префикс app: — «Удалить мои данные» его стирает.
+const PENDING_CONSENT_KEY = 'app:pendingConsent';
+
+export type PendingConsent = { kind: ConsentKind; version: string };
+
+export async function savePendingConsent(consent: PendingConsent | null): Promise<void> {
+  if (consent) await AsyncStorage.setItem(PENDING_CONSENT_KEY, JSON.stringify(consent));
+  else await AsyncStorage.removeItem(PENDING_CONSENT_KEY);
+}
+
+export async function loadPendingConsent(): Promise<PendingConsent | null> {
+  try {
+    const raw = await AsyncStorage.getItem(PENDING_CONSENT_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<PendingConsent>) : null;
+    const known = parsed?.kind === 'user' || parsed?.kind === 'specialist';
+    return known && typeof parsed?.version === 'string' ? (parsed as PendingConsent) : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Кто вошёл на этом устройстве. null — никто. */

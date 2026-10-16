@@ -3,11 +3,21 @@ import {
   adoptGuestData,
   clearUserData,
   loadOnboarded,
+  loadPendingConsent,
   loadSessionUser,
   saveOnboarded,
+  savePendingConsent,
   saveSessionUser,
 } from '@/data/local/session';
-import { authRepo, universitiesRepo, type SessionUser, type SignInCallback, type SignedIn } from '@/data/repos';
+import {
+  authRepo,
+  universitiesRepo,
+  type ConsentKind,
+  type SessionUser,
+  type SignInCallback,
+  type SignedIn,
+} from '@/data/repos';
+import { CONSENT_VERSION, SPECIALIST_CONSENT_VERSION } from '@/data/team';
 import { cancelPersonalReminders } from '@/features/reminders/reminders';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { cancelAllNotifications } from '@/lib/notifications';
@@ -23,10 +33,13 @@ type SessionValue = {
    */
   user: SessionUser | null;
   /**
-   * «Войти через Google». signedIn — вход состоялся; redirected — открылась страница Google, вход завершит
-   * экран /auth/callback; cancelled — человек закрыл окно. Отклоняется, если войти не удалось.
+   * «Войти через Google» с согласием студента или специалиста, которое человек отметил на экране входа.
+   * signedIn — вход состоялся; redirected — открылась страница Google, вход завершит экран /auth/callback;
+   * cancelled — человек закрыл окно. Отклоняется, если войти не удалось.
    */
-  signIn: () => Promise<'signedIn' | 'redirected' | 'cancelled'>;
+  signIn: (kind: ConsentKind) => Promise<'signedIn' | 'redirected' | 'cancelled'>;
+  /** Каким путём человек вошёл в этот раз: после входа специалиста — в кабинет. null — вход восстановлен при запуске. */
+  signInKind: ConsentKind | null;
   /** Завершить вход после возврата от Google. */
   completeSignIn: (callback: SignInCallback) => Promise<void>;
   /** «Продолжить без входа»: онбординг пройден, войти можно позже из профиля. */
@@ -42,11 +55,28 @@ const SessionContext = createContext<SessionValue>({
   onboarded: false,
   user: null,
   signIn: async () => 'cancelled',
+  signInKind: null,
   completeSignIn: async () => {},
   skipSignIn: () => {},
   signOut: async () => {},
   deleteData: async () => {},
 });
+
+/**
+ * Согласие, отмеченное перед входом, — на сервер (дата и редакция нужны как доказательство согласия).
+ * Нет сети — оно остаётся на устройстве и уйдёт при следующей сверке входа. Возвращает вид согласия или null.
+ */
+async function recordPendingConsent(): Promise<ConsentKind | null> {
+  const pending = await loadPendingConsent();
+  if (!pending) return null;
+  try {
+    await authRepo.giveConsent(pending.kind, pending.version);
+    await savePendingConsent(null);
+  } catch (error) {
+    if (__DEV__) console.warn('Согласие не записано на сервер', error);
+  }
+  return pending.kind;
+}
 
 /** Вход в аккаунт и флаг «онбординг показан». Оборачивает всё приложение, внутри SelectedUniversityProvider. */
 export function SessionProvider({ children }: { children: React.ReactNode }) {
@@ -54,6 +84,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [onboarded, setOnboarded] = useState(false);
   const [ready, setReady] = useState(false);
+  const [signInKind, setSignInKind] = useState<ConsentKind | null>(null);
 
   // Кто вошёл, приложение помнит само: дневник и тесты открываются и без сети, когда сервер проверить вход не может.
   useEffect(() => {
@@ -88,6 +119,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           forget();
           return;
         }
+        // Согласие, которое не записалось при входе (не было сети), записываем теперь.
+        recordPendingConsent().catch(() => {});
         // Ничего не изменилось — состояние не трогаем, иначе сверка запустится заново.
         if (checked.role === user.role && checked.name === user.name && checked.email === user.email) return;
         setUser(checked);
@@ -115,11 +148,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [userId, universityId]);
 
   const accept = async ({ user: signedIn, universityId: fromProfile }: SignedIn) => {
+    const kind = await recordPendingConsent();
     // Данные, накопленные с входом-заглушкой, переходят к первому настоящему аккаунту.
     await adoptGuestData(signedIn.id).catch(() => {});
     // Новое устройство: вуз берём из профиля, если здесь он ещё не выбран.
     const known = universitiesRepo.byId(fromProfile);
     if (!university.universityId && known) university.select(known.id);
+    setSignInKind(kind);
     setUser(signedIn);
     setOnboarded(true);
     // Не сохранилось — вход всё равно действует до перезапуска.
@@ -127,8 +162,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     saveOnboarded().catch(() => {});
   };
 
-  const signIn = async () => {
+  const signIn = async (kind: ConsentKind) => {
+    await savePendingConsent({ kind, version: kind === 'specialist' ? SPECIALIST_CONSENT_VERSION : CONSENT_VERSION });
     const result = await authRepo.signInWithGoogle();
+    if (result === 'cancelled') await savePendingConsent(null).catch(() => {});
     if (result === 'redirected' || result === 'cancelled') return result;
     await accept(result);
     return 'signedIn' as const;
@@ -146,6 +183,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await authRepo.signOut().catch(() => {});
+    setSignInKind(null);
     setUser(null);
     saveSessionUser(null).catch(() => {});
   };
@@ -163,7 +201,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SessionContext.Provider value={{ ready, onboarded, user, signIn, completeSignIn, skipSignIn, signOut, deleteData }}>
+    <SessionContext.Provider
+      value={{ ready, onboarded, user, signIn, signInKind, completeSignIn, skipSignIn, signOut, deleteData }}
+    >
       {children}
     </SessionContext.Provider>
   );

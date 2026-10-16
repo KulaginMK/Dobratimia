@@ -153,6 +153,10 @@ export const supabaseAuthRepo: AuthRepo = {
     await forgetSession();
   },
 
+  giveConsent: async (kind, version) => {
+    await request((db) => db.rpc('give_consent', { p_kind: kind, p_version: version }));
+  },
+
   saveUniversity: async (userId, universityId) => {
     await request((db) => db.from('profiles').update({ university_id: universityId }).eq('id', userId));
   },

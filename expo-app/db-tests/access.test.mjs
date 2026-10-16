@@ -219,6 +219,39 @@ describe('профиль', () => {
   });
 });
 
+describe('согласие на обработку данных', () => {
+  let db;
+  let anna;
+  before(async () => {
+    db = await createDatabase();
+    anna = await createUser(db, 'anna@example.com');
+  });
+
+  test('записывается редакция и время сервера, отдельно для студента и специалиста', async () => {
+    await as(db, anna, (q) => q("select give_consent('user', '2026-10-16')"));
+    await as(db, anna, (q) => q("select give_consent('specialist', '2026-10-16')"));
+    const [profile] = await as(db, anna, (q) =>
+      q('select consent_version, consent_at, specialist_consent_version, specialist_consent_at from profiles'),
+    );
+    assert.equal(profile.consent_version, '2026-10-16');
+    assert.equal(profile.specialist_consent_version, '2026-10-16');
+    assert.ok(profile.consent_at instanceof Date && profile.specialist_consent_at instanceof Date);
+  });
+
+  test('напрямую поля согласия не меняются', async () => {
+    await assert.rejects(
+      as(db, anna, (q) => q("update profiles set consent_version = 'подделка', consent_at = now() where id = $1", [anna])),
+      DENIED,
+    );
+  });
+
+  test('без входа, с чужим видом или пустой редакцией — отказ', async () => {
+    await assert.rejects(as(db, null, (q) => q("select give_consent('user', '2026-10-16')")), DENIED);
+    await assert.rejects(as(db, anna, (q) => q("select give_consent('admin', '2026-10-16')")), /Неизвестный вид/);
+    await assert.rejects(as(db, anna, (q) => q("select give_consent('user', '')")), /Неизвестная редакция/);
+  });
+});
+
 describe('справочники и фразы', () => {
   let db;
   let anna;

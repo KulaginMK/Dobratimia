@@ -4,8 +4,10 @@ import {
   adoptGuestData,
   clearUserData,
   loadOnboarded,
+  loadPendingConsent,
   loadSessionUser,
   saveOnboarded,
+  savePendingConsent,
   saveSessionUser,
 } from './session';
 
@@ -36,6 +38,22 @@ describe('вход и флаг онбординга', () => {
   test('испорченная запись о входе не считается входом', async () => {
     await AsyncStorage.setItem('app:session', '{"id":1}');
     expect(await loadSessionUser()).toBeNull();
+  });
+});
+
+describe('согласие, отмеченное перед входом', () => {
+  test('ждёт на устройстве, пока вход не завершится, и стирается после записи на сервер', async () => {
+    await savePendingConsent({ kind: 'specialist', version: '2026-10-16' });
+    expect(await loadPendingConsent()).toEqual({ kind: 'specialist', version: '2026-10-16' });
+    await savePendingConsent(null);
+    expect(await loadPendingConsent()).toBeNull();
+  });
+
+  test('чужой вид согласия или испорченная запись не считаются согласием', async () => {
+    await AsyncStorage.setItem('app:pendingConsent', JSON.stringify({ kind: 'admin', version: '2026-10-16' }));
+    expect(await loadPendingConsent()).toBeNull();
+    await AsyncStorage.setItem('app:pendingConsent', '{');
+    expect(await loadPendingConsent()).toBeNull();
   });
 });
 

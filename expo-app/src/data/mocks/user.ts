@@ -20,5 +20,6 @@ export const mockAuthRepo: AuthRepo = {
   signOut: async () => {},
   // Отметки «Нравится» заглушки лежат на устройстве и стираются вместе с остальными данными.
   deleteAccount: async () => {},
+  giveConsent: async () => {},
   saveUniversity: async () => {},
 };
