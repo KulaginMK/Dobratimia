@@ -9,7 +9,8 @@
 | Бесплатно: нет покупок, подписок и рекламы | 2.2 | `handoff/docs/01-product.md:21`; в `expo-app/package.json` нет библиотек оплаты и рекламы |
 | Нет переписки, записи и оплаты внутри приложения | 2.3 | `handoff/docs/01-product.md:17`, `:35` |
 | Только Беларусь, только русский | 4.3 | `handoff/docs/01-product.md:13` |
-| Аудитория 17–25 лет, а Google Play — 18+ (противоречие) | 4.1, заметка 3 | `handoff/docs/01-product.md:5`; `PUBLISH.md:164` |
+| Возраст — с 18 лет; проверки возраста в приложении нет | 4.1 | Решение владельца от 16 октября 2026 года; `PUBLISH.md:164`. Спецификация называла аудиторию 17–25 лет (`handoff/docs/01-product.md:5`) |
+| Владелец — физическое лицо | 1.1, 10.1, 18 | Решение владельца от 16 октября 2026 года |
 | Студенческий статус не проверяется, есть «Другой вуз» | 4.2 | `handoff/docs/01-product.md:13`; `expo-app/src/data/mocks/universities.ts` |
 | Не заменяет врача, не ставит диагнозов | 3.1 | `expo-app/src/features/onboarding/OnboardingWarningScreen.tsx:37`; `expo-app/src/features/about/AboutScreen.tsx:65` |
 | DASS-21 — ориентир, не заключение | 3.2 | `OnboardingWarningScreen.tsx:44`; `expo-app/src/features/dass/score.ts:59` |
@@ -43,6 +44,7 @@
 | Специалист видит только число отметок | 6.2, 7.7 | `supabase/migrations/20261005000003_functions.sql:66`; `expo-app/src/features/cabinet/CabinetStatsScreen.tsx:44` |
 | Администратор технически видит, кто кого отметил | заметка «в приложении» 4 | `handoff/docs/08-data-and-backend.md:130` |
 | Аккаунт специалиста создаёт администратор, привязка по почте при входе | 6.3, 7.1 | `supabase/migrations/20261005000003_functions.sql:24`; `handoff/docs/01-product.md:16` |
+| Специалиста добавляют после проверки диплома | 6.3, 7.1 | Решение владельца от 16 октября 2026 года; в коде проверки нет, её делает администратор до создания аккаунта |
 | Правки проверяет администратор | 6.3, 7.3 | `expo-app/src/features/cabinet/CabinetEditScreen.tsx:258`; `supabase/migrations/20261005000003_functions.sql:126` |
 | Карточка без публикации не видна | 15.2 | `supabase/migrations/20261005000001_tables.sql:57` |
 | «Согласие на публикацию контактов» | 7.4 | `CabinetEditScreen.tsx:247` |
