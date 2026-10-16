@@ -4,8 +4,25 @@
     {
       "name": "dobratimia",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "expo-app", "run", "start", "--", "--port", "8081"],
+      "runtimeArgs": [
+        "--prefix",
+        "expo-app",
+        "run",
+        "start",
+        "--",
+        "--port",
+        "8081"
+      ],
       "port": 8081
+    },
+    {
+      "name": "landing",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "const h=require('http'),f=require('fs'),p=require('path'),r=p.resolve('landing'),t={'.html':'text/html; charset=utf-8','.jpg':'image/jpeg','.png':'image/png','.woff':'font/woff','.svg':'image/svg+xml'};h.createServer((q,s)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const x=p.join(r,u);if(!x.startsWith(r))return s.writeHead(403).end();f.readFile(x,(e,b)=>e?s.writeHead(404).end():s.writeHead(200,{'Content-Type':t[p.extname(x)]||'application/octet-stream'}).end(b))}).listen(8090,'127.0.0.1')"
+      ],
+      "port": 8090
     }
   ]
 }

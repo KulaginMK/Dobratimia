@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Добратимия — приложение самопомощи для студентов медвузов</title>
+<meta name="description" content="Бесплатное приложение самопомощи для студентов медицинских вузов Беларуси: понять своё состояние, снять напряжение и найти психолога. Без рекламы, ответы теста и дневник остаются на вашем телефоне.">
+<meta name="theme-color" content="#FBF5EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1412" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Добратимия — место, где можно выдохнуть">
+<meta property="og:description" content="Бесплатное приложение самопомощи для студентов медицинских вузов Беларуси.">
+<meta property="og:locale" content="ru_RU">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preload" href="fonts/Nunito_900Black.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="fonts/GolosText_400Regular.woff" as="font" type="font/woff" crossorigin>
+<style>
+/* Шрифты лежат рядом со страницей: никаких запросов к чужим серверам. Подмножество: латиница и кириллица. */
+@font-face { font-family: "Nunito"; font-weight: 800; font-display: swap; src: url(fonts/Nunito_800ExtraBold.woff) format("woff"); }
+@font-face { font-family: "Nunito"; font-weight: 900; font-display: swap; src: url(fonts/Nunito_900Black.woff) format("woff"); }
+@font-face { font-family: "Golos Text"; font-weight: 400; font-display: swap; src: url(fonts/GolosText_400Regular.woff) format("woff"); }
+@font-face { font-family: "Golos Text"; font-weight: 600; font-display: swap; src: url(fonts/GolosText_600SemiBold.woff) format("woff"); }
+
+/* Цвета — из handoff/design-system/tokens.json. */
+:root {
+  color-scheme: light;
+  --bg: #FBF5EE; --surface: #FFFFFF; --surface-alt: #F5ECE3; --border: #EADCD0; --border-strong: #9C8072;
+  --text: #2C1F1A; --muted: #6A554C;
+  --primary: #B4532F; --primary-pressed: #8E3B22; --on-primary: #FFFFFF;
+  --primary-soft: #F8DCCD; --on-primary-soft: #6B2A12;
+  --secondary: #6B3A2A; --on-secondary: #FFFFFF;
+  --accent: #E8B04A; --growth: #6E8A4E; --growth-soft: #E3EAD6;
+  --sos: #C2185B; --on-sos: #FFFFFF; --sos-soft: #FBE3EA; --on-sos-soft: #8A1240;
+  --success: #3B7A3A;
+  --logo-deep: #8E3B22; --logo-warm: #C8623A; --logo-orange: #E07B39; --logo-apricot: #F2B28A;
+  --logo-head: #E8B04A; --logo-leaf: #8FA66B; --logo-leaf-deep: #6E8A4E;
+  --shadow-sm: 0 1px 2px rgba(44, 31, 26, .06), 0 2px 6px rgba(44, 31, 26, .06);
+  --shadow-md: 0 6px 18px rgba(44, 31, 26, .12);
+  --shadow-phone: 0 30px 60px -20px rgba(107, 58, 42, .35), 0 12px 24px -12px rgba(44, 31, 26, .2);
+  --bezel: #2C1F1A;
+  --breath-kicker: var(--accent);
+  --display: "Nunito", "Golos Text", system-ui, sans-serif;
+  --body: "Golos Text", system-ui, sans-serif;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #1B1412; --surface: #261C19; --surface-alt: #31241F; --border: #3D2E28; --border-strong: #8C7568;
+    --text: #F6EAE2; --muted: #C2ACA1;
+    --primary: #F2A07A; --primary-pressed: #F6C3A6; --on-primary: #3D1505;
+    --primary-soft: #4A2A1E; --on-primary-soft: #FFD9C7;
+    --secondary: #E0B9A3; --on-secondary: #3A1D12;
+    --growth: #9DB77A; --growth-soft: #2C3523;
+    --sos: #FF8FA3; --on-sos: #45001C; --sos-soft: #4A1626; --on-sos-soft: #FFC2CF;
+    --success: #9AD39A;
+    --logo-deep: #C8623A; --logo-warm: #E8946A; --logo-orange: #F2A07A; --logo-apricot: #F6C7A4;
+    --logo-leaf-deep: #9DB77A;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-md: 0 6px 18px rgba(0, 0, 0, .5);
+    --shadow-phone: 0 30px 60px -20px rgba(0, 0, 0, .7), 0 0 0 1px rgba(246, 234, 226, .06);
+    --bezel: #0E0A09;
+    --breath-kicker: var(--on-secondary);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3 { font-family: var(--display); font-weight: 900; margin: 0; letter-spacing: -.015em; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 8px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 720px) { .wrap { padding: 0 32px; } }
+.ico { width: 24px; height: 24px; flex: none; }
+
+/* Кнопки: высота 52, крупная 64, радиус 16/20 — как в приложении. */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 16px; border: 0; font: 800 17px/1 var(--display); text-decoration: none; cursor: pointer; transition: background-color .16s ease-out, transform .16s ease-out; }
+.btn-lg { min-height: 64px; padding: 0 30px; border-radius: 20px; font-size: 18px; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-pressed); }
+.btn-outline { background: transparent; color: var(--text); box-shadow: inset 0 0 0 2px var(--border-strong); }
+.btn-outline:hover { background: var(--surface-alt); }
+.btn-sos { background: var(--sos); color: var(--on-sos); }
+.btn:active { transform: scale(.98); }
+
+/* Шапка */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid transparent; }
+.top .wrap { display: flex; align-items: center; gap: 12px; min-height: 72px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 900 22px/1 var(--display); letter-spacing: -.01em; min-height: 48px; }
+.brand svg { width: 38px; height: 38px; }
+.nav { display: none; gap: 4px; margin-left: auto; }
+.nav a { display: inline-flex; align-items: center; min-height: 48px; padding: 0 14px; border-radius: 999px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 16px; }
+.nav a:hover { color: var(--text); background: var(--surface-alt); }
+.top-actions { display: flex; gap: 8px; margin-left: auto; }
+.sos-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 999px; background: var(--sos); color: var(--on-sos); font: 900 16px/1 var(--display); text-decoration: none; letter-spacing: .02em; }
+.sos-pill svg { width: 20px; height: 20px; }
+.top .btn { min-height: 48px; padding: 0 18px; font-size: 16px; border-radius: 999px; display: none; }
+@media (min-width: 900px) { .nav { display: flex; } .nav + .top-actions { margin-left: 8px; } .top .btn { display: inline-flex; } }
+
+/* Первый экран */
+.hero { position: relative; padding: 40px 0 72px; }
+.hero .wrap { display: grid; gap: 48px; align-items: center; }
+@media (min-width: 960px) { .hero { padding: 72px 0 112px; } .hero .wrap { grid-template-columns: 1.08fr .92fr; gap: 32px; } }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 10px; border-radius: 999px; background: var(--growth-soft); color: var(--text); font-weight: 600; font-size: 15px; line-height: 1.3; }
+.eyebrow svg { width: 22px; height: 22px; color: var(--growth); }
+.hero h1 { margin-top: 20px; font-size: clamp(44px, 8.4vw, 80px); line-height: .98; letter-spacing: -.03em; }
+.hero h1 em { font-style: normal; color: var(--primary); }
+.lead { margin-top: 22px; max-width: 34em; font-size: clamp(17px, 2vw, 20px); line-height: 1.55; color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+@media (max-width: 520px) { .cta .btn { flex: 1 1 100%; } }
+.soon { margin-top: 14px; font-size: 15px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.soon::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+.ticks { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 12px; }
+.ticks li { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; font-size: 16px; line-height: 1.45; }
+.ticks svg { width: 22px; height: 22px; color: var(--success); margin-top: 1px; }
+@media (min-width: 600px) { .ticks { grid-template-columns: repeat(3, 1fr); gap: 20px; } .ticks li { flex-direction: column; gap: 8px; } }
+
+/* Телефон */
+.stage { position: relative; display: grid; place-items: center; min-height: 560px; }
+.stage::before { content: ""; position: absolute; width: min(500px, 100%); aspect-ratio: 1; border-radius: 50%; background: var(--primary-soft); }
+.stage::after { content: ""; position: absolute; width: min(360px, 74%); aspect-ratio: 1; border-radius: 50%; background: var(--bg); opacity: .5; }
+.phone { position: relative; z-index: 1; width: min(292px, 74vw); aspect-ratio: 600 / 1332; padding: 9px; border-radius: 46px; background: var(--bezel); box-shadow: var(--shadow-phone); }
+.phone::before { content: ""; position: absolute; top: 20px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #000; opacity: .85; z-index: 2; }
+.phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 37px; background: var(--surface); }
+.float { position: absolute; z-index: 2; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-md); font-weight: 600; font-size: 14px; line-height: 1.3; max-width: 230px; }
+.float svg { width: 22px; height: 22px; flex: none; }
+.float-1 { top: 13%; right: -2%; }
+.float-1 svg { color: var(--success); }
+.float-2 { bottom: 16%; right: 0; }
+.dot-sos { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--sos); color: var(--on-sos); font: 900 10px/1 var(--display); letter-spacing: .03em; }
+.timka { position: absolute; z-index: 2; left: 2%; bottom: 4%; width: 132px; animation: bob 4s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-6px); } }
+@media (max-width: 520px) { .float-1 { right: -4px; } .float-2 { right: -4px; } .timka { width: 96px; left: -4px; } .stage { min-height: 500px; } }
+
+/* Разделы */
+section { position: relative; }
+.section { padding: 88px 0; }
+.kicker { display: inline-block; font: 800 14px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
+.h2 { margin-top: 14px; font-size: clamp(32px, 5vw, 50px); line-height: 1.06; letter-spacing: -.025em; }
+.sub { margin-top: 16px; max-width: 38em; color: var(--muted); font-size: 18px; }
+.center { text-align: center; }
+.center .sub { margin-left: auto; margin-right: auto; }
+
+.pillars { display: grid; gap: 16px; margin-top: 48px; }
+@media (min-width: 860px) { .pillars { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+.pillar { padding: 28px; border-radius: 28px; background: var(--surface); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.pillar-ico { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 20px; background: var(--primary-soft); color: var(--on-primary-soft); }
+.pillar-ico svg { width: 36px; height: 36px; }
+.pillar:nth-child(2) .pillar-ico { background: var(--growth-soft); color: var(--text); }
+.pillar:nth-child(3) .pillar-ico { background: var(--sos-soft); color: var(--on-sos-soft); }
+.pillar h3 { margin-top: 20px; font-size: 24px; line-height: 1.2; }
+.pillar p { margin-top: 10px; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding: 0; list-style: none; }
+.tags li { padding: 6px 12px; border-radius: 999px; background: var(--surface-alt); font-size: 14px; font-weight: 600; }
+
+/* Строки с экранами */
+.row { display: grid; gap: 40px; align-items: center; padding: 56px 0; }
+@media (min-width: 900px) { .row { grid-template-columns: 1fr 1fr; gap: 64px; padding: 72px 0; } .row.flip .row-media { order: 2; } }
+.row-media { position: relative; display: grid; place-items: center; min-height: 520px; }
+.row-media::before { content: ""; position: absolute; width: min(440px, 96%); aspect-ratio: 1; border-radius: 50%; background: var(--primary-soft); }
+.row-media.green::before { background: var(--growth-soft); }
+.row-media.rose::before { background: var(--sos-soft); }
+.row-media .phone { width: min(270px, 70vw); }
+.row h3 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.02em; margin-top: 12px; }
+.row p { margin-top: 16px; color: var(--muted); font-size: 18px; }
+.checks { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+.checks li { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; }
+.checks svg { width: 24px; height: 24px; color: var(--success); flex: none; }
+
+/* Дыхание */
+.breath { background: var(--secondary); color: var(--on-secondary); border-radius: 40px; margin: 0 8px; overflow: hidden; }
+@media (min-width: 720px) { .breath { margin: 0 24px; } }
+.breath .wrap { display: grid; gap: 40px; align-items: center; padding-top: 72px; padding-bottom: 72px; }
+@media (min-width: 900px) { .breath .wrap { grid-template-columns: 1fr 1fr; } }
+.breath .kicker { color: var(--breath-kicker); }
+.breath .sub { color: inherit; opacity: .82; }
+.breath-ui { display: grid; justify-items: center; gap: 24px; }
+.breath-ring { position: relative; display: grid; place-items: center; width: min(340px, 82vw); aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--on-secondary) 9%, transparent); }
+.breath-core { position: absolute; inset: 14%; border-radius: 50%; background: var(--primary-soft); transform: scale(.62); transition-property: transform; transition-timing-function: linear; }
+.breath-ring svg { position: relative; width: 46%; }
+.breath-label { font: 900 34px/1.1 var(--display); text-align: center; min-height: 38px; }
+.breath-hint { margin-top: 6px; font-size: 16px; opacity: .82; text-align: center; min-height: 26px; }
+.btn-light { background: var(--bg); color: var(--text); min-width: 220px; }
+.btn-light:hover { background: var(--surface-alt); }
+.schemes { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+.schemes span { padding: 8px 14px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--on-secondary) 35%, transparent); font-weight: 600; font-size: 15px; }
+
+/* Приватность */
+.vault { display: grid; gap: 16px; margin-top: 48px; }
+@media (min-width: 860px) { .vault { grid-template-columns: 1.1fr .9fr 1.1fr; gap: 20px; } }
+.vault-card { padding: 28px; border-radius: 28px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.vault-card h3 { display: flex; align-items: center; gap: 12px; font-size: 21px; line-height: 1.2; }
+.badge { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 14px; }
+.badge svg { width: 26px; height: 26px; }
+.b-device { background: var(--growth-soft); color: var(--text); }
+.b-none { background: var(--primary-soft); color: var(--on-primary-soft); }
+.b-server { background: var(--surface-alt); color: var(--text); }
+.vault-card ul { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 12px; }
+.vault-card li { position: relative; padding-left: 22px; font-size: 16px; line-height: 1.5; }
+.vault-card li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); }
+.vault-card small { display: block; color: var(--muted); font-size: 14px; }
+.vault-note { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: center; color: var(--muted); font-size: 15px; }
+.vault-note span { display: inline-flex; align-items: center; gap: 8px; }
+.vault-note svg { width: 20px; height: 20px; color: var(--success); }
+
+/* Принципы */
+.principles { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 900px) { .principles { grid-template-columns: .8fr 1.2fr; gap: 72px; } }
+.timka-big { position: relative; display: grid; place-items: center; width: min(360px, 80vw); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; background: var(--primary-soft); }
+.timka-big svg { width: 68%; animation: bob 4s ease-in-out infinite; }
+.p-list { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 14px; }
+.p-list li { display: flex; gap: 16px; align-items: center; padding: 16px 20px; border-radius: 22px; background: var(--surface); border: 1px solid var(--border); font-weight: 600; font-size: 17px; line-height: 1.4; }
+.p-list .badge { background: var(--primary-soft); color: var(--on-primary-soft); }
+
+/* Честно о главном */
+.honest { display: grid; gap: 24px; padding: 36px 28px; border-radius: 32px; background: var(--sos-soft); color: var(--on-sos-soft); }
+@media (min-width: 900px) { .honest { grid-template-columns: 1.4fr 1fr; align-items: center; padding: 48px 56px; gap: 48px; } }
+.honest h2 { font-size: clamp(28px, 4vw, 38px); line-height: 1.1; }
+.honest p { margin-top: 14px; font-size: 18px; line-height: 1.55; }
+.honest-actions { display: grid; gap: 12px; }
+.honest-actions .btn { width: 100%; }
+.honest-actions .btn-outline { color: var(--on-sos-soft); box-shadow: inset 0 0 0 2px var(--on-sos-soft); }
+.honest-actions .btn-outline:hover { background: color-mix(in srgb, var(--on-sos-soft) 8%, transparent); }
+.honest small { display: block; font-size: 15px; opacity: .85; }
+
+/* Финал и подвал */
+.final { text-align: center; padding: 104px 0 96px; }
+.final .mark { width: 96px; height: 96px; margin: 0 auto 24px; }
+.final .cta { justify-content: center; }
+.final .sub { margin-left: auto; margin-right: auto; }
+.foot { border-top: 1px solid var(--border); padding: 40px 0 48px; color: var(--muted); font-size: 15px; }
+.foot .wrap { display: grid; gap: 24px; }
+@media (min-width: 860px) { .foot .wrap { grid-template-columns: 1fr auto; align-items: start; } }
+.foot .brand { color: var(--text); font-size: 20px; }
+.foot .brand svg { width: 32px; height: 32px; }
+.foot p { margin-top: 10px; max-width: 32em; }
+.links { display: flex; flex-wrap: wrap; gap: 4px 6px; list-style: none; padding: 0; margin: 0; }
+.links a { display: inline-flex; align-items: center; min-height: 48px; padding: 0 12px; border-radius: 12px; text-decoration: none; color: var(--text); font-weight: 600; }
+.links a:hover { background: var(--surface-alt); }
+.foot .legal { grid-column: 1 / -1; max-width: none; margin: 0; font-size: 14px; }
+
+/* Появление при прокрутке: 240 мс, без пружин (docs/02-brand.md). */
+.js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .24s ease-out, transform .24s ease-out; }
+.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  .timka, .timka-big svg { animation: none; }
+  .breath-core { transition: none !important; }
+  .btn { transition: none; }
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<!-- Иконки «мягкие формы» и знак — из handoff/assets/svg. Второй тон — тот же цвет с прозрачностью 32%. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="lg-l" x1="0" y1="17" x2="0" y2="57" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--logo-deep)"/><stop offset="1" style="stop-color:var(--logo-warm)"/></linearGradient>
+    <linearGradient id="lg-r" x1="0" y1="17" x2="0" y2="57" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--logo-orange)"/><stop offset="1" style="stop-color:var(--logo-apricot)"/></linearGradient>
+    <linearGradient id="lg-s" x1="0" y1="55" x2="0" y2="33" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--logo-orange)"/><stop offset=".55" style="stop-color:var(--logo-leaf)"/><stop offset="1" style="stop-color:var(--logo-leaf-deep)"/></linearGradient>
+  </defs>
+  <symbol id="mark" viewBox="0 0 64 64"><path d="M10.5 21 Q10.5 17 14.5 17 H16.5 C25 17.4 30.2 23.2 31.8 31 L31 38 C28.8 30.5 24.5 26.2 18.5 25.8 V33 C18.5 44 23.5 51.5 31 56.5 C18 55.5 10.5 46 10.5 33 Z" fill="url(#lg-l)"/><g transform="translate(64 0) scale(-1 1)"><path d="M10.5 21 Q10.5 17 14.5 17 H16.5 C25 17.4 30.2 23.2 31.8 31 L31 38 C28.8 30.5 24.5 26.2 18.5 25.8 V33 C18.5 44 23.5 51.5 31 56.5 C18 55.5 10.5 46 10.5 33 Z" fill="url(#lg-r)"/></g><circle cx="32" cy="9.5" r="5.5" style="fill:var(--logo-head)"/><path d="M32 54 C31.2 50 31.4 45.5 32.6 41.5" fill="none" stroke="url(#lg-s)" stroke-width="2.4" stroke-linecap="round"/><path d="M31.6 48.5 C26.4 48.6 22.6 45.2 22.2 39.8 C27.6 39.6 31.4 43 31.6 48.5Z" fill="url(#lg-s)"/><path d="M32.6 43.6 C33 38 37 34.4 42.4 34.4 C42.4 40 38.4 43.6 32.6 43.6Z" fill="url(#lg-s)"/></symbol>
+  <symbol id="i-diary" viewBox="0 0 48 48"><path d="M17 7 H32 Q39 7 39 14 V34 Q39 41 32 41 H17 Q10 41 10 34 V14 Q10 7 17 7Z" fill="currentColor" fill-opacity=".32"/><path d="M14.5 7 Q19 7 19 11.5 V36.5 Q19 41 14.5 41 Q10 41 10 36.5 V11.5 Q10 7 14.5 7Z" fill="currentColor"/><circle cx="29" cy="19" r="5" fill="currentColor"/><path d="M24.75 29 H33.25 Q35 29 35 30.75 Q35 32.5 33.25 32.5 H24.75 Q23 32.5 23 30.75 Q23 29 24.75 29Z" fill="currentColor"/></symbol>
+  <symbol id="i-breath" viewBox="0 0 48 48"><path d="M9 12 H29 Q32 12 32 15 Q32 18 29 18 H9 Q6 18 6 15 Q6 12 9 12Z" fill="currentColor"/><path d="M9 21 H39 Q42 21 42 24 Q42 27 39 27 H9 Q6 27 6 24 Q6 21 9 21Z" fill="currentColor" fill-opacity=".32"/><path d="M9 30 H23 Q26 30 26 33 Q26 36 23 36 H9 Q6 36 6 33 Q6 30 9 30Z" fill="currentColor"/><circle cx="36" cy="15" r="4" fill="currentColor" fill-opacity=".32"/></symbol>
+  <symbol id="i-specialist" viewBox="0 0 48 48"><path d="M7 41 Q7 26 20 26 Q33 26 33 41 Z" fill="currentColor" fill-opacity=".32"/><circle cx="20" cy="16" r="8" fill="currentColor"/><path d="M38 22 L33.2 17.2 Q31.4 15 33.2 13 Q35.4 11 38 13.6 Q40.6 11 42.8 13 Q44.6 15 42.8 17.2 Z" fill="currentColor"/></symbol>
+  <symbol id="i-scream" viewBox="0 0 48 48"><circle cx="24" cy="22" r="17" fill="currentColor" fill-opacity=".32"/><path d="M24 6 Q31 6 31 13 V24 Q31 31 24 31 Q17 31 17 24 V13 Q17 6 24 6Z" fill="currentColor"/><path d="M22 31 H26 V38 H22Z" fill="currentColor"/><path d="M17 38 H31 Q33 38 33 40 Q33 42 31 42 H17 Q15 42 15 40 Q15 38 17 38Z" fill="currentColor"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 48 48"><path d="M15 8 Q11 8 10 12 Q8 22 17 31 Q26 40 36 38 Q40 37 40 33 V29 Q40 27 38 26.5 L32 25 Q30 24.6 29 26 L27 28.5 Q21 25.5 19.5 20.5 L22 18.5 Q23.4 17.5 23 15.5 L21.5 9.5 Q21 8 19 8 Z" fill="currentColor"/><path d="M29 7 A12 12 0 0 1 41 19" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".32"/></symbol>
+  <symbol id="i-check" viewBox="0 0 48 48"><path d="M11 25 L20 34 L37 15" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 48 48"><path d="M13 43 A11 5.5 0 0 1 35 43Z" fill="currentColor" fill-opacity=".32"/><path d="M24 42 V24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M23.5 31 C16 31 10.5 26 10 18 C18 17.8 23 23 23.5 31Z" fill="currentColor"/><path d="M24.5 26 C25 18 30.5 12.5 38.5 12.5 C38.5 20.5 33 26 24.5 26Z" fill="currentColor"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 48 48"><path d="M19 12 L31 24 L19 36" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 48 48"><path d="M24 40 L10.5 26.5 Q5 20.5 10.5 14.5 Q16.5 9 24 15.5 Q31.5 9 37.5 14.5 Q43 20.5 37.5 26.5 Z" fill="currentColor"/></symbol>
+  <symbol id="i-sos" viewBox="0 0 48 48"><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="8" stroke-opacity=".32"/><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="8 12.42" stroke-dashoffset="4"/></symbol>
+  <symbol id="i-message" viewBox="0 0 48 48"><path d="M10 9 H38 Q42 9 42 13 V30 Q42 34 38 34 H22 L14 41 V34 H10 Q6 34 6 30 V13 Q6 9 10 9Z" fill="currentColor" fill-opacity=".32"/><circle cx="16" cy="21.5" r="2.8" fill="currentColor"/><circle cx="24" cy="21.5" r="2.8" fill="currentColor"/><circle cx="32" cy="21.5" r="2.8" fill="currentColor"/></symbol>
+  <symbol id="i-techniques" viewBox="0 0 48 48"><circle cx="24" cy="19" r="13" fill="currentColor" fill-opacity=".32"/><path d="M20 30 H28 Q31 30 31 33 Q31 36 28 36 H20 Q17 36 17 33 Q17 30 20 30Z" fill="currentColor"/><path d="M22 37 H26 Q28.5 37 28.5 39.5 Q28.5 42 26 42 H22 Q19.5 42 19.5 39.5 Q19.5 37 22 37Z" fill="currentColor"/><path d="M24 12 Q30 12 31 18 Q31.3 19.5 29.8 19.5 Q28.6 19.5 28.3 18.3 Q27.6 15 24 15 Q22.5 15 22.5 13.5 Q22.5 12 24 12Z" fill="currentColor"/></symbol>
+  <!-- Тимка: тело — logo.apricot, листья — logo.leaf / logo.leafDeep. -->
+  <symbol id="timka-hello" viewBox="0 -6 120 120"><path d="M60 30 C60 22 59 16 60 10" fill="none" style="stroke:var(--logo-leaf-deep)" stroke-width="3.5" stroke-linecap="round"/><path d="M59.5 18 C53 19 47 15 46 7 C54 6 59 10 59.5 18Z" style="fill:var(--logo-leaf)"/><path d="M60.5 14 C61 6 67 2 75 3 C75 11 69 15 60.5 14Z" style="fill:var(--logo-leaf-deep)"/><ellipse cx="60" cy="104" rx="32" ry="4.5" fill="#2C1F1A" fill-opacity=".1"/><ellipse cx="103" cy="58" rx="7" ry="11" transform="rotate(28 103 58)" style="fill:var(--logo-apricot)"/><path d="M60 28 C86 28 100 48 100 70 C100 92 82 102 60 102 C38 102 20 92 20 70 C20 48 34 28 60 28Z" style="fill:var(--logo-apricot)"/><circle cx="48" cy="64" r="3.6" fill="#2C1F1A"/><circle cx="72" cy="64" r="3.6" fill="#2C1F1A"/><path d="M53 73 Q60 80 67 73" fill="none" stroke="#2C1F1A" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="39" cy="73" rx="5.5" ry="3.2" fill="#E07A5F" opacity=".55"/><ellipse cx="81" cy="73" rx="5.5" ry="3.2" fill="#E07A5F" opacity=".55"/></symbol>
+  <symbol id="timka-breathe" viewBox="0 -6 120 120"><path d="M60 30 C60 22 59 16 60 10" fill="none" style="stroke:var(--logo-leaf-deep)" stroke-width="3.5" stroke-linecap="round"/><path d="M59.5 18 C53 19 47 15 46 7 C54 6 59 10 59.5 18Z" style="fill:var(--logo-leaf)"/><path d="M60.5 14 C61 6 67 2 75 3 C75 11 69 15 60.5 14Z" style="fill:var(--logo-leaf-deep)"/><path d="M60 28 C88 28 102 48 102 70 C102 92 84 102 60 102 C36 102 18 92 18 70 C18 48 32 28 60 28Z" style="fill:var(--logo-apricot)"/><path d="M44 64 Q48 67.5 52 64" fill="none" stroke="#2C1F1A" stroke-width="2.6" stroke-linecap="round"/><path d="M68 64 Q72 67.5 76 64" fill="none" stroke="#2C1F1A" stroke-width="2.6" stroke-linecap="round"/><circle cx="60" cy="77" r="3.6" fill="#2C1F1A"/><ellipse cx="39" cy="73" rx="5.5" ry="3.2" fill="#E07A5F" opacity=".55"/><ellipse cx="81" cy="73" rx="5.5" ry="3.2" fill="#E07A5F" opacity=".55"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Добратимия — в начало страницы"><svg aria-hidden="true"><use href="#mark"/></svg>Добратимия</a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#features">Возможности</a>
+      <a href="#privacy">Приватность</a>
+      <a href="#breathe">Подышать</a>
+    </nav>
+    <div class="top-actions">
+      <a class="sos-pill" href="tel:133" aria-label="SOS: позвонить на номер экстренной психологической помощи 133"><svg aria-hidden="true"><use href="#i-sos"/></svg>133</a>
+      <a class="btn btn-primary" href="https://kulaginmk.github.io/Dobratimia/">Открыть</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow"><svg aria-hidden="true"><use href="#i-sprout"/></svg>Бесплатно · для студентов медвузов Беларуси</span>
+        <h1>Место, где можно <em>выдохнуть</em></h1>
+        <p class="lead">Добратимия помогает понять своё состояние, снять напряжение здесь и сейчас и найти живую помощь. Её делают люди, которые знают, как даются сессии, ночные смены и страх ошибиться.</p>
+        <div class="cta">
+          <a class="btn btn-lg btn-primary" href="https://kulaginmk.github.io/Dobratimia/">Открыть веб-версию<svg class="ico" aria-hidden="true"><use href="#i-chevron"/></svg></a>
+          <a class="btn btn-lg btn-outline" href="#features">Что внутри</a>
+        </div>
+        <p class="soon">Версия для Android готовится к выходу в Google Play</p>
+        <ul class="ticks">
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Без рекламы и покупок</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Тест и дневник хранятся только на вашем устройстве</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Можно без регистрации</li>
+        </ul>
+      </div>
+      <div class="stage" aria-hidden="true">
+        <div class="phone">
+          <picture>
+            <source srcset="assets/home-dark.jpg" media="(prefers-color-scheme: dark)">
+            <img src="assets/home.jpg" alt="" width="600" height="1332">
+          </picture>
+        </div>
+        <div class="float float-1"><svg><use href="#i-check"/></svg>Голос не записываем — только громкость</div>
+        <div class="float float-2"><span class="dot-sos">SOS</span>Помощь с любого экрана</div>
+        <svg class="timka"><use href="#timka-hello"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features" style="padding-top:24px">
+    <div class="wrap">
+      <div class="center reveal">
+        <span class="kicker">Что внутри</span>
+        <h2 class="h2">Три вещи, которые нужны, когда тяжело</h2>
+        <p class="sub">Заметить, как вы на самом деле. Помочь себе за пару минут. И не оставаться с этим одному.</p>
+      </div>
+      <div class="pillars">
+        <article class="pillar reveal">
+          <div class="pillar-ico"><svg aria-hidden="true"><use href="#i-diary"/></svg></div>
+          <h3>Понять своё состояние</h3>
+          <p>Тест DASS-21 покажет уровень стресса, тревоги и депрессии, а дневник настроения — как меняются ваши дни. Отметка занимает одно касание.</p>
+          <ul class="tags"><li>DASS-21</li><li>Дневник настроения</li></ul>
+        </article>
+        <article class="pillar reveal">
+          <div class="pillar-ico"><svg aria-hidden="true"><use href="#i-breath"/></svg></div>
+          <h3>Снять напряжение</h3>
+          <p>Выпустить пар криком или текстом, подышать, поработать по Pomodoro и разобраться, что стресс делает с телом.</p>
+          <ul class="tags"><li>КРИК</li><li>Дыхание</li><li>Pomodoro</li><li>Техники</li><li>Анатомия стресса</li></ul>
+        </article>
+        <article class="pillar reveal">
+          <div class="pillar-ico"><svg aria-hidden="true"><use href="#i-specialist"/></svg></div>
+          <h3>Найти живую помощь</h3>
+          <p>Подобрать психолога свайпами и открыть его контакты, найти психологическую службу своего вуза или позвонить на экстренный номер.</p>
+          <ul class="tags"><li>Подбор психолога</li><li>Служба вуза</li><li>SOS</li></ul>
+        </article>
+      </div>
+
+      <div class="row">
+        <div class="row-media reveal" aria-hidden="true">
+          <div class="phone"><img src="assets/scream.jpg" alt="" width="600" height="1332" loading="lazy"></div>
+        </div>
+        <div class="reveal">
+          <span class="kicker">КРИК</span>
+          <h3>Выпустить пар — голосом или текстом</h3>
+          <p>Крикните так громко, как хочется: приложение покажет громкость и подберёт реакцию — от «шёпота в библиотеке» до «легенды общежития». Если шуметь нельзя, выплесните всё текстом и отпустите его.</p>
+          <ul class="checks">
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Мы не записываем голос — анализируется только громкость</li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Текст нигде не сохраняется, его никто не прочитает</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row flip">
+        <div class="row-media green reveal" aria-hidden="true">
+          <div class="phone"><img src="assets/dass.jpg" alt="" width="600" height="1332" loading="lazy"></div>
+        </div>
+        <div class="reveal">
+          <span class="kicker">Тест DASS-21</span>
+          <h3>Понять, как вы на самом деле</h3>
+          <p>21 утверждение, около пяти минут — и три шкалы: стресс, тревога, депрессия. Если баллы высокие, приложение бережно предложит поговорить со специалистом и подскажет, что может помочь прямо сейчас.</p>
+          <ul class="checks">
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Это ориентир, а не диагноз</li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Ответы и история тестов остаются на вашем устройстве</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-media rose reveal" aria-hidden="true">
+          <div class="phone">
+            <picture>
+              <source srcset="assets/sos-dark.jpg" media="(prefers-color-scheme: dark)">
+              <img src="assets/sos.jpg" alt="" width="600" height="1332" loading="lazy">
+            </picture>
+          </div>
+        </div>
+        <div class="reveal">
+          <span class="kicker">SOS</span>
+          <h3>Помощь — в одно касание с любого экрана</h3>
+          <p>Кнопка SOS есть на каждом экране приложения. За ней — номер экстренной психологической помощи, скорая и психологическая служба вашего вуза.</p>
+          <ul class="checks">
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Работает без входа и без интернета</li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Пока ждёте ответа, можно подышать вместе с Тимкой</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="breath" id="breathe" aria-labelledby="breathe-title">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="kicker">Попробуйте прямо сейчас</span>
+        <h2 class="h2" id="breathe-title">Дыхание 4-7-8</h2>
+        <p class="sub">Вдохните носом на 4 счёта, задержите дыхание на 7, медленно выдохните ртом на 8. Длинный выдох помогает телу переключиться из режима «бей или беги» в режим отдыха. Повторите 4 цикла. Если кружится голова — дышите в обычном ритме.</p>
+        <div class="schemes" aria-label="Схемы дыхания в приложении"><span>4-6</span><span>4-7-8</span><span>5-5-5</span></div>
+      </div>
+      <div class="breath-ui reveal">
+        <div class="breath-ring" aria-hidden="true">
+          <div class="breath-core" id="core"></div>
+          <svg><use href="#timka-breathe"/></svg>
+        </div>
+        <div>
+          <p class="breath-label" id="phase">Готовы?</p>
+          <p class="breath-hint" id="cycle">Круг растёт на вдохе и сжимается на выдохе</p>
+          <p class="sr" aria-live="polite" id="announce"></p>
+        </div>
+        <button class="btn btn-lg btn-light" id="breathe-btn" type="button">Начать</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="privacy">
+    <div class="wrap">
+      <div class="center reveal">
+        <span class="kicker">Приватность</span>
+        <h2 class="h2">Самое личное остаётся у вас</h2>
+        <p class="sub">Состояние здоровья — слишком личное, чтобы держать его на сервере. Поэтому приложение и устроено так, чтобы самое чувствительное туда не попадало.</p>
+      </div>
+      <div class="vault">
+        <article class="vault-card reveal">
+          <h3><span class="badge b-device"><svg aria-hidden="true"><use href="#i-diary"/></svg></span>Только на вашем устройстве</h3>
+          <ul>
+            <li>Ответы и результаты DASS-21 с историей</li>
+            <li>Дневник настроения и заметки</li>
+            <li>Рекорд КРИКа, напоминания и настройки</li>
+          </ul>
+        </article>
+        <article class="vault-card reveal">
+          <h3><span class="badge b-none"><svg aria-hidden="true"><use href="#i-scream"/></svg></span>Нигде</h3>
+          <ul>
+            <li>Ваш голос: приложение измеряет только громкость</li>
+            <li>Текст, который вы выплеснули в КРИКе</li>
+          </ul>
+        </article>
+        <article class="vault-card reveal">
+          <h3><span class="badge b-server"><svg aria-hidden="true"><use href="#i-sprout"/></svg></span>На сервере — минимум</h3>
+          <ul>
+            <li>Имя и почта из Google — для входа</li>
+            <li>Выбранный вуз</li>
+            <li>Отметки «Нравится» специалистам и сердечки фразам <small>Специалист видит только число отметок, а не кто их поставил</small></li>
+            <li>Отметка «был сегодня» для счётчика <small>Хранится не дольше двух дней</small></li>
+          </ul>
+        </article>
+      </div>
+      <p class="vault-note reveal">
+        <span><svg aria-hidden="true"><use href="#i-check"/></svg>Без рекламы и аналитики поведения</span>
+        <span><svg aria-hidden="true"><use href="#i-check"/></svg>Без переписки внутри приложения</span>
+        <span><svg aria-hidden="true"><use href="#i-check"/></svg>Удалить все данные — одна кнопка в профиле</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:24px">
+    <div class="wrap principles">
+      <div class="timka-big reveal" aria-hidden="true"><svg><use href="#timka-hello"/></svg></div>
+      <div class="reveal">
+        <span class="kicker">Знакомьтесь, это Тимка</span>
+        <h2 class="h2">Тёплое зёрнышко, которое никогда не стыдит</h2>
+        <p class="sub">Никаких серий, штрафов и «вы пропали на три дня». Тимка не грустит, если вас долго не было, и никогда не стыдит. Он просто дышит вместе с вами.</p>
+        <ul class="p-list">
+          <li><span class="badge"><svg aria-hidden="true"><use href="#i-heart"/></svg></span>Добрый, тёплый тон — без нотаций и стыда</li>
+          <li><span class="badge"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Минимум данных и никакой переписки внутри приложения</li>
+          <li><span class="badge"><svg aria-hidden="true"><use href="#i-diary"/></svg></span>Никаких диагнозов и медицинских обещаний</li>
+          <li><span class="badge"><svg aria-hidden="true"><use href="#i-sos"/></svg></span>Экстренная помощь доступна с любого экрана</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="honest-title">
+    <div class="wrap">
+      <div class="honest reveal">
+        <div>
+          <h2 id="honest-title">Честно о главном</h2>
+          <p>Добратимия помогает заботиться о себе, но не заменяет врача, психолога или психотерапевта и не ставит диагнозов. Если очень тяжело прямо сейчас — позвоните. Вас выслушают и помогут разобраться, что делать дальше.</p>
+        </div>
+        <div class="honest-actions">
+          <a class="btn btn-lg btn-sos" href="tel:133"><svg class="ico" aria-hidden="true"><use href="#i-phone"/></svg>Позвонить 133</a>
+          <small>Экстренная психологическая помощь</small>
+          <a class="btn btn-outline" href="tel:103"><svg class="ico" aria-hidden="true"><use href="#i-phone"/></svg>Угроза жизни — 103</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap reveal">
+      <svg class="mark" aria-hidden="true"><use href="#mark"/></svg>
+      <h2 class="h2">Начните с одного вдоха</h2>
+      <p class="sub">Бесплатно и без рекламы. Тест, техники, дыхание и SOS работают и без входа.</p>
+      <div class="cta">
+        <a class="btn btn-lg btn-primary" href="https://kulaginmk.github.io/Dobratimia/">Открыть веб-версию<svg class="ico" aria-hidden="true"><use href="#i-chevron"/></svg></a>
+      </div>
+      <p class="soon" style="justify-content:center">Версия для Android готовится к выходу в Google Play</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top" aria-label="Добратимия — в начало страницы"><svg aria-hidden="true"><use href="#mark"/></svg>Добратимия</a>
+      <p>Бесплатное приложение самопомощи, сделанное для студентов медицинских вузов Беларуси.</p>
+    </div>
+    <ul class="links">
+      <li><a href="https://t.me/dobratimia">Telegram</a></li>
+      <li><a href="https://www.instagram.com/dobratimia/">Instagram</a></li>
+      <li><a href="https://www.threads.com/@dobratimia">Threads</a></li>
+      <li><a href="mailto:dobratimia@gmail.com">dobratimia@gmail.com</a></li>
+    </ul>
+    <p class="legal">© 2026 Добратимия. Эта страница не использует cookies и счётчики посещений.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Появление разделов при прокрутке.
+  var items = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    items.forEach(function (el) { io.observe(el); });
+  }
+
+  // Дыхание 4-7-8: круг растёт на вдохе, стоит на задержке, сжимается на выдохе — строго по секундам.
+  var PHASES = [['Вдох', 4, 1], ['Задержка', 7, 1], ['Выдох', 8, .62]];
+  var CYCLES = 4;
+  var core = document.getElementById('core');
+  var phaseEl = document.getElementById('phase');
+  var cycleEl = document.getElementById('cycle');
+  var announce = document.getElementById('announce');
+  var btn = document.getElementById('breathe-btn');
+  var timer = null, cycle, phase, left;
+
+  function setScale(scale, seconds) {
+    core.style.transitionDuration = seconds + 's';
+    core.style.transform = 'scale(' + scale + ')';
+  }
+  function enterPhase() {
+    var p = PHASES[phase];
+    left = p[1];
+    setScale(p[2], p[1]);
+    announce.textContent = p[0];
+    render();
+  }
+  function render() {
+    phaseEl.textContent = PHASES[phase][0] + ' · ' + left;
+    cycleEl.textContent = 'Цикл ' + (cycle + 1) + ' из ' + CYCLES;
+  }
+  function stop(done) {
+    clearInterval(timer);
+    timer = null;
+    setScale(.62, 1);
+    btn.textContent = done ? 'Ещё раз' : 'Начать';
+    phaseEl.textContent = done ? 'Готово' : 'Готовы?';
+    cycleEl.textContent = done ? 'Как вы сейчас?' : 'Круг растёт на вдохе и сжимается на выдохе';
+    announce.textContent = done ? 'Готово' : '';
+  }
+  function tick() {
+    left -= 1;
+    if (left > 0) return render();
+    phase += 1;
+    if (phase === PHASES.length) { phase = 0; cycle += 1; }
+    if (cycle === CYCLES) return stop(true);
+    enterPhase();
+  }
+  btn.addEventListener('click', function () {
+    if (timer) return stop(false);
+    cycle = 0; phase = 0;
+    btn.textContent = 'Остановить';
+    enterPhase();
+    timer = setInterval(tick, 1000);
+  });
+  // ponytail: на скрытой вкладке setInterval замедляется, круг и счёт могут разойтись; для демо это не страшно.
+})();
+</script>
+</body>
+</html>

@@ -38,6 +38,8 @@ jobs:
       - run: npx expo export -p web
       # Прямые ссылки (/dass, /auth/callback) GitHub Pages отдаёт через 404.html.
       - run: cp dist/index.html dist/404.html
+      # Лендинг — отдельная статичная страница рядом с приложением: …/<репозиторий>/landing/
+      - run: cp -R ../landing dist/landing
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
