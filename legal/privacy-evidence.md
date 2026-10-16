@@ -8,7 +8,11 @@
 |---|---|---|
 | Профиль: имя из Google (один раз, при создании), роль, вуз, дата создания | 3.2 | `supabase/migrations/20261005000001_tables.sql:20–26`; `supabase/migrations/20261005000003_functions.sql:6` (триггер, `on conflict do nothing`) |
 | Человек меняет в профиле только имя и вуз; в приложении меняется только вуз | 3.2, 11.1 | `supabase/migrations/20261005000002_access.sql:40`; `expo-app/src/data/supabase/auth.ts:157` |
-| Почта, сведения Google, IP-адреса в журналах входа | 3.2, 6.1, заметки 1–2 | платформа: таблицы `auth.users`, `auth.sessions`, `auth.audit_log_entries` Supabase; имя приложение читает из `user_metadata` (`expo-app/src/data/supabase/auth.ts:38`) |
+| Сведения из Google: имя, почта, подтверждение почты, идентификатор, ссылка на фото | 3.2 | Панель Supabase, запрос от 16 октября 2026 года: ключи `auth.users.raw_user_meta_data`; имя приложение читает из `user_metadata` (`expo-app/src/data/supabase/auth.ts:38`) |
+| Сессии входа с IP-адресом и браузером; выход закрывает текущую сессию | 3.2, 8, 10.4 | Панель Supabase, запрос от 16 октября 2026 года: колонки `auth.sessions.ip`, `user_agent` заполнены у 7 из 7; `expo-app/src/data/supabase/auth.ts:144` |
+| Журнал входа в базу не пишется | заметки | Панель Supabase: `auth.audit_log_entries` — 0 строк |
+| Журналы платформы — 1 день, резервных копий нет (тариф Free) | 6.1, 8, 10.3 | supabase.com/pricing, проверено 16 октября 2026 года |
+| GitHub Pages записывает IP-адреса посетителей | 6.1, 8 | docs.github.com, «What is GitHub Pages?», раздел «Data collection» |
 | Отметки «Нравится»: пользователь, специалист, дата | 3.2 | `supabase/migrations/20261005000001_tables.sql:87`; `expo-app/src/data/supabase/specialists.ts:97` |
 | Сердечки фразам | 3.2 | `supabase/migrations/20261005000001_tables.sql:107`; `expo-app/src/data/supabase/phrases.ts:58` |
 | «Был сегодня»: день и пользователь; старше двух дней удаляются внутри `mark_presence()` | 3.2, 8 | `supabase/migrations/20261005000001_tables.sql:116`; `supabase/migrations/20261005000003_functions.sql:183`, `:194`; вызов — `expo-app/src/data/supabase/presence.ts:8` при открытии Главной (`expo-app/src/features/home/HomePage.tsx:36`) |

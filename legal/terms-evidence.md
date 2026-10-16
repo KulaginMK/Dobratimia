@@ -31,6 +31,7 @@
 | Текст «Выплеснуть текстом» никто не прочитает | 5.3 | `expo-app/src/features/scream/ScreamText.tsx:73` |
 | На сервере: отметки «Нравится», сердечки фраз, «был сегодня» | 5.3 | `supabase/migrations/20261005000001_tables.sql:107`, `:116`; `supabase/migrations/20261005000002_access.sql:96` |
 | Отметки «был сегодня» старше двух дней удаляются автоматически, когда кто-нибудь открывает Главную | 5.3 | `supabase/migrations/20261005000003_functions.sql:194` (удаление внутри `mark_presence()`) |
+| Сессии входа на сервере хранят IP-адрес и браузер | 5.3 | Панель Supabase, запрос от 16 октября 2026 года; подробно — `legal/privacy-evidence.md` |
 | Резервная копия Android выключена | 5.4 | `expo-app/app.json:12` |
 | Скачать и загрузить дневник файлом; файл до 2 МБ | 5.4 | `expo-app/src/features/profile/ProfileScreen.tsx:184`; `expo-app/src/features/backup/backup.ts:15` |
 | Сервер — Supabase, регион Франкфурт | 11.1, заметка 10 | `supabase/README.md:33` |
