@@ -4,7 +4,7 @@ import { Platform, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DangerButton, GroupLabel, ProfileHead, ScreenHeader, SettingsGroup, SettingsRow } from '@/components/blocks';
 import { BottomSheet, Button, SegmentedControl, Switch, useToast } from '@/components/ui';
-import { CONSENT_URL, PRIVACY_URL } from '@/data/mocks/links';
+import { CONSENT_URL, PRIVACY_URL, SPECIALIST_CONSENT_URL, SPECIALIST_PRIVACY_URL } from '@/data/team';
 import { useDiaryBackup } from '@/features/backup/useDiaryBackup';
 import { NEXT_TEST_DAYS, useDassHistory } from '@/features/dass/DassHistory';
 import { useMoodDiary } from '@/features/mood/MoodDiary';
@@ -19,7 +19,7 @@ import { useSelectedUniversity } from '@/features/university/SelectedUniversity'
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
 import { APP_VERSION } from '@/lib/appVersion';
 import { addDays, dayAndMonth, toDateKey } from '@/lib/dates';
-import { DOCUMENT_PENDING, useOpenLink } from '@/lib/links';
+import { useOpenLink } from '@/lib/links';
 import { useTheme, useThemePreference, type ThemePreference } from '@/theme';
 
 const THEMES: { value: ThemePreference; label: string }[] = [
@@ -198,8 +198,15 @@ export function ProfileScreen() {
             {user?.role === 'specialist' ? (
               <SettingsRow title="Кабинет специалиста" onPress={() => router.push('/cabinet')} />
             ) : null}
-            <SettingsRow title="Политика конфиденциальности" onPress={() => openLink(PRIVACY_URL, DOCUMENT_PENDING)} />
-            <SettingsRow title="Согласие на обработку данных" onPress={() => openLink(CONSENT_URL, DOCUMENT_PENDING)} />
+            {/* У специалиста свои политика и согласие. */}
+            <SettingsRow
+              title="Политика конфиденциальности"
+              onPress={() => openLink(user?.role === 'specialist' ? SPECIALIST_PRIVACY_URL : PRIVACY_URL)}
+            />
+            <SettingsRow
+              title="Согласие на обработку данных"
+              onPress={() => openLink(user?.role === 'specialist' ? SPECIALIST_CONSENT_URL : CONSENT_URL)}
+            />
             <SettingsRow title="Обратная связь" onPress={() => router.push('/feedback')} />
             <SettingsRow title="О проекте" onPress={() => router.push('/about')} />
           </SettingsGroup>

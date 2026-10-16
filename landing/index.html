@@ -242,6 +242,9 @@ section { position: relative; }
 .links a { display: inline-flex; align-items: center; min-height: 48px; padding: 0 12px; border-radius: 12px; text-decoration: none; color: var(--text); font-weight: 600; }
 .links a:hover { background: var(--surface-alt); }
 .foot .legal { grid-column: 1 / -1; max-width: none; margin: 0; font-size: 14px; }
+.docs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 20px; border-top: 1px solid var(--border); padding-top: 12px; }
+.docs a { display: inline-flex; align-items: center; min-height: 48px; color: var(--muted); font-size: 15px; text-underline-offset: 3px; }
+.docs a:hover { color: var(--text); }
 
 /* Появление при прокрутке: 240 мс, без пружин (docs/02-brand.md). */
 .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .24s ease-out, transform .24s ease-out; }
@@ -532,6 +535,11 @@ section { position: relative; }
       <li><a href="https://www.threads.com/@dobratimia">Threads</a></li>
       <li><a href="mailto:dobratimia@gmail.com">dobratimia@gmail.com</a></li>
     </ul>
+    <nav class="docs" aria-label="Документы">
+      <a href="privacy.html">Политика конфиденциальности</a>
+      <a href="consent.html">Согласие на обработку данных</a>
+      <a href="specialists-privacy.html">Для специалистов</a>
+    </nav>
     <p class="legal">© 2026 Добратимия. Эта страница не использует cookies и счётчики посещений.</p>
   </div>
 </footer>

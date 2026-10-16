@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title} — Добратимия</title>
+<meta name="theme-color" content="#FBF5EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1412" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="legal.css">
+</head>
+<!-- Страница собрана из legal/*.md командой python3 legal/build_pages.py. Правьте Markdown, а не этот файл. -->
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="lg-l" x1="0" y1="17" x2="0" y2="57" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--logo-deep)"/><stop offset="1" style="stop-color:var(--logo-warm)"/></linearGradient>
+    <linearGradient id="lg-r" x1="0" y1="17" x2="0" y2="57" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--logo-orange)"/><stop offset="1" style="stop-color:var(--logo-apricot)"/></linearGradient>
+    <linearGradient id="lg-s" x1="0" y1="55" x2="0" y2="33" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--logo-orange)"/><stop offset=".55" style="stop-color:var(--logo-leaf)"/><stop offset="1" style="stop-color:var(--logo-leaf-deep)"/></linearGradient>
+  </defs>
+  <symbol id="mark" viewBox="0 0 64 64"><path d="M10.5 21 Q10.5 17 14.5 17 H16.5 C25 17.4 30.2 23.2 31.8 31 L31 38 C28.8 30.5 24.5 26.2 18.5 25.8 V33 C18.5 44 23.5 51.5 31 56.5 C18 55.5 10.5 46 10.5 33 Z" fill="url(#lg-l)"/><g transform="translate(64 0) scale(-1 1)"><path d="M10.5 21 Q10.5 17 14.5 17 H16.5 C25 17.4 30.2 23.2 31.8 31 L31 38 C28.8 30.5 24.5 26.2 18.5 25.8 V33 C18.5 44 23.5 51.5 31 56.5 C18 55.5 10.5 46 10.5 33 Z" fill="url(#lg-r)"/></g><circle cx="32" cy="9.5" r="5.5" style="fill:var(--logo-head)"/><path d="M32 54 C31.2 50 31.4 45.5 32.6 41.5" fill="none" stroke="url(#lg-s)" stroke-width="2.4" stroke-linecap="round"/><path d="M31.6 48.5 C26.4 48.6 22.6 45.2 22.2 39.8 C27.6 39.6 31.4 43 31.6 48.5Z" fill="url(#lg-s)"/><path d="M32.6 43.6 C33 38 37 34.4 42.4 34.4 C42.4 40 38.4 43.6 32.6 43.6Z" fill="url(#lg-s)"/></symbol>
+  <symbol id="i-sos" viewBox="0 0 48 48"><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="8" stroke-opacity=".32"/><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="8 12.42" stroke-dashoffset="4"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Добратимия — о приложении"><svg aria-hidden="true"><use href="#mark"/></svg>Добратимия</a>
+    <a class="sos-pill" href="tel:133" aria-label="SOS: позвонить на номер экстренной психологической помощи 133"><svg aria-hidden="true"><use href="#i-sos"/></svg>133</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="docnav" aria-label="Документы">{nav}</nav>
+  <article class="doc">
+    <h1>{title}</h1>
+{content}
+    <p class="note">Документ проходит проверку юриста, формулировки могут уточняться. Вопросы о данных — <a href="mailto:dobratimia@gmail.com">dobratimia@gmail.com</a>.</p>
+  </article>
+</main>
+
+<footer class="foot">
+  <div class="wrap">© 2026 Добратимия · <a href="./">О приложении</a> · Эта страница не использует cookies и счётчики посещений.</div>
+</footer>
+</body>
+</html>

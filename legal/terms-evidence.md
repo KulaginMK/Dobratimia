@@ -24,7 +24,7 @@
 | Что открыто гостю; результат теста гостя не сохраняется | 5.1 | `TODO.md:373` («Вход необязателен»), `:359`; `expo-app/src/features/dass/DassResultScreen.tsx:134`; `supabase/migrations/20261015000001_guest_read.sql:5` |
 | Вход только через Google, пароля нет | 5.2 | `expo-app/src/data/supabase/auth.ts:93` |
 | Под кнопкой входа — только политика и согласие, условий нет | 1.2, заметка «в приложении» 1 | `OnboardingSignInScreen.tsx:74`; `expo-app/src/features/profile/ProfileScreen.tsx:201` |
-| Политики и согласия пока нет | 1.3, заметка 2 | `expo-app/src/data/mocks/links.ts:5` |
+| Политика и согласие опубликованы, ссылки приложения ведут на них | 1.3, заметка 2 | `expo-app/src/data/team.ts`; `landing/privacy.html`, `landing/consent.html` |
 | Профиль: имя из Google, роль, вуз; человек меняет только имя и вуз | 5.3 | `supabase/migrations/20261005000003_functions.sql:6`; `supabase/migrations/20261005000002_access.sql:40`; `supabase/migrations/20261005000001_tables.sql:23` |
 | DASS-21, дневник, КРИК, настройки — только на устройстве | 5.3, 3.3 | `handoff/docs/08-data-and-backend.md` (таблица в начале), `:20`; `expo-app/src/data/local/` |
 | Голос не записывается, только громкость | 5.3 | `expo-app/src/features/scream/ScreamVoice.tsx:25`; `expo-app/src/features/scream/useLoudnessMeter.web.ts:25`; `expo-app/app.json:48` |

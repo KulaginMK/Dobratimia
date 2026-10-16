@@ -4,10 +4,10 @@ import { Text, View, useWindowDimensions } from 'react-native';
 import { GoogleButton, InlineLink } from '@/components/blocks';
 import { Logo } from '@/components/brand';
 import { Button, useToast } from '@/components/ui';
-import { CONSENT_URL, PRIVACY_URL } from '@/data/mocks/links';
+import { CONSENT_URL, PRIVACY_URL } from '@/data/team';
 import { useSession } from '@/features/session/Session';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
-import { DOCUMENT_PENDING, useOpenLink } from '@/lib/links';
+import { useOpenLink } from '@/lib/links';
 import { useTheme } from '@/theme';
 import { OnboardingStep } from './OnboardingStep';
 
@@ -72,11 +72,11 @@ export function OnboardingSignInScreen() {
           </GoogleButton>
           <Text style={[t.type.caption, { color: t.color.textMuted, textAlign: 'center' }]}>
             {'Продолжая, вы принимаете '}
-            <InlineLink color={t.color.primary} onPress={() => openLink(PRIVACY_URL, DOCUMENT_PENDING)}>
+            <InlineLink color={t.color.primary} onPress={() => openLink(PRIVACY_URL)}>
               политику конфиденциальности
             </InlineLink>
             {' и даёте '}
-            <InlineLink color={t.color.primary} onPress={() => openLink(CONSENT_URL, DOCUMENT_PENDING)}>
+            <InlineLink color={t.color.primary} onPress={() => openLink(CONSENT_URL)}>
               согласие на обработку персональных данных
             </InlineLink>
             .

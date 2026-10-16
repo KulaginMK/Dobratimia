@@ -85,4 +85,5 @@
 | Карточка специалиста остаётся | 10.3 | `supabase/migrations/20261005000003_functions.sql:208` |
 | «Выйти» ничего не удаляет | 10.4 | `expo-app/src/features/profile/ProfileScreen.tsx` (шторка «Выйти из аккаунта?») |
 | Согласие на публикацию контактов | 11.1 | `expo-app/src/features/cabinet/CabinetEditScreen.tsx:247` |
-| Ссылок на политику и согласие пока нет | заметки юристу 2, «что сделать» 1 | `expo-app/src/data/mocks/links.ts:5`, `:8` |
+| Ссылки на политику и согласие (у специалиста — свои) | 1.3 | `expo-app/src/data/team.ts`; `expo-app/src/features/profile/ProfileScreen.tsx` |
+| Под кнопкой входа — пассивное согласие («Продолжая, вы…») | заметки юристу 2 | `expo-app/src/features/onboarding/OnboardingSignInScreen.tsx:74` |
