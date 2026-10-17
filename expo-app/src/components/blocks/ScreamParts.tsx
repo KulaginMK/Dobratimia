@@ -16,8 +16,8 @@ const STOP_BUTTON = 148;
 // Надпись живёт внутри круга фиксированного размера — системный шрифт увеличивает её не больше чем на 30%.
 const MAX_FONT_SCALE = 1.3;
 const LEVEL_HEIGHT = 12;
-// Уровень меняется раз в 0,3 с — полоса доезжает до него плавно и успевает до следующего.
-const LEVEL_GLIDE_MS = 250;
+// Уровень меняется 10 раз в секунду — полоса доезжает до него за этот же шаг и движется без рывков.
+const LEVEL_GLIDE_MS = 100;
 const LEVEL_LABELS_TOP = 6;
 // Подписи полосы стоят через равные промежутки, хотя шаги между ними разные: заполнение считается по отрезкам.
 const LEVEL_MARKS = [0, 60, 80, 100];
@@ -161,7 +161,7 @@ export function LevelBar({ level, max }: { level: number; max: number }) {
   const share = useSharedValue(levelShare(level));
   useEffect(() => {
     // При «Уменьшить движение» withTiming сразу ставит конечное значение.
-    share.set(withTiming(levelShare(level), { duration: LEVEL_GLIDE_MS, easing: Easing.out(Easing.quad) }));
+    share.set(withTiming(levelShare(level), { duration: LEVEL_GLIDE_MS, easing: Easing.linear }));
   }, [level, share]);
   const fill = useAnimatedStyle(() => ({ width: `${share.get() * 100}%` }));
   return (

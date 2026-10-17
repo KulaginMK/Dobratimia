@@ -94,7 +94,7 @@ export function ScreamMeasuring({ live, onStop }: { live: ScreamLive; onStop: ()
           paddingHorizontal: t.space.xl,
         }}
       >
-        {/* Числа меняются несколько раз в секунду — скринридеру их вслух не объявляем (docs/09). */}
+        {/* Числа меняются 10 раз в секунду — скринридеру их вслух не объявляем (docs/09). */}
         <View accessible accessibilityLabel={`Время: ${timeLabel(live.elapsedMs)} из 10 секунд`}>
           <Text style={caption}>Время</Text>
           <Text style={[t.type.metric, { color: t.color.text }]}>{timeLabel(live.elapsedMs)}</Text>

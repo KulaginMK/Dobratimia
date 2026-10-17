@@ -15,8 +15,12 @@ export const MAX_LEVEL = 110;
 export const MAX_DURATION_MS = 10_000;
 /** Замер, время и волна обновляются 10 раз в секунду. */
 export const TICK_MS = 100;
-/** Число «Сейчас» и полоса уровня — раз в 0,3 с (3 отсчёта): каждый отсчёт скачет, раз в полсекунды — запаздывает. */
-const CALM_TICKS = 3;
+/**
+ * Число «Сейчас» и полоса уровня меняются с каждым отсчётом, но каждый раз проходят только эту долю пути
+ * к новому уровню: перетекают, а не скачут. На резкий крик выходят примерно за полсекунды.
+ * Раньше пробовали обновлять раз в 0,3–0,5 с — владельцу это казалось задержкой.
+ */
+const SMOOTHING = 0.4;
 /** В среднее идут только отсчёты громче этого уровня: тишина до и после крика не считается. */
 const AVERAGE_FLOOR = 40;
 /** «Рекорд недели» — за сегодня и шесть дней до него, как неделя в дневнике. */
@@ -36,12 +40,10 @@ export function toScreamDb(rms: number): number {
   return Math.min(MAX_LEVEL, Math.max(0, Math.round(share * MAX_LEVEL)));
 }
 
-/** Уровень для числа «Сейчас» и полосы: среднее за последние законченные CALM_TICKS отсчётов. */
+/** Уровень для числа «Сейчас» и полосы: сглаженный по всем отсчётам замера, первый отсчёт — как есть. */
 export function calmLevel(levels: number[]): number {
-  const end = levels.length - (levels.length % CALM_TICKS);
-  // В самом начале законченного окна ещё нет — среднее по тому, что есть.
-  const window = end > 0 ? levels.slice(end - CALM_TICKS, end) : levels;
-  return window.length > 0 ? Math.round(window.reduce((sum, level) => sum + level, 0) / window.length) : 0;
+  if (levels.length === 0) return 0;
+  return Math.round(levels.reduce((smooth, level) => smooth + SMOOTHING * (level - smooth)));
 }
 
 /** Итог замера по уровням, снятым 10 раз в секунду. */

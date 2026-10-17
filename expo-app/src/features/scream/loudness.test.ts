@@ -15,14 +15,14 @@ describe('громкость КРИКа', () => {
     expect(summarize([10, 20, 30], 300)).toEqual({ peak: 30, avg: 20, durationSec: 1 });
   });
 
-  test('число «Сейчас»: среднее за законченные 0,3 с и стоит, пока не закончатся следующие', () => {
+  test('число «Сейчас» меняется с каждым отсчётом, но перетекает к новому уровню, а не скачет', () => {
     expect(calmLevel([])).toBe(0);
-    expect(calmLevel([60, 80])).toBe(70);
-    const first = [70, 80, 90];
-    expect(calmLevel(first)).toBe(80);
-    // Новые отсчёты внутри следующего окна число не трогают.
-    expect(calmLevel([...first, 20, 110])).toBe(80);
-    expect(calmLevel([...first, 20, 20, 20])).toBe(20);
+    expect(calmLevel([70])).toBe(70);
+    expect(calmLevel([0, 100])).toBe(40);
+    expect(calmLevel([0, 100, 100])).toBe(64);
+    // Через полсекунды крика — почти у его уровня; ровный звук — ровное число.
+    expect(calmLevel([0, 100, 100, 100, 100, 100])).toBe(92);
+    expect(calmLevel([80, 80, 80])).toBe(80);
   });
 
   test('«рекорд недели» — за сегодня и шесть дней до него', () => {
