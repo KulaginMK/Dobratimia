@@ -1,3 +1,4 @@
+import { createAudioPlayer } from 'expo-audio';
 import React, { useEffect, useEffectEvent, useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, {
@@ -11,6 +12,9 @@ import Animated, {
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '@/theme';
 import { COVERED_MS, DONE_MS, FLAME_LAYERS, bandOf, bandTop, durationOf, flameEdge, type FlameLayer } from './fire';
+
+// «Вжух» вспыхнувшего огня: BigSoundBank №1341, CC0, первые 1,4 с — затихает раньше, чем огонь уходит (assets/sounds/README.md).
+const WHOOSH = require('../../../assets/sounds/fire.m4a');
 
 // Слои уходят вверх чуть наискосок, попеременно влево и вправо: пламя «колышется». Доля ширины экрана.
 const SWAY = 0.06;
@@ -63,7 +67,8 @@ function Flames({ layer, index, color, width, height }: LayerProps) {
 
 /**
  * Огонь по всему экрану после «Отпустить» в КРИКе. Плоские слои в цветах знака, без градиентов (docs/02):
- * терракотовая стена, внутри оранжевые, медовые и абрикосовые языки. При «Уменьшить движение» не показывается.
+ * терракотовая стена, внутри оранжевые, медовые и абрикосовые языки, со звуком вспышки.
+ * При «Уменьшить движение» не показывается и не звучит.
  */
 export function FireRelease({ onCovered, onDone }: Props) {
   const t = useTheme();
@@ -75,7 +80,14 @@ export function FireRelease({ onCovered, onDone }: Props) {
   const done = useEffectEvent(onDone);
   useEffect(() => {
     const timers = [setTimeout(covered, COVERED_MS), setTimeout(done, DONE_MS)];
-    return () => timers.forEach(clearTimeout);
+    const whoosh = createAudioPlayer(WHOOSH);
+    whoosh.play();
+    return () => {
+      timers.forEach(clearTimeout);
+      // На Android remove() только вычёркивает плеер из списка модуля, остановку и освобождение делает release().
+      whoosh.remove();
+      whoosh.release();
+    };
   }, []);
 
   return (
