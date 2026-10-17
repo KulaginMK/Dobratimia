@@ -9,12 +9,14 @@ export type Reminders = {
   diary: boolean;
   /** Тест DASS-21 — раз в 14 дней. */
   dass: boolean;
+  /** Push «Появился новый специалист» с сервера. Токен этого телефона на сервере, пока переключатель включён. */
+  specialists: boolean;
   /** День, когда включили напоминание о дневнике: «2026-09-24». От него считаются пропуски, пока отметок нет. */
   diarySince: string | null;
 };
 
 // По умолчанию выключены: разрешение на уведомления спрашиваем, когда человек сам включит переключатель.
-export const DEFAULT_REMINDERS: Reminders = { diary: false, dass: false, diarySince: null };
+export const DEFAULT_REMINDERS: Reminders = { diary: false, dass: false, specialists: false, diarySince: null };
 
 export async function loadReminders(): Promise<Reminders> {
   try {
@@ -22,7 +24,12 @@ export async function loadReminders(): Promise<Reminders> {
     const parsed = (raw ? JSON.parse(raw) : null) as Partial<Reminders> | null;
     const diarySince = typeof parsed?.diarySince === 'string' ? parsed.diarySince : null;
     // Без дня включения напоминание считается выключенным: так было, пока переключатель только запоминал выбор.
-    return { diary: parsed?.diary === true && diarySince !== null, dass: parsed?.dass === true, diarySince };
+    return {
+      diary: parsed?.diary === true && diarySince !== null,
+      dass: parsed?.dass === true,
+      specialists: parsed?.specialists === true,
+      diarySince,
+    };
   } catch {
     return DEFAULT_REMINDERS;
   }

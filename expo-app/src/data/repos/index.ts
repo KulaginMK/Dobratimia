@@ -9,6 +9,7 @@ import { supabaseCabinetRepo } from '@/data/supabase/cabinet';
 import { SUPABASE_CONFIGURED } from '@/data/supabase/config';
 import { supabasePhrasesRepo } from '@/data/supabase/phrases';
 import { supabasePresenceRepo } from '@/data/supabase/presence';
+import { supabasePushRepo } from '@/data/supabase/push';
 import { supabaseLikesRemote, supabaseSpecialistsRepo } from '@/data/supabase/specialists';
 import { fetchUniversities } from '@/data/supabase/universities';
 import { createSyncedSet } from '@/data/sync/syncedSet';
@@ -17,6 +18,7 @@ import type { CabinetRepo } from './CabinetRepo';
 import type { LikesRepo } from './LikesRepo';
 import type { PhrasesRepo } from './PhrasesRepo';
 import type { PresenceRepo } from './PresenceRepo';
+import type { PushRepo } from './PushRepo';
 import type { SpecialistsRepo } from './SpecialistsRepo';
 import type { UniversitiesRepo } from './UniversitiesRepo';
 
@@ -42,6 +44,8 @@ export const likesRepo: LikesRepo = SUPABASE_CONFIGURED ? supabaseLikesRepo : mo
 export const phrasesRepo: PhrasesRepo = SUPABASE_CONFIGURED ? supabasePhrasesRepo : mockPhrasesRepo;
 export const authRepo: AuthRepo = SUPABASE_CONFIGURED ? supabaseAuthRepo : mockAuthRepo;
 export const cabinetRepo: CabinetRepo = SUPABASE_CONFIGURED ? supabaseCabinetRepo : mockCabinetRepo;
+// Без сервера рассылать push некому: переключатель только запоминает выбор.
+export const pushRepo: PushRepo = SUPABASE_CONFIGURED ? supabasePushRepo : { subscribe: async () => {}, unsubscribe: async () => {} };
 
 export * from './errors';
 export type * from './AuthRepo';
@@ -49,5 +53,6 @@ export type * from './CabinetRepo';
 export type * from './LikesRepo';
 export type * from './PhrasesRepo';
 export type * from './PresenceRepo';
+export type * from './PushRepo';
 export type * from './SpecialistsRepo';
 export type * from './UniversitiesRepo';

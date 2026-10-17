@@ -5,6 +5,7 @@ import { useRouter, type Href } from 'expo-router';
 import { AndroidImportance } from 'expo-notifications/build/NotificationChannelManager.types';
 import { getPermissionsAsync, requestPermissionsAsync } from 'expo-notifications/build/NotificationPermissions';
 import { clearLastNotificationResponse } from 'expo-notifications/build/NotificationsEmitter';
+import { getExpoPushTokenAsync } from 'expo-notifications/build/getExpoPushTokenAsync';
 import { setNotificationHandler } from 'expo-notifications/build/NotificationsHandler';
 import { SchedulableTriggerInputTypes } from 'expo-notifications/build/Notifications.types';
 import { cancelAllScheduledNotificationsAsync } from 'expo-notifications/build/cancelAllScheduledNotificationsAsync';
@@ -65,6 +66,8 @@ export async function createChannels(): Promise<void> {
     setNotificationChannelAsync('pomodoro', { name: 'Таймер Pomodoro', importance: AndroidImportance.HIGH }),
     // Низкая важность: без звука и всплывающего окна, только строка в шторке.
     setNotificationChannelAsync('countdown', { name: 'Отсчёт Pomodoro', importance: AndroidImportance.LOW }),
+    // Push с сервера (supabase/migrations/20261017000001_push.sql) приходят в этот канал.
+    setNotificationChannelAsync('specialists', { name: 'Новые специалисты', importance: AndroidImportance.DEFAULT }),
   ]).catch(() => {});
 }
 
@@ -113,6 +116,11 @@ export async function cancelNotifications(ids: string[]): Promise<void> {
 /** Убрать из шторки уже показанные. */
 export async function dismissNotifications(ids: string[]): Promise<void> {
   await Promise.all(ids.map((id) => dismissNotificationAsync(id)));
+}
+
+/** Адрес этого телефона для push-уведомлений (токен Expo Push). Нужны разрешение, сеть и собранное приложение. */
+export async function expoPushToken(): Promise<string> {
+  return (await getExpoPushTokenAsync()).data;
 }
 
 export async function cancelAllNotifications(): Promise<void> {

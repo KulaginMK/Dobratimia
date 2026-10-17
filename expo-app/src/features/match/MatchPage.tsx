@@ -14,6 +14,7 @@ import { FeedHeader, InfoNote, LikeStamp, PullHint, SpecialistCard, type PhotoTo
 import { Button, EmptyState, Skeleton } from '@/components/ui';
 import type { Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
+import { useReminders } from '@/features/reminders/reminders';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
 import { useSession } from '@/features/session/Session';
 import { useSpecialists } from '@/features/specialists/Specialists';
@@ -59,6 +60,7 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
     useSpecialists();
   // Гость смотрит колоду, но избранных у него нет: «Нравится» только открывает карточку (владелец, 15 октября 2026).
   const { user } = useSession();
+  const [reminders] = useReminders();
   const current = deck[0];
   const count = liked.length > 0 ? ` (${liked.length})` : '';
   const openFavorites = () => router.push('/favorites');
@@ -124,11 +126,13 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
         <>
           <View style={{ paddingTop: t.space['3xl'] }}>
             {/* В макете — «появляются каждую неделю — мы пришлём уведомление». Решения владельца: «каждую неделю»
-                не обещаем (этап 15); про уведомление вернём, когда появятся push-уведомления с сервера (этап 14). */}
+                не обещаем (этап 15); про уведомление — только тем, кто включил «Новые специалисты» в профиле. */}
             <EmptyState
               icon="specialist"
               title="Специалисты закончились"
-              text="Вы посмотрели всех, кто сейчас принимает. Новые специалисты появляются со временем."
+              text={`Вы посмотрели всех, кто сейчас принимает. Новые специалисты появляются со временем${
+                user && reminders.specialists ? ' — мы пришлём уведомление' : ''
+              }.`}
             />
           </View>
           <View style={{ paddingTop: t.space.xs, paddingHorizontal: t.space.screen, gap: t.space.sm }}>

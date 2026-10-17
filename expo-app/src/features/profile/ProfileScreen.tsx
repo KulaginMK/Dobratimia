@@ -9,6 +9,8 @@ import { useDiaryBackup } from '@/features/backup/useDiaryBackup';
 import { NEXT_TEST_DAYS, useDassHistory } from '@/features/dass/DassHistory';
 import { useMoodDiary } from '@/features/mood/MoodDiary';
 import {
+  PUSH_AVAILABLE,
+  setSpecialistPush,
   syncDassReminder,
   syncDiaryReminders,
   useAllowNotifications,
@@ -70,6 +72,21 @@ export function ProfileScreen() {
     if (dass && !(await allowNotifications())) return;
     await setReminders({ ...reminders, dass });
     syncDassReminder(latest?.date ?? null);
+  };
+
+  // Push с сервера: сначала токен на сервере, потом переключатель — иначе он показал бы то, чего нет.
+  const notifySpecialists = async (specialists: boolean) => {
+    if (specialists && !(await allowNotifications())) return;
+    try {
+      await setSpecialistPush(specialists);
+    } catch {
+      toast.show({
+        message: `Не удалось ${specialists ? 'включить' : 'выключить'} уведомления. Проверьте интернет и попробуйте ещё раз.`,
+        tone: 'error',
+      });
+      return;
+    }
+    await setReminders({ ...reminders, specialists });
   };
 
   const onDelete = async () => {
@@ -150,6 +167,14 @@ export function ProfileScreen() {
                     checked={reminders.dass}
                     onChange={remindDass}
                   />
+                  {PUSH_AVAILABLE ? (
+                    <Switch
+                      label="Новые специалисты"
+                      description="Сообщим, когда в подборе появится новый специалист"
+                      checked={reminders.specialists}
+                      onChange={notifySpecialists}
+                    />
+                  ) : null}
                 </SettingsGroup>
               ) : (
                 <Text style={[t.type.caption, { paddingHorizontal: t.space.xxs, color: t.color.textMuted }]}>

@@ -115,6 +115,26 @@ npm --prefix expo-app run phone
 - **Добавить или поправить фразу, вуз, сотрудника службы**: соответствующая таблица в **Table Editor**.
 - **Контакты специалиста** лежат в `specialist_contacts`. Студент видит их только после «Нравится» и только если в колонке `consent` стоит `true`.
 
+## Push «Появился новый специалист»
+
+Когда вы впервые публикуете карточку (в `specialists` ставите `published` = `true`), сервер сам рассылает push всем, кто включил в профиле «Новые специалисты». Повторная публикация и одобренные правки push не повторяют. Если отправить не удалось, карточка всё равно публикуется.
+
+Push работает только в собранном приложении для Android: в Expo Go и в вебе переключателя нет. Шаги ниже нужно сделать один раз, по порядку.
+
+1. **Firebase — проект.** https://console.firebase.google.com → **Create a project** → выберите существующий проект Google Cloud `Dobratimia` (тот, где настроен вход). Google Analytics — **выключить**.
+2. **Firebase — приложение.** На странице проекта — значок Android → Android package name: `dobratimia.app` → **Register app** → **Download google-services.json**. Остальные шаги мастера пропустите. Этот файл не секретный, пришлите его мне. В открытый репозиторий он не попадёт: я положу его в EAS командой `eas env:create` (тип «файл», имя `GOOGLE_SERVICES_JSON`).
+3. **Firebase — ключ для Expo. Он секретный, мне его не присылайте.** ⚙ **Project settings** → **Service accounts** → **Generate new private key** → сохраните файл. Я запущу в терминале `npx eas-cli@latest credentials -p android`. Выберите там `production` → **Google Service Account** → **Manage your Google Service Account Key for Push Notifications (FCM V1)** → **Upload** и укажите этот файл. После загрузки удалите файл с компьютера.
+4. **Expo — токен доступа.** https://expo.dev → ваш аккаунт → **Settings** → **Access tokens** → **Create token**, назовите `supabase-push`, скопируйте. Затем в Supabase: **SQL Editor** → вставьте строку, подставив токен вместо слов в кавычках, → **Run**:
+
+   ```sql
+   select vault.create_secret('сюда токен', 'expo_access_token');
+   ```
+
+   Токен хранится в зашифрованном хранилище Supabase (Vault). После этого включите на expo.dev переключатель **Enhanced Security for Push Notifications** (он на той же странице **Access tokens**, а если его там нет — в настройках проекта `dobratimia`). Тогда без токена push на телефоны с «Добратимией» не отправит никто. Включайте его только после того, как токен лёг в Vault, иначе push перестанут уходить.
+5. **Supabase — база.** **SQL Editor** → вставьте содержимое `supabase/migrations/20261017000001_push.sql` → **Run**. Проверьте: **Database** → **Extensions** → `pg_net` включён; в **Table Editor** появилась таблица `push_tokens`.
+6. **Сборка.** Я соберу новый APK. Профиль → «Новые специалисты» → разрешить уведомления. В `push_tokens` появится строка.
+7. **Проверка.** Добавьте тестовую карточку с `published` = `false`, затем поставьте `true`. Через несколько секунд придёт «Появился новый специалист», нажатие откроет подбор. Ответ Expo виден в **SQL Editor**: `select status_code, content from net._http_response order by created desc limit 5;`. Код 200 и `"status":"ok"` — доставлено в Expo. Тестовую карточку потом удалите.
+
 ## Перед публикацией
 
 - [ ] Удалить вымышленные данные: `demo_remove.sql`.

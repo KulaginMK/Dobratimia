@@ -47,6 +47,18 @@ const SUPABASE_BASELINE = `
   grant all on storage.objects to anon, authenticated, service_role;
   grant execute on function storage.foldername(text) to anon, authenticated, service_role;
 
+  -- pg_net и Vault: в Supabase они есть. Здесь заглушки: запросы, которые ушли бы в Expo Push, копятся в net.sent.
+  create schema net;
+  create table net.sent (url text, body jsonb, headers jsonb);
+  create function net.http_post(
+    url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}',
+    timeout_milliseconds int default 5000
+  ) returns bigint language sql as $$
+    insert into net.sent values (url, body, headers) returning 1::bigint;
+  $$;
+  create schema vault;
+  create table vault.decrypted_secrets (name text, decrypted_secret text);
+
   -- Supabase по умолчанию выдаёт ролям приложения все права на новые объекты схемы public
   -- и рассчитывает на RLS. Миграции должны быть безопасны именно при таких умолчаниях.
   grant usage on schema public to anon, authenticated, service_role;

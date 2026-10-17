@@ -19,7 +19,7 @@ import {
   type SignedIn,
 } from '@/data/repos';
 import { CONSENT_VERSION, SPECIALIST_CONSENT_VERSION } from '@/data/team';
-import { cancelPersonalReminders } from '@/features/reminders/reminders';
+import { cancelPersonalReminders, forgetSpecialistPush } from '@/features/reminders/reminders';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { cancelAllNotifications } from '@/lib/notifications';
 
@@ -185,6 +185,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    // Пока вход ещё действует: сервер удаляет токен только по просьбе его владельца.
+    await forgetSpecialistPush().catch(() => {});
     await authRepo.signOut().catch(() => {});
     setSignInKind(null);
     setUser(null);

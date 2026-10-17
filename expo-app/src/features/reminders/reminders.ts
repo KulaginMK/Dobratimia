@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Linking, Platform } from 'react-native';
 import { useToast } from '@/components/ui';
 import { DEFAULT_REMINDERS, loadReminders, saveReminders, type Reminders } from '@/data/local/reminders';
+import { pushRepo } from '@/data/repos';
 import { useDassHistory } from '@/features/dass/DassHistory';
 import type { PomodoroState } from '@/features/meditation/pomodoro';
 import { useMoodDiary } from '@/features/mood/MoodDiary';
@@ -11,6 +12,7 @@ import {
   cancelNotifications,
   createChannels,
   dismissNotifications,
+  expoPushToken,
   notificationsAllowed,
   scheduleNotification,
   type LocalNotification,
@@ -91,6 +93,32 @@ export function syncPomodoroCountdown(state: PomodoroState): Promise<void> {
 /** Никто не вошёл: личные напоминания не приходят. Таймер Pomodoro работает и без входа — его не трогаем. */
 export function cancelPersonalReminders(): Promise<void> {
   return replace([...DIARY_IDS, DASS_ID], async () => []);
+}
+
+/**
+ * Push «Появился новый специалист» приходят только в собранное приложение для Android:
+ * в вебе их нет, а Expo Go на Android push не получает.
+ */
+export const PUSH_AVAILABLE =
+  Platform.OS === 'android' && Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
+
+/** Переключатель «Новые специалисты»: токен этого телефона сохраняется на сервере или удаляется оттуда. */
+export async function setSpecialistPush(on: boolean): Promise<void> {
+  const token = await expoPushToken();
+  await (on ? pushRepo.subscribe(token) : pushRepo.unsubscribe(token));
+}
+
+/**
+ * Выход из аккаунта: push на этот телефон больше не приходят, переключатель выключается —
+ * другой аккаунт на этом телефоне включит его сам.
+ * ponytail: без сети токен остаётся на сервере за прежним аккаунтом, и push приходят, пока переключатель снова
+ * не включат и не выключат. Если это станет заметно — повторять удаление при следующем запуске.
+ */
+export async function forgetSpecialistPush(): Promise<void> {
+  const reminders = await loadReminders();
+  if (!reminders.specialists) return;
+  await saveReminders({ ...reminders, specialists: false });
+  await setSpecialistPush(false);
 }
 
 /** Держит напоминания в согласии с дневником и тестами: пересчитывает при запуске, после отметки и после теста. */

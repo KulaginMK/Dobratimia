@@ -18,6 +18,10 @@ export async function cancelNotifications(_ids: string[]): Promise<void> {}
 
 export async function dismissNotifications(_ids: string[]): Promise<void> {}
 
+export async function expoPushToken(): Promise<string> {
+  throw new Error('В вебе push-уведомлений нет');
+}
+
 export async function cancelAllNotifications(): Promise<void> {}
 
 export function useNotificationTaps(_ready: boolean) {}
