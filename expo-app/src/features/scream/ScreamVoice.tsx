@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui';
 import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
-import { MAX_LEVEL, timeLabel } from './loudness';
+import { MAX_LEVEL, calmLevel, timeLabel } from './loudness';
 import { REACTIONS, reactionFor } from './reactions';
 import type { ScreamLive, ScreamResult } from './useScreamSession';
 
@@ -83,6 +83,7 @@ export function ScreamReady({ starting, onStart }: { starting: boolean; onStart:
 export function ScreamMeasuring({ live, onStop }: { live: ScreamLive; onStop: () => void }) {
   const t = useTheme();
   const caption = [t.type.caption, { color: t.color.textMuted }];
+  const level = calmLevel(live.levels);
   return (
     <>
       <View
@@ -93,7 +94,7 @@ export function ScreamMeasuring({ live, onStop }: { live: ScreamLive; onStop: ()
           paddingHorizontal: t.space.xl,
         }}
       >
-        {/* Числа меняются 10 раз в секунду — скринридеру их вслух не объявляем (docs/09). */}
+        {/* Числа меняются несколько раз в секунду — скринридеру их вслух не объявляем (docs/09). */}
         <View accessible accessibilityLabel={`Время: ${timeLabel(live.elapsedMs)} из 10 секунд`}>
           <Text style={caption}>Время</Text>
           <Text style={[t.type.metric, { color: t.color.text }]}>{timeLabel(live.elapsedMs)}</Text>
@@ -101,11 +102,11 @@ export function ScreamMeasuring({ live, onStop }: { live: ScreamLive; onStop: ()
         </View>
         <View
           accessible
-          accessibilityLabel={`Сейчас: ${live.level} условных децибел`}
+          accessibilityLabel={`Сейчас: ${level} условных децибел`}
           style={{ alignItems: 'flex-end' }}
         >
           <Text style={caption}>Сейчас</Text>
-          <Text style={[t.type.metric, { color: t.color.primary }]}>{live.level}</Text>
+          <Text style={[t.type.metric, { color: t.color.primary }]}>{level}</Text>
           <Text style={caption}>{UNIT}</Text>
         </View>
       </View>
@@ -121,7 +122,7 @@ export function ScreamMeasuring({ live, onStop }: { live: ScreamLive; onStop: ()
         }}
       >
         <LoudnessWave variant="live" levels={live.levels} max={MAX_LEVEL} accessibilityLabel="Волна громкости" />
-        <LevelBar level={live.level} max={MAX_LEVEL} />
+        <LevelBar level={level} max={MAX_LEVEL} />
       </View>
       <View style={{ alignItems: 'center', paddingTop: t.space['2xl'] }}>
         <StopButton onPress={onStop} />

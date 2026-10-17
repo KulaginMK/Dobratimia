@@ -11,9 +11,7 @@ export type ScreamPhase = 'ready' | 'starting' | 'live' | 'result' | 'nomic';
 
 export type ScreamLive = {
   elapsedMs: number;
-  /** Текущий уровень, усл. дБ. */
-  level: number;
-  /** Все уровни замера по порядку, 10 в секунду. */
+  /** Все уровни замера по порядку, 10 в секунду, усл. дБ. */
   levels: number[];
 };
 
@@ -23,7 +21,7 @@ export type ScreamResult = ScreamSummary & {
   weekRecord: number;
 };
 
-const EMPTY_LIVE: ScreamLive = { elapsedMs: 0, level: 0, levels: [] };
+const EMPTY_LIVE: ScreamLive = { elapsedMs: 0, levels: [] };
 
 type Run = { startedAt: number; level: number; levels: number[] };
 
@@ -87,7 +85,7 @@ export function useScreamSession(userId: string | null, onFinish?: () => void) {
       end(true);
       return;
     }
-    setLive({ elapsedMs, level: current.level, levels: [...current.levels] });
+    setLive({ elapsedMs, levels: [...current.levels] });
   });
 
   /** Замер прерывается без результата: «Назад», уход с экрана, свёрнутое приложение (docs/06). */

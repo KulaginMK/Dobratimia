@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { MAX_LEVEL, keepWeek, summarize, toScreamDb, weekRecord } from './loudness';
+import { MAX_LEVEL, calmLevel, keepWeek, summarize, toScreamDb, weekRecord } from './loudness';
 
 describe('громкость КРИКа', () => {
   test('шкала: тишина — ноль, предел микрофона — 110, между ними растёт', () => {
@@ -13,6 +13,16 @@ describe('громкость КРИКа', () => {
     expect(summarize([5, 10, 90, 100, 8], 4400)).toEqual({ peak: 100, avg: 95, durationSec: 4 });
     // Шёпот: ни одного громкого отсчёта — среднее по всем.
     expect(summarize([10, 20, 30], 300)).toEqual({ peak: 30, avg: 20, durationSec: 1 });
+  });
+
+  test('число «Сейчас»: среднее за законченные полсекунды и стоит, пока не закончатся следующие', () => {
+    expect(calmLevel([])).toBe(0);
+    expect(calmLevel([60, 80])).toBe(70);
+    const first = [60, 70, 80, 90, 100];
+    expect(calmLevel(first)).toBe(80);
+    // Новые отсчёты внутри следующих полсекунды число не трогают.
+    expect(calmLevel([...first, 20, 110, 5])).toBe(80);
+    expect(calmLevel([...first, 20, 20, 20, 20, 20])).toBe(20);
   });
 
   test('«рекорд недели» — за сегодня и шесть дней до него', () => {

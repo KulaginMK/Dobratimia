@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Icon } from '@/components/brand';
 import { focusRing, isFocused } from '@/components/ui/focus';
 import { useTheme } from '@/theme';
@@ -15,6 +16,8 @@ const STOP_BUTTON = 148;
 // Надпись живёт внутри круга фиксированного размера — системный шрифт увеличивает её не больше чем на 30%.
 const MAX_FONT_SCALE = 1.3;
 const LEVEL_HEIGHT = 12;
+// Уровень меняется раз в полсекунды — полоса доезжает до него плавно, а не прыгает.
+const LEVEL_GLIDE_MS = 400;
 const LEVEL_LABELS_TOP = 6;
 // Подписи полосы стоят через равные промежутки, хотя шаги между ними разные: заполнение считается по отрезкам.
 const LEVEL_MARKS = [0, 60, 80, 100];
@@ -155,6 +158,12 @@ function levelShare(level: number): number {
 /** Полоса текущего уровня КРИКа с подписями «0 · 60 · 80 · 100+» — границами шкалы реакций. */
 export function LevelBar({ level, max }: { level: number; max: number }) {
   const t = useTheme();
+  const share = useSharedValue(levelShare(level));
+  useEffect(() => {
+    // При «Уменьшить движение» withTiming сразу ставит конечное значение.
+    share.set(withTiming(levelShare(level), { duration: LEVEL_GLIDE_MS, easing: Easing.out(Easing.quad) }));
+  }, [level, share]);
+  const fill = useAnimatedStyle(() => ({ width: `${share.get() * 100}%` }));
   return (
     <View>
       <View
@@ -170,13 +179,8 @@ export function LevelBar({ level, max }: { level: number; max: number }) {
           overflow: 'hidden',
         }}
       >
-        <View
-          style={{
-            width: `${levelShare(level) * 100}%`,
-            height: LEVEL_HEIGHT,
-            borderRadius: LEVEL_HEIGHT / 2,
-            backgroundColor: t.color.primary,
-          }}
+        <Animated.View
+          style={[{ height: LEVEL_HEIGHT, borderRadius: LEVEL_HEIGHT / 2, backgroundColor: t.color.primary }, fill]}
         />
       </View>
       <View
