@@ -1,5 +1,6 @@
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
+import { useIsFocused, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { BreathCircle } from '@/components/blocks';
 import { Button, Chip, Slider } from '@/components/ui';
@@ -11,12 +12,12 @@ import { useBreathSession } from './useBreathSession';
 
 type SoundId = 'rain' | 'wind' | 'forest' | 'silence';
 
-// ЗАГЛУШКА: звуковых файлов пока нет (лицензия не решена, docs/07, docs/10): работает только выбор и громкость.
-const SOUNDS: { id: SoundId; label: string }[] = [
-  { id: 'rain', label: 'Дождь' },
-  { id: 'wind', label: 'Ветер' },
-  { id: 'forest', label: 'Лес' },
-  { id: 'silence', label: 'Тишина' },
+// Записи BigSoundBank (Joseph Sardin), лицензия CC0: №1019, №0907, №2713. Петли по 2 минуты, assets/sounds/README.md.
+const SOUNDS: { id: SoundId; label: string; file: number | null }[] = [
+  { id: 'rain', label: 'Дождь', file: require('../../../assets/sounds/rain.m4a') },
+  { id: 'wind', label: 'Ветер', file: require('../../../assets/sounds/wind.m4a') },
+  { id: 'forest', label: 'Лес', file: require('../../../assets/sounds/forest.m4a') },
+  { id: 'silence', label: 'Тишина', file: null },
 ];
 const DEFAULT_VOLUME = 60;
 
@@ -34,6 +35,30 @@ export function BreathTab({ initialScheme, cycles }: Props) {
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const session = useBreathSession(scheme, cycles, { haptics: sound !== 'silence' && volume > 0 });
   const { position } = session;
+  // Звук идёт, только пока идёт практика и экран на виду: под открытым поверх SOS он замолкает.
+  const focused = useIsFocused();
+  const playing = session.running && focused;
+  const file = SOUNDS.find((item) => item.id === sound)?.file ?? null;
+  // Плеер в ref, а не из useAudioPlayer: громкость и петля у expo-audio — свойства, а значения хуков менять нельзя.
+  const player = useRef<AudioPlayer | null>(null);
+
+  useEffect(() => {
+    if (file === null) return;
+    const created = createAudioPlayer(file);
+    created.loop = true;
+    player.current = created;
+    return () => {
+      created.remove();
+      player.current = null;
+    };
+  }, [file]);
+
+  useEffect(() => {
+    if (!player.current) return;
+    player.current.volume = volume / 100;
+    if (playing) player.current.play();
+    else player.current.pause();
+  }, [file, volume, playing]);
   const label = { fontFamily: t.fontFamily.text[600], color: t.color.textMuted };
 
   return (
@@ -107,12 +132,12 @@ export function BreathTab({ initialScheme, cycles }: Props) {
             </Button>
           ) : (
             <Button size="lg" icon={session.running ? 'pause' : 'play'} fullWidth onPress={session.toggle}>
-              {session.running ? 'Пауза' : 'Продолжить'}
+              {session.running ? 'Пауза' : session.untouched ? 'Начать' : 'Продолжить'}
             </Button>
           )}
         </View>
         <View style={{ flex: 1 }}>
-          <Button variant="outline" size="lg" fullWidth onPress={session.restart}>
+          <Button variant="outline" size="lg" fullWidth onPress={() => session.restart(position.done)}>
             {position.done ? 'Повторить' : 'Сброс'}
           </Button>
         </View>

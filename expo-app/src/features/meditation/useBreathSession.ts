@@ -23,10 +23,10 @@ type Options = {
 
 /**
  * Дыхательная практика: время — единственный источник правды, фазы и круг вычисляются из него.
- * Запускается сразу при открытии вкладки, как в макете.
+ * Ждёт «Начать»: сама не запускается ни при открытии, ни после сброса.
  */
 export function useBreathSession(scheme: BreathScheme, cycles: number, { haptics }: Options) {
-  const [run, setRun] = useState<Run>(() => ({ running: true, startedAt: Date.now(), elapsedBefore: 0 }));
+  const [run, setRun] = useState<Run>(() => ({ running: false, startedAt: Date.now(), elapsedBefore: 0 }));
   const [now, setNow] = useState(() => Date.now());
   const total = totalMs(scheme, cycles);
 
@@ -91,12 +91,12 @@ export function useBreathSession(scheme: BreathScheme, cycles: number, { haptics
     );
   };
 
-  /** «Сброс» и смена схемы: практика начинается заново и сразу идёт. */
-  const restart = () => {
+  /** «Сброс» и смена схемы — к началу, ждём «Начать»; «Повторить» (running) — заново и сразу идёт. */
+  const restart = (running = false) => {
     const at = Date.now();
     setNow(at);
-    setRun({ running: true, startedAt: at, elapsedBefore: 0 });
+    setRun({ running, startedAt: at, elapsedBefore: 0 });
   };
 
-  return { position, running: run.running, scale, toggle, restart };
+  return { position, running: run.running, untouched: !run.running && run.elapsedBefore === 0, scale, toggle, restart };
 }

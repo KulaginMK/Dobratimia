@@ -7,7 +7,7 @@ import { Button, Card, ChipBadge } from '@/components/ui';
 import { techniqueById } from '@/data/techniques';
 import { useTheme } from '@/theme';
 
-/** Экран техники: название, длительность и метки, схема, шаги, «почему это работает» и запуск таймера. */
+/** Экран техники: название, длительность и метки, схема, шаги, «почему это работает» и переход к таймеру. */
 export function TechniqueScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -71,11 +71,11 @@ export function TechniqueScreen() {
           <View style={{ marginTop: 'auto', paddingTop: t.space.xl, paddingHorizontal: t.space.screen }}>
             <Button
               size="lg"
-              icon="play"
+              icon="breath"
               fullWidth
               onPress={() => router.push(`/meditation?from=technique&scheme=${technique.breathScheme}`)}
             >
-              Начать с таймером
+              Перейти к таймеру
             </Button>
           </View>
         ) : null}
