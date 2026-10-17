@@ -30,8 +30,9 @@ type Run = { startedAt: number; level: number; levels: number[] };
 /**
  * Замер КРИКа: доступ к микрофону, до 10 секунд замера, итог и «рекорд недели» на устройстве.
  * userId null — человек не вошёл: рекорды живут, пока открыт экран, и не сохраняются.
+ * onFinish — замер закончился результатом: «Отпустить» или вышли 10 секунд.
  */
-export function useScreamSession(userId: string | null) {
+export function useScreamSession(userId: string | null, onFinish?: () => void) {
   const meter = useLoudnessMeter();
   const toast = useToast();
   const [phase, setPhase] = useState<ScreamPhase>('ready');
@@ -70,6 +71,7 @@ export function useScreamSession(userId: string | null) {
     if (userId) saveScreamRecords(userId, next).catch(() => {});
     setResult({ ...summary, levels: finished.levels, weekRecord: weekRecord(next, today) });
     setPhase('result');
+    onFinish?.();
     AccessibilityInfo.announceForAccessibility(`Замер окончен. Ваш пик — ${summary.peak} условных децибел`);
   };
 
@@ -158,7 +160,7 @@ export function useScreamSession(userId: string | null) {
     live,
     result,
     start,
-    /** «Стоп»: замер заканчивается результатом. */
+    /** «Отпустить»: замер заканчивается результатом. */
     stop: () => end(true),
     cancel,
     /** «Крикнуть ещё раз» и повторная попытка после отказа в доступе. */

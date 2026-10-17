@@ -12,10 +12,6 @@ const STOP_RING = 240;
 const STOP_INNER_RING = 196;
 const STOP_RING_GAP = 10;
 const STOP_BUTTON = 148;
-const STOP_ICON = 40;
-const STOP_GAP = 4;
-const STOP_FONT = 16;
-const STOP_LINE = 20;
 // Надпись живёт внутри круга фиксированного размера — системный шрифт увеличивает её не больше чем на 30%.
 const MAX_FONT_SCALE = 1.3;
 const LEVEL_HEIGHT = 12;
@@ -94,7 +90,7 @@ export function MicButton({ onPress, disabled }: { onPress: () => void; disabled
   );
 }
 
-/** Кнопка «Стоп» в двух кольцах: заканчивает замер. */
+/** Кнопка «Отпустить» в двух кольцах: заканчивает замер, после неё экран сгорает (FireRelease). */
 export function StopButton({ onPress }: { onPress: () => void }) {
   const t = useTheme();
   const circle = { borderRadius: t.radius.full, alignItems: 'center', justifyContent: 'center' } as const;
@@ -102,7 +98,8 @@ export function StopButton({ onPress }: { onPress: () => void }) {
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Остановить замер"
+      accessibilityLabel="Отпустить"
+      accessibilityHint="Закончить замер"
       style={(state) => [
         { width: STOP_RING, height: STOP_RING, backgroundColor: t.color.primarySoft, ...circle },
         focusRing(t, isFocused(state)),
@@ -130,22 +127,12 @@ export function StopButton({ onPress }: { onPress: () => void }) {
                 width: STOP_BUTTON,
                 height: STOP_BUTTON,
                 backgroundColor: pressed ? t.color.primaryPressed : t.color.primary,
-                gap: STOP_GAP,
                 transform: [{ scale: pressed ? 0.98 : 1 }],
                 ...circle,
               }}
             >
-              <Icon name="pause" size={STOP_ICON} color={t.color.onPrimary} />
-              <Text
-                maxFontSizeMultiplier={MAX_FONT_SCALE}
-                style={{
-                  fontFamily: t.fontFamily.text[700],
-                  fontSize: STOP_FONT,
-                  lineHeight: STOP_LINE,
-                  color: t.color.onPrimary,
-                }}
-              >
-                Стоп
+              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[t.type.h3, { color: t.color.onPrimary }]}>
+                Отпустить
               </Text>
             </View>
           </View>

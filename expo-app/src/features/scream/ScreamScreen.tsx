@@ -1,10 +1,12 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useEffectEvent, useState } from 'react';
 import { BackHandler, KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/blocks';
 import { SegmentedControl } from '@/components/ui';
 import { useTheme } from '@/theme';
+import { FireRelease } from './FireRelease';
 import { ScreamText } from './ScreamText';
 import { ScreamMeasuring, ScreamNoMic, ScreamOutcome, ScreamReady } from './ScreamVoice';
 import { useScreamSession } from './useScreamSession';
@@ -24,15 +26,22 @@ export function ScreamScreen({ userId }: { userId: string | null }) {
   const t = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const session = useScreamSession(userId);
+  const reduced = useReducedMotion();
+  // Огонь после замера: rising — поднимается, под ним ещё замерший замер; leaving — уходит, открывая результат.
+  // При «Уменьшить движение» огня нет — результат появляется сразу (docs/09).
+  const [fire, setFire] = useState<'rising' | 'leaving' | null>(null);
+  const session = useScreamSession(userId, () => {
+    if (!reduced) setFire('rising');
+  });
   const [mode, setMode] = useState<Mode>('voice');
   // Текст «Выплеснуть текстом» есть только здесь, в памяти открытого экрана: его нет ни на диске,
   // ни на сервере, и после ухода с экрана он пропадает вместе с экраном (docs/07).
   const [text, setText] = useState('');
 
   const voice = mode === 'voice';
-  const measuring = voice && session.phase === 'live';
-  const outcome = voice && session.phase === 'result' ? session.result : null;
+  const burning = fire === 'rising';
+  const measuring = voice && (session.phase === 'live' || burning);
+  const outcome = voice && session.phase === 'result' && !burning ? session.result : null;
 
   const leave = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -103,6 +112,7 @@ export function ScreamScreen({ userId }: { userId: string | null }) {
           {content}
         </ScrollView>
       </KeyboardAvoidingView>
+      {fire ? <FireRelease onCovered={() => setFire('leaving')} onDone={() => setFire(null)} /> : null}
     </View>
   );
 }
