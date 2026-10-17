@@ -48,7 +48,9 @@ export function BreathTab({ initialScheme, cycles }: Props) {
     created.loop = true;
     player.current = created;
     return () => {
+      // На Android remove() только вычёркивает плеер из списка модуля, а звук останавливает release().
       created.remove();
+      created.release();
       player.current = null;
     };
   }, [file]);
