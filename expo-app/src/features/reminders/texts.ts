@@ -42,3 +42,9 @@ export const POMODORO_BREAK: NotificationText = {
   title: 'Перерыв · 5 минут',
   body: 'Фокус закончился. Встаньте и отвлекитесь от экрана.',
 };
+
+/** Отсчёт в шторке, пока идёт Pomodoro. Сколько осталось, Android показывает рядом с названием приложения. */
+export const POMODORO_COUNTDOWN: Record<'focus' | 'break', (tomato: number, total: number) => NotificationText> = {
+  focus: (tomato, total) => ({ title: `Фокус · помидор ${tomato} из ${total}`, body: 'До перерыва' }),
+  break: (tomato, total) => ({ title: `Перерыв · помидор ${tomato} из ${total}`, body: 'До конца перерыва' }),
+};

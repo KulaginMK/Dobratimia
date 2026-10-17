@@ -3,7 +3,7 @@ import { Platform, Text, View } from 'react-native';
 import { TimerRing, TomatoDots } from '@/components/blocks';
 import { Button, Chip, Switch } from '@/components/ui';
 import { loadPomodoroNotify, savePomodoroNotify } from '@/data/local/pomodoro';
-import { syncPomodoroBreaks, useAllowNotifications } from '@/features/reminders/reminders';
+import { syncPomodoroBreaks, syncPomodoroCountdown, useAllowNotifications } from '@/features/reminders/reminders';
 import { notificationsAllowed } from '@/lib/notifications';
 import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
@@ -27,6 +27,7 @@ export function PomodoroTab() {
   // Уведомления стоят на конец каждого оставшегося фокуса и пересчитываются, только когда человек сам меняет
   // таймер. Когда фаза сменяется сама, их не трогаем: иначе отменили бы то, что система ещё не успела показать.
   const pomodoro = usePomodoro((next) => {
+    syncPomodoroCountdown(next);
     if (notify) syncPomodoroBreaks(next);
   });
   const { state } = pomodoro;
@@ -110,6 +111,8 @@ export function PomodoroTab() {
               setNotify(next);
               savePomodoroNotify(next).catch(() => {});
               syncPomodoroBreaks(next ? state : null);
+              // Уведомления только что разрешили — идущему таймеру нужен отсчёт в шторке.
+              if (next) syncPomodoroCountdown(state);
             }}
           />
         </View>

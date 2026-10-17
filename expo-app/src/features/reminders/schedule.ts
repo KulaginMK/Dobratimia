@@ -1,8 +1,8 @@
 import { NEXT_TEST_DAYS } from '@/features/dass/DassHistory';
-import { TOMATOES, nextPhase, type PomodoroState } from '@/features/meditation/pomodoro';
+import { TOMATOES, durationOf, nextPhase, type PomodoroState } from '@/features/meditation/pomodoro';
 import { addDays, fromDateKey } from '@/lib/dates';
 import type { LocalNotification } from '@/lib/notifications';
-import { DASS_REMINDER, DIARY_DAILY, DIARY_MISSED, POMODORO_BREAK } from './texts';
+import { DASS_REMINDER, DIARY_DAILY, DIARY_MISSED, POMODORO_BREAK, POMODORO_COUNTDOWN } from './texts';
 
 // Когда приходят напоминания (docs/07): дневник — в 21:00, тест — накануне в 19:00.
 const DIARY_HOUR = 21;
@@ -18,6 +18,7 @@ const POMODORO_URL = '/meditation?tab=pomodoro';
 export const DIARY_IDS = Array.from({ length: DIARY_MISSED.length + 1 }, (_, i) => `diary-${i + 1}`);
 export const DASS_ID = 'dass';
 export const POMODORO_IDS = Array.from({ length: TOMATOES }, (_, i) => `pomodoro-${i + 1}`);
+export const COUNTDOWN_IDS = POMODORO_IDS.flatMap((id) => [`${id}-focus`, `${id}-break`]);
 
 function at(day: string, hour: number): Date {
   const date = fromDateKey(day);
@@ -71,4 +72,23 @@ export function pomodoroBreaks(state: PomodoroState): LocalNotification[] {
     });
   }
   return breaks;
+}
+
+/**
+ * Отсчёт в шторке: по постоянному уведомлению на каждую оставшуюся фазу круга, от её начала до конца.
+ * Текущая фаза показывается сразу, следующие ставятся заранее — круг идёт, даже когда приложение закрыто.
+ */
+export function pomodoroCountdown(state: PomodoroState, now: Date): LocalNotification[] {
+  const phases: LocalNotification[] = [];
+  for (let phase = state; phase.endsAt !== null; phase = nextPhase(phase, phase.endsAt)) {
+    phases.push({
+      id: `pomodoro-${phase.tomato}-${phase.mode}`,
+      at: new Date(Math.max(now.getTime(), phase.endsAt - durationOf(phase.mode))),
+      ...POMODORO_COUNTDOWN[phase.mode](phase.tomato, TOMATOES),
+      url: POMODORO_URL,
+      channel: 'countdown',
+      countdownTo: phase.endsAt,
+    });
+  }
+  return phases;
 }

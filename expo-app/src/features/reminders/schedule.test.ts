@@ -1,7 +1,7 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { BREAK_MS, FOCUS_MS, INITIAL_POMODORO } from '@/features/meditation/pomodoro';
 import { toDateKey } from '@/lib/dates';
-import { dassReminder, diaryAnchor, diaryPlan, pomodoroBreaks } from './schedule';
+import { COUNTDOWN_IDS, dassReminder, diaryAnchor, diaryPlan, pomodoroBreaks, pomodoroCountdown } from './schedule';
 import { DIARY_DAILY, DIARY_MISSED } from './texts';
 
 // Расписание берёт «14 дней» из истории тестов, а та читает хранилище устройства.
@@ -75,5 +75,26 @@ describe('pomodoroBreaks', () => {
 
   test('идёт последний перерыв: круг закончится, уведомлять не о чем', () => {
     expect(pomodoroBreaks({ mode: 'break', tomato: 4, endsAt: start + 60_000, remainingMs: BREAK_MS })).toEqual([]);
+  });
+});
+
+describe('pomodoroCountdown', () => {
+  const start = noon.getTime();
+
+  test('таймер стоит — отсчёта нет', () => {
+    expect(pomodoroCountdown(INITIAL_POMODORO, noon)).toEqual([]);
+  });
+
+  test('идёт третий фокус: текущая фаза сразу, дальше каждая со своего начала до конца круга', () => {
+    const plan = pomodoroCountdown({ mode: 'focus', tomato: 3, endsAt: start + 60_000, remainingMs: FOCUS_MS }, noon);
+    expect(plan.map((n) => n.id)).toEqual(['pomodoro-3-focus', 'pomodoro-3-break', 'pomodoro-4-focus', 'pomodoro-4-break']);
+    expect(plan.map((n) => [n.at.getTime() - start, n.countdownTo! - start])).toEqual([
+      [0, 60_000],
+      [60_000, 60_000 + BREAK_MS],
+      [60_000 + BREAK_MS, 60_000 + BREAK_MS + FOCUS_MS],
+      [60_000 + BREAK_MS + FOCUS_MS, 60_000 + 2 * BREAK_MS + FOCUS_MS],
+    ]);
+    expect(plan[1].title).toBe('Перерыв · помидор 3 из 4');
+    expect(plan.every((n) => n.channel === 'countdown' && COUNTDOWN_IDS.includes(n.id))).toBe(true);
   });
 });

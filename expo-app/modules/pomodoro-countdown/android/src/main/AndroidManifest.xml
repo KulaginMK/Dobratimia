@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- Приоритет по умолчанию (0) выше, чем у приёмника expo-notifications (-1): библиотека выберет этот. -->
+    <receiver
+      android:name="dobratimia.countdown.CountdownNotificationsService"
+      android:enabled="true"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="expo.modules.notifications.NOTIFICATION_EVENT" />
+      </intent-filter>
+    </receiver>
+  </application>
+</manifest>

@@ -1,5 +1,6 @@
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useEffect, useState } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { useToast } from '@/components/ui';
 import { DEFAULT_REMINDERS, loadReminders, saveReminders, type Reminders } from '@/data/local/reminders';
 import { useDassHistory } from '@/features/dass/DassHistory';
@@ -8,11 +9,23 @@ import { useMoodDiary } from '@/features/mood/MoodDiary';
 import {
   allowNotifications,
   cancelNotifications,
+  createChannels,
+  dismissNotifications,
   notificationsAllowed,
   scheduleNotification,
   type LocalNotification,
 } from '@/lib/notifications';
-import { DASS_ID, DIARY_IDS, POMODORO_IDS, dassReminder, diaryAnchor, diaryPlan, pomodoroBreaks } from './schedule';
+import {
+  COUNTDOWN_IDS,
+  DASS_ID,
+  DIARY_IDS,
+  POMODORO_IDS,
+  dassReminder,
+  diaryAnchor,
+  diaryPlan,
+  pomodoroBreaks,
+  pomodoroCountdown,
+} from './schedule';
 
 // Пересчёты идут строго по очереди: быстрые переключения не оставят лишних уведомлений.
 let queue: Promise<void> = Promise.resolve();
@@ -54,6 +67,25 @@ export function syncDassReminder(lastTest: string | null): Promise<void> {
 /** «Уведомить о перерыве». null — переключатель выключен. */
 export function syncPomodoroBreaks(state: PomodoroState | null): Promise<void> {
   return replace(POMODORO_IDS, async () => (state ? pomodoroBreaks(state) : []));
+}
+
+/**
+ * Отсчёт в шторке, пока идёт Pomodoro. Пауза, «Пропустить» и выбор фазы пересчитывают его заново.
+ * Только Android: обратный отсчёт и исчезновение в конце фазы — его возможности (modules/pomodoro-countdown).
+ * Разрешение не спрашивает: отсчёт виден, если уведомления уже разрешены.
+ */
+export function syncPomodoroCountdown(state: PomodoroState): Promise<void> {
+  // В Expo Go этого модуля нет: отсчёт не шёл бы, а постоянное уведомление осталось бы после конца фазы.
+  if (Platform.OS !== 'android' || Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
+    return Promise.resolve();
+  }
+  return replace(COUNTDOWN_IDS, async () => {
+    await dismissNotifications(COUNTDOWN_IDS);
+    if (!(await notificationsAllowed())) return [];
+    // Канал без звука мог не появиться у тех, кто разрешил уведомления до этой версии.
+    await createChannels();
+    return pomodoroCountdown(state, new Date());
+  });
 }
 
 /** Никто не вошёл: личные напоминания не приходят. Таймер Pomodoro работает и без входа — его не трогаем. */

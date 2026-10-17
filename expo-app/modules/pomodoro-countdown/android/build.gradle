@@ -1,0 +1,25 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'dobratimia'
+version = '1.0.0'
+
+android {
+  namespace "dobratimia.countdown"
+  defaultConfig {
+    versionCode 1
+    versionName '1.0.0'
+  }
+}
+
+dependencies {
+  // expo-notifications приходит готовой сборкой из node_modules, а не проектом Gradle — берём ту же версию.
+  if (findProject(':expo-notifications')) {
+    compileOnly project(':expo-notifications')
+  } else {
+    def notifications = new groovy.json.JsonSlurper().parse(file('../../../node_modules/expo-notifications/package.json'))
+    compileOnly "host.exp.exponent:expo.modules.notifications:${notifications.version}"
+  }
+}

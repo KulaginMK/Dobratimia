@@ -10,9 +10,13 @@ export async function allowNotifications(): Promise<boolean> {
   return false;
 }
 
+export async function createChannels(): Promise<void> {}
+
 export async function scheduleNotification(_notification: LocalNotification): Promise<void> {}
 
 export async function cancelNotifications(_ids: string[]): Promise<void> {}
+
+export async function dismissNotifications(_ids: string[]): Promise<void> {}
 
 export async function cancelAllNotifications(): Promise<void> {}
 
