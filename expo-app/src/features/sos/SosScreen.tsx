@@ -5,7 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmergencyCard, LinkRow, ScreenHeader } from '@/components/blocks';
 import { Button } from '@/components/ui';
 import { AMBULANCE, PSYCH_HELPLINE } from '@/data/emergency';
+import { filledSections } from '@/data/local/safetyPlan';
 import type { University } from '@/data/repos';
+import { useSafetyPlan } from '@/features/plan/useSafetyPlan';
+import { useSession } from '@/features/session/Session';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
 import { useCallPhone } from '@/lib/phone';
@@ -34,6 +37,8 @@ export function SosScreen() {
   const { universityId, byId, select } = useSelectedUniversity();
   const [pickerOpen, setPickerOpen] = useState(false);
   const row = universityRow(byId(universityId));
+  const { user } = useSession();
+  const { plan } = useSafetyPlan(user?.id ?? null);
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
@@ -80,6 +85,15 @@ export function SosScreen() {
               {AMBULANCE}
             </Button>
           </View>
+          {/* Строка плана — только когда он составлен: в трудную минуту SOS не предлагает что-то заполнять. */}
+          {filledSections(plan) > 0 ? (
+            <LinkRow
+              icon="sprout"
+              title="Мой план на трудный момент"
+              caption="Шаги, которые вы составили заранее"
+              onPress={() => router.push('/plan')}
+            />
+          ) : null}
         </View>
 
         <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen, gap: t.space.sm }}>
