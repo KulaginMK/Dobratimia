@@ -9,6 +9,7 @@ import {
   savePendingConsent,
   saveSessionUser,
 } from '@/data/local/session';
+import { adoptGuestPlan } from '@/data/local/safetyPlan';
 import {
   authRepo,
   universitiesRepo,
@@ -149,6 +150,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const accept = async ({ user: signedIn, universityId: fromProfile }: SignedIn) => {
     const kind = await recordPendingConsent();
+    // План гостя переходит в аккаунт: его гость может составить и без входа.
+    await adoptGuestPlan(signedIn.id).catch(() => {});
     // Данные, накопленные с входом-заглушкой, переходят к первому настоящему аккаунту.
     await adoptGuestData(signedIn.id).catch(() => {});
     // Новое устройство: вуз берём из профиля, если здесь он ещё не выбран.

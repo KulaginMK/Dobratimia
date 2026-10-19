@@ -1,20 +1,19 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { emptyPlan, loadSafetyPlan, saveSafetyPlan, type SafetyPlan } from '@/data/local/safetyPlan';
+import { GUEST_USER_ID } from '@/data/local/session';
+import { useSession } from '@/features/session/Session';
 
 /**
- * План на трудный момент этого пользователя. Перечитывается, когда экран снова в фокусе: план правят на своём
- * экране, а показывают ещё на «Анатомии» и в SOS. userId null — гость: план не сохраняется (вход необязателен).
+ * План на трудный момент: того, кто вошёл, или гостя — гость тоже может его составить. Перечитывается, когда экран
+ * снова в фокусе: план правят на своём экране, а показывают ещё на «Анатомии» и в SOS.
  */
-export function useSafetyPlan(userId: string | null) {
+export function useSafetyPlan() {
+  const userId = useSession().user?.id ?? GUEST_USER_ID;
   const [state, setState] = useState<{ plan: SafetyPlan; loaded: boolean }>({ plan: emptyPlan(), loaded: false });
 
   useFocusEffect(
     useCallback(() => {
-      if (!userId) {
-        setState({ plan: emptyPlan(), loaded: true });
-        return;
-      }
       let alive = true;
       loadSafetyPlan(userId).then((plan) => {
         if (alive) setState({ plan, loaded: true });
@@ -28,7 +27,7 @@ export function useSafetyPlan(userId: string | null) {
   const save = useCallback(
     (plan: SafetyPlan) => {
       setState({ plan, loaded: true });
-      return userId ? saveSafetyPlan(userId, plan) : Promise.resolve();
+      return saveSafetyPlan(userId, plan);
     },
     [userId],
   );

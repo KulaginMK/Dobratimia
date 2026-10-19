@@ -11,7 +11,6 @@ import { SITUATIONS } from '@/data/situations';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
 import { useSafetyPlan } from '@/features/plan/useSafetyPlan';
-import { useSession } from '@/features/session/Session';
 import { useTheme } from '@/theme';
 
 type Tab = 'stress' | 'situations' | 'plan';
@@ -158,8 +157,7 @@ function SituationsTab() {
 function PlanTab() {
   const t = useTheme();
   const router = useRouter();
-  const { user } = useSession();
-  const { plan } = useSafetyPlan(user?.id ?? null);
+  const { plan } = useSafetyPlan();
   const filled = filledSections(plan, STEP_IDS);
 
   return (

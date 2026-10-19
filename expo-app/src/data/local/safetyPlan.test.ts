@@ -1,7 +1,16 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearUserData } from './session';
-import { PLAN_ITEM_MAX, PLAN_ITEMS_MAX, emptyPlan, filledSections, loadSafetyPlan, parsePlan, saveSafetyPlan } from './safetyPlan';
+import {
+  PLAN_ITEM_MAX,
+  PLAN_ITEMS_MAX,
+  adoptGuestPlan,
+  emptyPlan,
+  filledSections,
+  loadSafetyPlan,
+  parsePlan,
+  saveSafetyPlan,
+} from './safetyPlan';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock'),
@@ -38,5 +47,25 @@ describe('план на трудный момент', () => {
     await saveSafetyPlan('anna', { ...emptyPlan(), notes: ['Это пройдёт'] });
     await clearUserData('anna');
     expect(await loadSafetyPlan('anna')).toEqual(emptyPlan());
+  });
+
+  test('при входе план гостя переходит в аккаунт и дописывается к уже составленному', async () => {
+    await saveSafetyPlan('guest', { ...emptyPlan(), calm: ['Душ', 'Прогулка'], notes: ['Это пройдёт'] });
+    await saveSafetyPlan('anna', { ...emptyPlan(), calm: ['Прогулка', 'Музыка'] });
+
+    await adoptGuestPlan('anna');
+
+    const plan = await loadSafetyPlan('anna');
+    expect(plan.calm).toEqual(['Прогулка', 'Музыка', 'Душ']);
+    expect(plan.notes).toEqual(['Это пройдёт']);
+    expect(await AsyncStorage.getItem('user:guest:safetyPlan')).toBeNull();
+  });
+
+  test('без плана гостя вход план аккаунта не трогает', async () => {
+    await saveSafetyPlan('anna', { ...emptyPlan(), reasons: ['Сестра'] });
+    await adoptGuestPlan('anna');
+    await adoptGuestPlan('guest');
+    expect((await loadSafetyPlan('anna')).reasons).toEqual(['Сестра']);
+    expect(await AsyncStorage.getItem('user:guest:safetyPlan')).toBeNull();
   });
 });

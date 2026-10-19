@@ -8,7 +8,6 @@ import { AMBULANCE, PSYCH_HELPLINE } from '@/data/emergency';
 import { filledSections } from '@/data/local/safetyPlan';
 import type { University } from '@/data/repos';
 import { useSafetyPlan } from '@/features/plan/useSafetyPlan';
-import { useSession } from '@/features/session/Session';
 import { useSelectedUniversity } from '@/features/university/SelectedUniversity';
 import { UniversityPickerSheet } from '@/features/university/UniversityPickerSheet';
 import { useCallPhone } from '@/lib/phone';
@@ -37,8 +36,7 @@ export function SosScreen() {
   const { universityId, byId, select } = useSelectedUniversity();
   const [pickerOpen, setPickerOpen] = useState(false);
   const row = universityRow(byId(universityId));
-  const { user } = useSession();
-  const { plan } = useSafetyPlan(user?.id ?? null);
+  const { plan } = useSafetyPlan();
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>

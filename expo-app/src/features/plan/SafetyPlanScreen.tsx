@@ -7,8 +7,6 @@ import { Button, Card, IconButton, TextField, useToast } from '@/components/ui';
 import { PSYCH_HELPLINE } from '@/data/emergency';
 import { PLAN_ITEM_MAX, PLAN_ITEMS_MAX, filledSections } from '@/data/local/safetyPlan';
 import { PLAN_NOTES, PLAN_STEPS, type PlanSection } from '@/data/safetyPlan';
-import { useSession } from '@/features/session/Session';
-import { SignedInOnly } from '@/features/session/SignInGate';
 import { useCallPhone } from '@/lib/phone';
 import { useTheme } from '@/theme';
 import { useSafetyPlan } from './useSafetyPlan';
@@ -22,26 +20,14 @@ function phoneIn(text: string): string | null {
   return match && match.replace(/\D/g, '').length >= PHONE_MIN_DIGITS ? match : null;
 }
 
-/** План на трудный момент: семь шагов и «Коробка поддержки». Сохраняется только после входа. */
+/** План на трудный момент: семь шагов и «Коробка поддержки». Открыт и гостю — хранится только на устройстве. */
 export function SafetyPlanScreen() {
-  return (
-    <SignedInOnly
-      title="Мой план"
-      gate="План на трудный момент сохраняется на этом устройстве, когда вы войдёте через Google."
-    >
-      <PlanBody />
-    </SignedInOnly>
-  );
-}
-
-function PlanBody() {
   const t = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const toast = useToast();
   const call = useCallPhone();
-  const { user } = useSession();
-  const { plan, loaded, save } = useSafetyPlan(user?.id ?? null);
+  const { plan, loaded, save } = useSafetyPlan();
   // Пустой план сразу открывается для правки, заполненный — для чтения. Решается один раз, когда план прочитан.
   const [editing, setEditing] = useState<boolean | null>(null);
   if (loaded && editing === null) setEditing(filledSections(plan) === 0);
