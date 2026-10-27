@@ -8,6 +8,9 @@ import { BackupError, buildBackup, mergeDass, mergeMood, parseBackup } from './b
 jest.mock('@react-native-async-storage/async-storage', () =>
   jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
+// Подписи настроения лежат рядом с компонентами, а те тянут анимации Тимки.
+jest.mock('react-native-worklets', () => jest.requireActual('react-native-worklets/src/mock'));
+jest.mock('react-native-reanimated', () => jest.requireActual('react-native-reanimated/mock'));
 
 const answers = (value: number) => Array<number>(21).fill(value);
 const test1: DassEntry = { date: '2026-10-01', answers: answers(1), ...scoreDass(answers(1)) };

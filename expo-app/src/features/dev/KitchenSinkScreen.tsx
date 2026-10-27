@@ -189,6 +189,7 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
   const [screen, setScreen] = useState(2);
   const [tab, setTab] = useState(0);
   const [mood, setMood] = useState<MoodLevel | null>(4);
+  const [waveKey, setWaveKey] = useState(0);
   const [sheet, setSheet] = useState<'short' | 'long' | null>(null);
   const [notify, setNotify] = useState(true);
   const [radio, setRadio] = useState(0);
@@ -220,6 +221,14 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           <Timka pose="breathe" size={TIMKA_SIZE} />
           <Timka pose="sleep" size={TIMKA_SIZE} />
         </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
+          <Timka key={waveKey} pose="hello" size={TIMKA_SIZE} motion="wave" />
+          <Timka pose="hello" size={TIMKA_SIZE} motion="idle" />
+          <Timka pose="sleep" size={TIMKA_SIZE} motion="sleepy" />
+        </View>
+        <Button variant="text" onPress={() => setWaveKey((k) => k + 1)}>
+          Помахать ещё раз
+        </Button>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.sm }}>
           {iconNames.map((name) => (
             <Icon key={name} name={name} color={t.color.primary} title={name} />
