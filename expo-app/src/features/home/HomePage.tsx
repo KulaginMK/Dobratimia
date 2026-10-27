@@ -88,6 +88,7 @@ export function HomePage({ active }: FeedPageProps) {
     toast.show({
       message: 'Отметка сохранена в дневник',
       tone: 'success',
+      timka: true,
       actionLabel: 'Отменить',
       onAction: () => restore(change.date, change.previous),
     });

@@ -678,7 +678,7 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           <Button
             variant="secondary"
             onPress={() =>
-              toast.show({ message: 'Отметка сохранена в дневник', tone: 'success', actionLabel: 'Отменить' })
+              toast.show({ message: 'Отметка сохранена в дневник', tone: 'success', timka: true, actionLabel: 'Отменить' })
             }
           >
             Показать тост

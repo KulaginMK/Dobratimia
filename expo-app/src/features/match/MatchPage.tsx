@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -7,6 +7,7 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -14,6 +15,7 @@ import { FeedHeader, InfoNote, LikeStamp, PullHint, SpecialistCard, type PhotoTo
 import { Button, EmptyState, Skeleton } from '@/components/ui';
 import type { Specialist } from '@/data/repos';
 import type { FeedPageProps } from '@/features/feed/FeedPager';
+import { useOnceHint } from '@/features/feed/useOnceHint';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
 import { useSession } from '@/features/session/Session';
 import { useSpecialists } from '@/features/specialists/Specialists';
@@ -35,6 +37,10 @@ const UNDER_SHIFT = 10;
 const UNDER_OPACITY = 0.9;
 // Улетающая карточка уходит за край экрана с запасом на наклон.
 const FLY_SHARE = 1.4;
+// Подсказка при первом визите (TIMKA-MOTION.md, раздел В): карточка сама отъезжает вправо и возвращается.
+// Сдвиг меньше порога свайпа, поэтому «Нравится» не срабатывает, а штамп только проступает. Тимки на подборе нет.
+const HINT_NUDGE = 40;
+const HINT_SHOWN_MS = 2000;
 // Заглушка загрузки — примерно по высоте карточки специалиста.
 const LOADING_CARD_HEIGHT = 480;
 
@@ -62,6 +68,7 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
   const current = deck[0];
   const count = liked.length > 0 ? ` (${liked.length})` : '';
   const openFavorites = () => router.push('/favorites');
+  const swipeHint = useOnceHint('matchSwipe', active && !!current, HINT_SHOWN_MS);
 
   return (
     <ScrollView
@@ -89,6 +96,7 @@ export function MatchPage({ active, onScrollAtTop }: FeedPageProps) {
             next={deck[1]}
             counter={`${deckPosition} из ${deckTotal}`}
             toneOf={toneOf}
+            hint={swipeHint}
             onLike={() => {
               if (!user) {
                 // Ничего не отмечаем: колода просто листается дальше, и это не сохраняется.
@@ -162,12 +170,14 @@ type DeckProps = {
   /** «3 из 12». */
   counter: string;
   toneOf: (id: string) => PhotoTone;
+  /** Первый визит: карточка сама показывает свайп. */
+  hint?: boolean;
   onLike: () => void;
   onReject: () => void;
 };
 
 /** Верхняя карточка, следующая под ней и кнопки. Вправо — «Нравится», влево — «Не подходит». */
-function Deck({ current, next, counter, toneOf, onLike, onReject }: DeckProps) {
+function Deck({ current, next, counter, toneOf, hint, onLike, onReject }: DeckProps) {
   const t = useTheme();
   const reduced = useReducedMotion();
   const { width } = useWindowDimensions();
@@ -176,6 +186,12 @@ function Deck({ current, next, counter, toneOf, onLike, onReject }: DeckProps) {
   const [armed, setArmed] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const timing = { duration: t.motion.feed, easing: easeOut };
+
+  useEffect(() => {
+    if (!hint || reduced) return;
+    const nudge = { duration: t.motion.sheet, easing: easeOut };
+    x.set(withSequence(withTiming(HINT_NUDGE, nudge), withTiming(0, nudge)));
+  }, [hint, reduced, x, t.motion.sheet]);
 
   /** Кнопки делают то же, что свайп: карточка улетает, потом срабатывает действие. */
   const leave = (toRight: boolean) => {

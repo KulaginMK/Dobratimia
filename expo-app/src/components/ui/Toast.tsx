@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { Easing, FadeInDown, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Icon } from '@/components/brand';
+import { Icon, Timka } from '@/components/brand';
 import { useTheme } from '@/theme';
 import { focusRing, isFocused } from './focus';
 
@@ -16,6 +16,7 @@ const FONT_SIZE = 15;
 const LINE_HEIGHT = 20;
 const ICON_CIRCLE = 24;
 const ICON_SIZE = 16;
+const TIMKA_SIZE = 32;
 const MSG_PAD_RIGHT = 6;
 const ACTION_MIN_HEIGHT = 40;
 const ACTION_PAD_H = 12;
@@ -38,10 +39,12 @@ export type ToastOptions = {
   /** Одно действие: «Отменить», «Повторить». */
   actionLabel?: string;
   onAction?: () => void;
+  /** Вместо значка кивает Тимка: подтверждение отметки настроения (TIMKA-MOTION.md, пункт 10). */
+  timka?: boolean;
 };
 
 /** Сам тост, без появления и таймера. Показывать через useToast().show(). */
-export function ToastView({ message, tone = 'neutral', actionLabel, onAction }: ToastOptions) {
+export function ToastView({ message, tone = 'neutral', actionLabel, onAction, timka }: ToastOptions) {
   const t = useTheme();
   const icon = tone === 'success' ? 'check' : tone === 'error' ? 'close' : null;
   const actionSlop = (t.size.touch - ACTION_MIN_HEIGHT) / 2;
@@ -63,7 +66,11 @@ export function ToastView({ message, tone = 'neutral', actionLabel, onAction }: 
         boxShadow: t.shadow.md,
       }}
     >
-      {icon ? (
+      {timka ? (
+        <View aria-hidden>
+          <Timka pose="hello" size={TIMKA_SIZE} motion="nod" />
+        </View>
+      ) : icon ? (
         <View
           style={{
             width: ICON_CIRCLE,
@@ -171,6 +178,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               message={toast.message}
               tone={toast.tone}
               actionLabel={toast.actionLabel}
+              timka={toast.timka}
               onAction={() => {
                 toast.onAction?.();
                 hide();

@@ -16,8 +16,11 @@ import { timkaShapes, type Shape } from './shapes';
 import { SvgShapes } from './SvgShapes';
 
 export type TimkaPose = 'hello' | 'breathe' | 'sleep';
-/** idle — моргает и покачивает ростком; wave — сначала машет, потом как idle; sleepy — дышит во сне (поза sleep). */
-export type TimkaMotion = 'idle' | 'wave' | 'sleepy';
+/**
+ * idle — моргает и покачивает ростком; wave — сначала машет, потом как idle; nod — дважды кивает, потом как idle;
+ * sleepy — дышит во сне (поза sleep).
+ */
+export type TimkaMotion = 'idle' | 'wave' | 'nod' | 'sleepy';
 
 const LABELS: Record<TimkaPose, string> = {
   hello: 'Тимка машет рукой',
@@ -40,6 +43,9 @@ const SWAY_CYCLE = 3000;
 const WAVE_DEG = 20;
 const WAVE_SWING = 240;
 const WAVE_TIMES = 2;
+const NOD = 240;
+const NOD_TIMES = 2;
+const NOD_SQUASH = 0.1;
 const SLEEP_CYCLE = 4000;
 const SLEEP_RISE = 0.02;
 const ZZZ_RISE = 3;
@@ -106,6 +112,7 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
   const hand = useSharedValue(0);
   const eyes = useSharedValue(1);
   const sleep = useSharedValue(0);
+  const nod = useSharedValue(0);
 
   useEffect(() => {
     if (!motion) return;
@@ -119,6 +126,13 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
         withTiming(0, { duration: WAVE_SWING, easing: easeOut }),
       );
       hand.set(withRepeat(swing, WAVE_TIMES));
+    }
+    if (motion === 'nod') {
+      const dip = withSequence(
+        withTiming(1, { duration: NOD / 2, easing: easeOut }),
+        withTiming(0, { duration: NOD / 2, easing: easeOut }),
+      );
+      nod.set(withRepeat(dip, NOD_TIMES));
     }
     sway.set(
       withSequence(
@@ -137,9 +151,9 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
     next();
     return () => {
       clearTimeout(timer);
-      [sway, hand, eyes].forEach(cancelAnimation);
+      [sway, hand, eyes, nod].forEach(cancelAnimation);
     };
-  }, [motion, sway, hand, eyes, sleep]);
+  }, [motion, sway, hand, eyes, sleep, nod]);
 
   const sproutStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${sway.get()}deg` }, { scaleY: 1 + SPROUT_STRETCH * (breath ? breath.get() : 0) }],
@@ -153,6 +167,8 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
   const handStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${hand.get()}deg` }] }));
   const eyesStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: eyes.get() }] }));
   const bodyStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: 1 + SLEEP_RISE * sleep.get() }] }));
+  // Кивок: Тимка чуть приседает к земле и выпрямляется.
+  const nodStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: 1 - NOD_SQUASH * nod.get() }] }));
   const zzzStyle = useAnimatedStyle(() => ({
     opacity: 1 - ZZZ_FADE * sleep.get(),
     transform: [{ translateY: (-ZZZ_RISE * sleep.get() * size) / VIEW }],
@@ -168,7 +184,11 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
     body: { style: bodyStyle, origin: BODY_ORIGIN },
     zzz: { style: zzzStyle },
   };
-  return <Layers shapes={shapes} size={size} parts={parts} />;
+  return (
+    <Animated.View style={[StyleSheet.absoluteFill, { transformOrigin: BODY_ORIGIN }, nodStyle]}>
+      <Layers shapes={shapes} size={size} parts={parts} />
+    </Animated.View>
+  );
 }
 
 type Part = { style: React.ComponentProps<typeof Animated.View>['style']; origin?: string };

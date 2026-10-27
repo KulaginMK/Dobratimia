@@ -1,20 +1,26 @@
 import { useFocusEffect, useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, BackHandler, Platform, View, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, BackHandler, Platform, Text, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
+  FadeIn,
+  FadeOut,
   ReduceMotion,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withSequence,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
+import { Timka } from '@/components/brand';
 import { ScreenIndicator } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { FEED_LABELS, FEED_SCREENS, HOME_INDEX, MATCH_INDEX, feedIndex, feedKey, type FeedKey } from './feedScreens';
+import { useOnceHint } from './useOnceHint';
 
 // Пороги свайпа из docs/06: 60 dp или скорость больше 500 dp/с.
 const SWIPE_DISTANCE = 60;
@@ -27,6 +33,14 @@ const EDGE_RESISTANCE = 0.25;
 const CROSSFADE_MS = 120;
 
 const LAST_INDEX = FEED_SCREENS.length - 1;
+
+// Подсказка при первом визите на Главную (TIMKA-MOTION.md, пункт 7): Тимка выглядывает слева и тянет ленту.
+const HINT_SHOWN_MS = 4000;
+const HINT_TUG_AT_MS = 600;
+const HINT_TUG = 24;
+const HINT_TIMKA = 56;
+// Тимка выглядывает из-за края: треть рисунка за экраном.
+const HINT_PEEK = 1 / 3;
 
 export type FeedPageProps = {
   /** Экран сейчас текущий в ленте. Соседние экраны смонтированы, но скрыты от скринридера и клавиатуры. */
@@ -94,6 +108,17 @@ export function FeedPager({ pages, onPullDown }: Props) {
       position.set(withTiming(index, { duration: t.motion.feed, easing: Easing.out(Easing.cubic) }));
     }
   }, [index, reduced, position, fade, t.motion.feed]);
+
+  const swipeHint = useOnceHint('feedSwipe', focused && index === HOME_INDEX, HINT_SHOWN_MS);
+  useEffect(() => {
+    if (!swipeHint || reduced) return;
+    const timing = { duration: t.motion.sheet, easing: Easing.out(Easing.cubic) };
+    const timer = setTimeout(
+      () => position.set(withSequence(withTiming(HOME_INDEX - HINT_TUG / width, timing), withTiming(HOME_INDEX, timing))),
+      HINT_TUG_AT_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [swipeHint, reduced, position, width, t.motion.sheet]);
 
   const go = (next: number) => {
     if (next < 0 || next > LAST_INDEX || next === index) return;
@@ -193,12 +218,54 @@ export function FeedPager({ pages, onPullDown }: Props) {
               );
             })}
           </Animated.View>
+          {swipeHint ? <SwipeHint position={position} width={width} /> : null}
         </View>
       </GestureDetector>
       <View style={{ paddingBottom: insets.bottom }}>
         <ScreenIndicator current={index} onSelect={go} />
       </View>
     </View>
+  );
+}
+
+/**
+ * Подсказка о свайпе на Главной: Тимка держится за край соседнего экрана и двигается вместе с лентой.
+ * Только картинка: скринридер листает ленту через индикатор, а не свайпом. Нажатия проходят насквозь.
+ */
+function SwipeHint({ position, width }: { position: SharedValue<number>; width: number }) {
+  const t = useTheme();
+  const followStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (HOME_INDEX - position.get()) * width }] }));
+  return (
+    <Animated.View
+      entering={FadeIn.duration(t.motion.toast)}
+      exiting={FadeOut.duration(t.motion.toast)}
+      aria-hidden
+      pointerEvents="none"
+      style={[
+        {
+          position: 'absolute',
+          left: -HINT_TIMKA * HINT_PEEK,
+          bottom: t.space.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: t.space.xs,
+        },
+        followStyle,
+      ]}
+    >
+      <Timka pose="hello" size={HINT_TIMKA} motion="idle" />
+      <View
+        style={{
+          paddingVertical: t.space.xs,
+          paddingHorizontal: t.space.sm,
+          borderRadius: t.radius.full,
+          backgroundColor: t.color.surface,
+          boxShadow: t.shadow.md,
+        }}
+      >
+        <Text style={[t.type.caption, { color: t.color.text }]}>Свайп в сторону — соседний экран</Text>
+      </View>
+    </Animated.View>
   );
 }
 
