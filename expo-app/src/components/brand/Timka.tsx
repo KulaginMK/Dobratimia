@@ -64,8 +64,12 @@ const SLEEP_RISE = 0.02;
 const ZZZ_RISE = 3;
 const ZZZ_FADE = 0.5;
 
-/** Точка поворота части в координатах рисунка → transformOrigin слоя. */
-const origin = (x: number, y: number) => `${(x / VIEW) * 100}% ${((y - VIEW_TOP) / VIEW) * 100}%`;
+/**
+ * Точка поворота части в координатах рисунка → transformOrigin слоя.
+ * Списком, а не строкой: из строки Android берёт только целые проценты и дробные разбирает неверно.
+ */
+const origin = (x: number, y: number): Origin => [`${(x / VIEW) * 100}%`, `${((y - VIEW_TOP) / VIEW) * 100}%`, 0];
+type Origin = [string, string, number];
 const SPROUT_ORIGIN = origin(60, 30); // основание стебля
 const HAND_ORIGIN = origin(98, 68); // плечо
 const EYES_ORIGIN = origin(60, 64);
@@ -426,7 +430,7 @@ export function BreathingTimka({ level, face, size = 160, active = true }: Breat
   );
 }
 
-type Part = { style: React.ComponentProps<typeof Animated.View>['style']; origin?: string };
+type Part = { style: React.ComponentProps<typeof Animated.View>['style']; origin?: Origin };
 
 /** Подряд идущие неподвижные фигуры — один <Svg>; каждая движущаяся часть — свой слой поверх, в том же порядке. */
 function Layers({ shapes, size, parts }: { shapes: Shape[]; size: number; parts: Record<string, Part> }) {
