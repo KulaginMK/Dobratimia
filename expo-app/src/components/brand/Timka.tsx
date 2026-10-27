@@ -362,10 +362,20 @@ export function BreathingTimka({ level, face, size = 160, active = true }: Breat
   const sproutStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: -BODY_HEIGHT * (BODY_EMPTY_Y + BODY_GROW_Y * now.get().fill - 1) * k }],
   }));
+  // Стебель поворачивается вокруг основания, а не наклоняется: наклон (skew) Android отбрасывает,
+  // и стебель уезжал в сторону, противоположную листьям. Листья едут за его кончиком.
   const stemStyle = useAnimatedStyle(() => ({
-    transform: [{ skewX: `${-Math.atan(now.get().tip / STEM_HEIGHT) * RAD}deg` }],
+    transform: [{ rotate: `${Math.asin(now.get().tip / STEM_HEIGHT) * RAD}deg` }],
   }));
-  const leavesStyle = useAnimatedStyle(() => ({ transform: [{ translateX: now.get().tip * k }] }));
+  const leavesStyle = useAnimatedStyle(() => {
+    const tip = now.get().tip;
+    return {
+      transform: [
+        { translateX: tip * k },
+        { translateY: (STEM_HEIGHT - Math.sqrt(STEM_HEIGHT * STEM_HEIGHT - tip * tip)) * k },
+      ],
+    };
+  });
   const leafLeftStyle = useAnimatedStyle(() => leafTurn(now.get(), -1));
   const leafRightStyle = useAnimatedStyle(() => leafTurn(now.get(), 1));
   const bodyStyle = useAnimatedStyle(() => {
