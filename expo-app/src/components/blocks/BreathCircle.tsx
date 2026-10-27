@@ -1,20 +1,22 @@
 import React from 'react';
 import { View } from 'react-native';
-import Animated, { FadeIn, useAnimatedStyle, useDerivedValue, type SharedValue } from 'react-native-reanimated';
-import { Timka } from '@/components/brand';
-import { MIN_SCALE } from '@/features/meditation/breath';
+import Animated, { useAnimatedStyle, useDerivedValue, type SharedValue } from 'react-native-reanimated';
+import { BreathingTimka, type BreathFace } from '@/components/brand';
+import { MIN_SCALE, type BreathPhaseKind } from '@/features/meditation/breath';
 import { useTheme } from '@/theme';
 
 // Размеры из макета Meditation.
 const OUTER = 270;
 const INNER = 224;
 const TIMKA = 170;
-// Тимка открывает глаза, как смена состояния (docs/02: тост, смена экрана — 240 мс).
-const AWAKE_FADE = 240;
+const FACES: Record<BreathPhaseKind, BreathFace> = { inhale: 'in', hold: 'hold', exhale: 'out' };
 
 type Props = {
   /** Размер внутреннего круга: 0,72 — сжат, 1 — раскрыт. Меняется строго по секундам схемы. */
   scale: SharedValue<number>;
+  kind: BreathPhaseKind;
+  /** Практика идёт, а не ждёт «Начать» и не на паузе: пока не идёт, Тимка дремлет. */
+  running: boolean;
   /** Практика закончилась: Тимка открывает глаза. */
   done?: boolean;
   /** false — экран сейчас не виден: Тимка стоит и не тратит батарею. */
@@ -23,9 +25,9 @@ type Props = {
 
 /**
  * Дыхательный круг с Тимкой: растёт на вдохе, стоит на задержке, сжимается на выдохе.
- * Листья Тимки раскрываются вместе с кругом и никогда не расходятся с ним (TIMKA-MOTION.md, пункты 4 и 5).
+ * Тимка наполняется вместе с кругом и никогда не расходится с ним, лицо меняется по фазе (TIMKA-MOTION.md, пункты 4 и 5).
  */
-export function BreathCircle({ scale, done, active }: Props) {
+export function BreathCircle({ scale, kind, running, done, active }: Props) {
   const t = useTheme();
   const innerStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
   const breath = useDerivedValue(() => (scale.get() - MIN_SCALE) / (1 - MIN_SCALE));
@@ -54,13 +56,12 @@ export function BreathCircle({ scale, done, active }: Props) {
           innerStyle,
         ]}
       >
-        {done ? (
-          <Animated.View entering={FadeIn.duration(AWAKE_FADE)}>
-            <Timka pose="hello" size={TIMKA} motion="idle" active={active} />
-          </Animated.View>
-        ) : (
-          <Timka pose="breathe" size={TIMKA} breath={breath} active={active} />
-        )}
+        <BreathingTimka
+          level={breath}
+          face={done ? 'look' : running ? FACES[kind] : 'rest'}
+          size={TIMKA}
+          active={active}
+        />
       </Animated.View>
     </View>
   );

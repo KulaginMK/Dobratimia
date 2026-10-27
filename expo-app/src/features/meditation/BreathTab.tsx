@@ -157,7 +157,13 @@ export function BreathTab({ initialScheme, cycles }: Props) {
       </View>
 
       <View style={{ alignItems: 'center' }}>
-        <BreathCircle scale={session.scale} done={position.done} active={focused} />
+        <BreathCircle
+          scale={session.scale}
+          kind={position.kind}
+          running={session.running}
+          done={position.done}
+          active={focused}
+        />
       </View>
 
       <View style={{ alignItems: 'center', gap: t.space.xxs, paddingHorizontal: t.space.screen }}>

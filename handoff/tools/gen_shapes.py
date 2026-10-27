@@ -25,10 +25,11 @@ for f in sorted(os.listdir(A+'/Icons')):
     icons[f[:-4]]=sh
 logo_map={'#8E3B22':'$logo.deep','#C8623A':'$logo.warm','#E07B39':'$logo.orange','#F2B28A':'$logo.apricot','#E8B04A':'$logo.head','#8FA66B':'$logo.leaf','#6E8A4E':'$logo.leafDeep'}
 vb,logo=load(A+'/Logos/logo-mark.svg', logo_map)
-tim_map=dict(logo_map); tim_map.update({'#E07A5F':'$mascot.cheek','#EADCD0':'$color.border','#F8DCCD':'$color.primarySoft','#6A554C':'$color.textMuted'})
+tim_map=dict(logo_map); tim_map.update({'#E07A5F':'$mascot.cheek','#EADCD0':'$color.border','#F8DCCD':'$color.primarySoft','#6A554C':'$color.textMuted','#D9A88F':'$mascot.puff'})
 timka={}
 for pose in ('hello','breathe','sleep','stretch','loud'):
     tvb,timka[pose]=load(A+'/Mascot/timka-%s.svg'%pose, tim_map)
+_,breathing=load(A+'/Mascot/timka-breathing.svg', tim_map)
 def ts(o): return json.dumps(o, ensure_ascii=False, indent=None, separators=(',',':'))
 src='''// Сгенерировано из assets/*.svg (gen_shapes.py). Фигуры для react-native-svg.
 // Цвет '$current' — цвет иконки; '$group.token' — токен темы (logo.apricot, color.border…).
@@ -43,6 +44,9 @@ export const logoShapes: Shape[] = %s;
 
 /** Тимка, viewBox %s. */
 export const timkaShapes: Record<'hello' | 'breathe' | 'sleep' | 'stretch' | 'loud', Shape[]> = %s;
-'''%(' | '.join("'%s'"%k for k in icons), ts(icons), vb, ts(logo), tvb, ts(timka))
+
+/** Тимка в дыхательном круге, viewBox %s: лица всех фаз и части, которые двигаются (BreathingTimka). */
+export const timkaBreathingShapes: Shape[] = %s;
+'''%(' | '.join("'%s'"%k for k in icons), ts(icons), vb, ts(logo), tvb, ts(timka), tvb, ts(breathing))
 open(out+'/shapes.ts','w').write(src)
 print('ok:', out+'/shapes.ts')
