@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
   withTiming,
@@ -15,17 +16,20 @@ import Svg from 'react-native-svg';
 import { timkaShapes, type Shape } from './shapes';
 import { SvgShapes } from './SvgShapes';
 
-export type TimkaPose = 'hello' | 'breathe' | 'sleep';
+export type TimkaPose = keyof typeof timkaShapes;
 /**
  * idle — моргает и покачивает ростком; wave — сначала машет, потом как idle; nod — дважды кивает, потом как idle;
- * sleepy — дышит во сне (поза sleep).
+ * stretch — тянется вверх и опускается, потом как idle (поза stretch); flutter — росток часто колышется;
+ * blown — росток откидывает назад; sleepy — дышит во сне (поза sleep).
  */
-export type TimkaMotion = 'idle' | 'wave' | 'nod' | 'sleepy';
+export type TimkaMotion = 'idle' | 'wave' | 'nod' | 'stretch' | 'flutter' | 'blown' | 'sleepy';
 
 const LABELS: Record<TimkaPose, string> = {
   hello: 'Тимка машет рукой',
   breathe: 'Тимка спокойно дышит',
   sleep: 'Тимка спит',
+  stretch: 'Тимка потягивается',
+  loud: 'Тимка закрывает уши',
 };
 
 // Рисунок Тимки: viewBox "0 -6 120 120".
@@ -33,7 +37,7 @@ const VIEW = 120;
 const VIEW_TOP = -6;
 const VIEW_BOX = `0 ${VIEW_TOP} ${VIEW} ${VIEW}`;
 
-// Длительности из TIMKA-MOTION.md (словарь движений). Медленные — предложение, ждут согласования владельца.
+// Длительности из TIMKA-MOTION.md (словарь движений), владелец согласовал 27 октября 2026 года.
 const BLINK = 160;
 const BLINK_CLOSED = 0.1;
 const BLINK_EVERY_MIN = 4000;
@@ -46,6 +50,13 @@ const WAVE_TIMES = 2;
 const NOD = 240;
 const NOD_TIMES = 2;
 const NOD_SQUASH = 0.1;
+const STRETCH = 320;
+const STRETCH_HOLD = 600;
+const STRETCH_RISE = 0.06;
+const FLUTTER_DEG = 6;
+const FLUTTER_CYCLE = 600;
+const BLOWN_DEG = -25;
+const BLOWN = 240;
 const SLEEP_CYCLE = 4000;
 const SLEEP_RISE = 0.02;
 const ZZZ_RISE = 3;
@@ -66,7 +77,7 @@ const easeOut = Easing.out(Easing.cubic);
 const easeInOut = Easing.inOut(Easing.sin);
 
 type Props = {
-  /** hello — онбординг и вход, breathe — медитации, sleep — пустые состояния. */
+  /** hello — онбординг, вход, подсказки; breathe — медитации; sleep — пустые состояния; stretch — перерыв Pomodoro; loud — КРИК. */
   pose?: TimkaPose;
   /** По умолчанию 160. */
   size?: number;
@@ -113,6 +124,7 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
   const eyes = useSharedValue(1);
   const sleep = useSharedValue(0);
   const nod = useSharedValue(0);
+  const stretch = useSharedValue(0);
 
   useEffect(() => {
     if (!motion) return;
@@ -134,12 +146,25 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
       );
       nod.set(withRepeat(dip, NOD_TIMES));
     }
-    sway.set(
-      withSequence(
-        withTiming(SWAY_DEG, { duration: SWAY_CYCLE / 4, easing: easeInOut }),
-        withRepeat(withTiming(-SWAY_DEG, { duration: SWAY_CYCLE / 2, easing: easeInOut }), -1, true),
-      ),
-    );
+    if (motion === 'stretch') {
+      stretch.set(
+        withSequence(
+          withTiming(1, { duration: STRETCH, easing: easeOut }),
+          withDelay(STRETCH_HOLD, withTiming(0, { duration: STRETCH, easing: easeOut })),
+        ),
+      );
+    }
+    if (motion === 'blown') {
+      sway.set(withTiming(BLOWN_DEG, { duration: BLOWN, easing: easeOut }));
+    } else {
+      const [deg, cycle] = motion === 'flutter' ? [FLUTTER_DEG, FLUTTER_CYCLE] : [SWAY_DEG, SWAY_CYCLE];
+      sway.set(
+        withSequence(
+          withTiming(deg, { duration: cycle / 4, easing: easeInOut }),
+          withRepeat(withTiming(-deg, { duration: cycle / 2, easing: easeInOut }), -1, true),
+        ),
+      );
+    }
     // Моргает через случайные 4–7 с, чтобы не выглядеть механически.
     let timer: ReturnType<typeof setTimeout>;
     const next = () => {
@@ -151,9 +176,9 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
     next();
     return () => {
       clearTimeout(timer);
-      [sway, hand, eyes, nod].forEach(cancelAnimation);
+      [sway, hand, eyes, nod, stretch].forEach(cancelAnimation);
     };
-  }, [motion, sway, hand, eyes, sleep, nod]);
+  }, [motion, sway, hand, eyes, sleep, nod, stretch]);
 
   const sproutStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${sway.get()}deg` }, { scaleY: 1 + SPROUT_STRETCH * (breath ? breath.get() : 0) }],
@@ -166,7 +191,9 @@ function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
   }));
   const handStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${hand.get()}deg` }] }));
   const eyesStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: eyes.get() }] }));
-  const bodyStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: 1 + SLEEP_RISE * sleep.get() }] }));
+  const bodyStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleY: 1 + SLEEP_RISE * sleep.get() + STRETCH_RISE * stretch.get() }],
+  }));
   // Кивок: Тимка чуть приседает к земле и выпрямляется.
   const nodStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: 1 - NOD_SQUASH * nod.get() }] }));
   const zzzStyle = useAnimatedStyle(() => ({

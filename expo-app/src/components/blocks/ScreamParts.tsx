@@ -304,7 +304,15 @@ export function PeakNumber({ label, value, unit }: { label: string; value: numbe
 }
 
 /** Карточка-реакция на результат: диапазон, заголовок и, если есть, пояснение. */
-export function ReactionCard({ overline, title, body }: { overline: string; title: string; body?: string }) {
+type ReactionCardProps = {
+  overline: string;
+  title: string;
+  body?: string;
+  /** Картинка справа от текста: Тимка реагирует на пик. Только украшение — смысл в тексте. */
+  illustration?: React.ReactNode;
+};
+
+export function ReactionCard({ overline, title, body, illustration }: ReactionCardProps) {
   const t = useTheme();
   return (
     <View
@@ -314,9 +322,23 @@ export function ReactionCard({ overline, title, body }: { overline: string; titl
         paddingBottom: REACTION_PAD_BOTTOM,
         borderRadius: t.radius['2xl'],
         backgroundColor: t.color.primarySoft,
-        gap: t.space.xs,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: t.space.sm,
       }}
     >
+      <View style={{ flex: 1, gap: t.space.xs }}>
+        <ReactionText overline={overline} title={title} body={body} />
+      </View>
+      {illustration ? <View aria-hidden>{illustration}</View> : null}
+    </View>
+  );
+}
+
+function ReactionText({ overline, title, body }: Omit<ReactionCardProps, 'illustration'>) {
+  const t = useTheme();
+  return (
+    <>
       <Text style={[t.type.overline, { color: t.color.onPrimarySoft }]}>{overline}</Text>
       <Text accessibilityRole="header" style={[t.type.h2, { color: t.color.onPrimarySoft }]}>
         {title}
@@ -333,7 +355,7 @@ export function ReactionCard({ overline, title, body }: { overline: string; titl
           {body}
         </Text>
       ) : null}
-    </View>
+    </>
   );
 }
 

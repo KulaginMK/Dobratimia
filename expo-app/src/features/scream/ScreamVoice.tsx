@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import React from 'react';
 import { Linking, Platform, Text, View } from 'react-native';
 import {
@@ -13,6 +14,7 @@ import {
   StatTile,
   StopButton,
 } from '@/components/blocks';
+import { Timka } from '@/components/brand';
 import { Button } from '@/components/ui';
 import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
@@ -21,6 +23,8 @@ import { REACTIONS, reactionFor } from './reactions';
 import type { ScreamLive, ScreamResult } from './useScreamSession';
 
 const UNIT = 'усл. дБ';
+// Тимка в карточке-реакции (TIMKA-MOTION.md, пункт 11).
+const REACTION_TIMKA = 72;
 // Обещание должно быть правдой: звук с микрофона не пишется ни на диск, ни на сервер (useLoudnessMeter).
 const PRIVACY = 'Мы не записываем ваш голос — анализируется только громкость';
 const SCALE_ROWS = REACTIONS.map((reaction) => ({
@@ -142,6 +146,7 @@ type ResultProps = {
 export function ScreamOutcome({ result, onAgain, onMarkMood }: ResultProps) {
   const t = useTheme();
   const reaction = reactionFor(result.peak);
+  const focused = useIsFocused();
   const seconds = result.durationSec;
   return (
     <>
@@ -149,7 +154,14 @@ export function ScreamOutcome({ result, onAgain, onMarkMood }: ResultProps) {
         <PeakNumber label="Ваш пик" value={result.peak} unit={UNIT} />
       </View>
       <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen }}>
-        <ReactionCard overline={`${reaction.range} ${UNIT}`} title={reaction.title} body={reaction.body} />
+        <ReactionCard
+          overline={`${reaction.range} ${UNIT}`}
+          title={reaction.title}
+          body={reaction.body}
+          illustration={
+            <Timka pose={reaction.timka.pose} size={REACTION_TIMKA} motion={reaction.timka.motion} active={focused} />
+          }
+        />
       </View>
       <View
         style={{

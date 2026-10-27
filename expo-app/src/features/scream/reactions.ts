@@ -1,3 +1,5 @@
+import type { TimkaMotion, TimkaPose } from '@/components/brand';
+
 export type Reaction = {
   /** Нижняя граница диапазона, усл. дБ. */
   from: number;
@@ -11,6 +13,8 @@ export type Reaction = {
   body: string;
   /** В макете Scream диапазон выделен цветом color.primary. */
   accent?: boolean;
+  /** Как Тимка реагирует на пик (TIMKA-MOTION.md, пункт 11). */
+  timka: { pose: TimkaPose; motion: TimkaMotion };
 };
 
 // Юмор в приложении уместен только здесь (docs/02).
@@ -24,6 +28,7 @@ export const REACTIONS: Reaction[] = [
     title: 'Шёпот в библиотеке',
     // ЗАГЛУШКА
     body: 'Тихо — тоже считается. Если хочется громче, попробуйте ещё раз: библиотекарь не услышит.',
+    timka: { pose: 'hello', motion: 'idle' },
   },
   {
     from: 60,
@@ -32,6 +37,7 @@ export const REACTIONS: Reaction[] = [
     title: 'Уверенно, с последней парты',
     // ЗАГЛУШКА
     body: 'Преподаватель услышал бы и без микрофона. Можно добавить громкости, а можно на этом и остановиться.',
+    timka: { pose: 'hello', motion: 'flutter' },
   },
   {
     from: 80,
@@ -40,6 +46,7 @@ export const REACTIONS: Reaction[] = [
     title: 'Поздравляем, вы, вероятно, разбудили соседа по комнате',
     body: 'Если пар ещё остался — можно повторить. Соседу потом расскажете, что это была дыхательная практика.',
     accent: true,
+    timka: { pose: 'loud', motion: 'flutter' },
   },
   {
     from: 100,
@@ -48,6 +55,7 @@ export const REACTIONS: Reaction[] = [
     title: 'Легенда общежития',
     // ЗАГЛУШКА
     body: 'Вас услышали на всех этажах. Вахтёру скажете, что репетировали доклад.',
+    timka: { pose: 'loud', motion: 'blown' },
   },
 ];
 

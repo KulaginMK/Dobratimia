@@ -1,6 +1,8 @@
+import { useIsFocused } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { TimerRing, TomatoDots } from '@/components/blocks';
+import { Timka } from '@/components/brand';
 import { Button, Chip, Switch } from '@/components/ui';
 import { loadPomodoroNotify, savePomodoroNotify } from '@/data/local/pomodoro';
 import { syncPomodoroBreaks, syncPomodoroCountdown, useAllowNotifications } from '@/features/reminders/reminders';
@@ -11,6 +13,8 @@ import { TOMATOES, clock, type PomodoroMode } from './pomodoro';
 import { MODE_LABEL, usePomodoro } from './usePomodoro';
 
 const MODES: PomodoroMode[] = ['focus', 'break'];
+// В перерыв Тимка потягивается над временем в кольце (TIMKA-MOTION.md, пункт 9): встать и размяться.
+const BREAK_TIMKA = 64;
 
 function spokenTime(ms: number): string {
   const seconds = Math.ceil(ms / 1000);
@@ -31,6 +35,7 @@ export function PomodoroTab() {
     if (notify) syncPomodoroBreaks(next);
   });
   const { state } = pomodoro;
+  const focused = useIsFocused();
 
   useEffect(() => {
     let alive = true;
@@ -61,6 +66,11 @@ export function PomodoroTab() {
           time={clock(pomodoro.remaining)}
           caption={state.mode === 'focus' ? 'до перерыва' : 'до конца перерыва'}
           accessibilityLabel={spokenTime(pomodoro.remaining)}
+          top={
+            state.mode === 'break' ? (
+              <Timka pose="stretch" size={BREAK_TIMKA} motion="stretch" active={focused} />
+            ) : undefined
+          }
         />
       </View>
 

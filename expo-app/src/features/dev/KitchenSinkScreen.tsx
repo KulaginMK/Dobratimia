@@ -101,6 +101,7 @@ const COLUMN_MIN_WIDTH = 360;
 const LOGO_SMALL = 32;
 const LOGO_MARK = 48;
 const TIMKA_SIZE = 104;
+const REACTION_TIMKA = 72;
 const SHEET_LONG_ROWS = 24;
 // Уровни громкости для волны КРИКа: тихо — крик — затихание.
 const DEMO_LEVELS = Array.from({ length: 60 }, (_, i) => Math.round(30 + 70 * Math.sin((Math.PI * i) / 59)));
@@ -226,8 +227,14 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           <Timka pose="hello" size={TIMKA_SIZE} motion="idle" />
           <Timka pose="sleep" size={TIMKA_SIZE} motion="sleepy" />
         </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
+          <Timka key={`s${waveKey}`} pose="stretch" size={TIMKA_SIZE} motion="stretch" />
+          <Timka pose="hello" size={TIMKA_SIZE} motion="flutter" />
+          <Timka pose="loud" size={TIMKA_SIZE} motion="flutter" />
+          <Timka key={`b${waveKey}`} pose="loud" size={TIMKA_SIZE} motion="blown" />
+        </View>
         <Button variant="text" onPress={() => setWaveKey((k) => k + 1)}>
-          Помахать ещё раз
+          Повторить движения
         </Button>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.sm }}>
           {iconNames.map((name) => (
@@ -453,6 +460,7 @@ function Showcase({ grow, padBottom }: { grow: boolean; padBottom: number }) {
           overline="80–99 усл. дБ"
           title="Поздравляем, вы, вероятно, разбудили соседа по комнате"
           body="Если пар ещё остался — можно повторить. Соседу потом расскажете, что это была дыхательная практика."
+          illustration={<Timka pose="loud" size={REACTION_TIMKA} motion="flutter" />}
         />
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space.xs }}>
           <StatTile label="Длительность" value="6 с" />

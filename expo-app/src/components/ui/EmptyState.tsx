@@ -35,7 +35,7 @@ type Props = {
 };
 
 // Спящий Тимка дышит во сне, приветливый — машет (TIMKA-MOTION.md, пункты 3 и 6).
-const MOTION: Record<TimkaPose, TimkaMotion | undefined> = { sleep: 'sleepy', hello: 'wave', breathe: undefined };
+const MOTION: Partial<Record<TimkaPose, TimkaMotion>> = { sleep: 'sleepy', hello: 'wave' };
 
 /** Пустое состояние: Тимка, заголовок, одна фраза и одно действие. */
 export function EmptyState({

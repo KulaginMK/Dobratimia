@@ -27,7 +27,7 @@ logo_map={'#8E3B22':'$logo.deep','#C8623A':'$logo.warm','#E07B39':'$logo.orange'
 vb,logo=load(A+'/Logos/logo-mark.svg', logo_map)
 tim_map=dict(logo_map); tim_map.update({'#E07A5F':'$mascot.cheek','#EADCD0':'$color.border','#F8DCCD':'$color.primarySoft','#6A554C':'$color.textMuted'})
 timka={}
-for pose in ('hello','breathe','sleep'):
+for pose in ('hello','breathe','sleep','stretch','loud'):
     tvb,timka[pose]=load(A+'/Mascot/timka-%s.svg'%pose, tim_map)
 def ts(o): return json.dumps(o, ensure_ascii=False, indent=None, separators=(',',':'))
 src='''// Сгенерировано из assets/*.svg (gen_shapes.py). Фигуры для react-native-svg.
@@ -42,7 +42,7 @@ export const iconNames = Object.keys(iconShapes) as IconName[];
 export const logoShapes: Shape[] = %s;
 
 /** Тимка, viewBox %s. */
-export const timkaShapes: Record<'hello' | 'breathe' | 'sleep', Shape[]> = %s;
+export const timkaShapes: Record<'hello' | 'breathe' | 'sleep' | 'stretch' | 'loud', Shape[]> = %s;
 '''%(' | '.join("'%s'"%k for k in icons), ts(icons), vb, ts(logo), tvb, ts(timka))
 open(out+'/shapes.ts','w').write(src)
 print('ok:', out+'/shapes.ts')

@@ -27,10 +27,12 @@ type RingProps = {
   caption: string;
   /** Для скринридера: «Осталось 16 минут 5 секунд». */
   accessibilityLabel: string;
+  /** Картинка над временем: Тимка в перерыве. */
+  top?: React.ReactNode;
 };
 
 /** Кольцевой таймер: дуга показывает, сколько времени осталось. */
-export function TimerRing({ remaining, time, caption, accessibilityLabel }: RingProps) {
+export function TimerRing({ remaining, time, caption, accessibilityLabel, top }: RingProps) {
   const t = useTheme();
   const share = Math.min(1, Math.max(0, remaining));
   return (
@@ -67,6 +69,7 @@ export function TimerRing({ remaining, time, caption, accessibilityLabel }: Ring
           gap: TEXT_GAP,
         }}
       >
+        {top}
         <Text
           maxFontSizeMultiplier={MAX_FONT_SCALE}
           style={{
