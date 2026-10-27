@@ -1,13 +1,14 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useIsFocused, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { BreathCircle } from '@/components/blocks';
-import { Button, Chip, Slider } from '@/components/ui';
+import { Button, Chip, Slider, Switch } from '@/components/ui';
 import type { BreathScheme } from '@/data/techniques';
 import { plural } from '@/lib/plural';
 import { useTheme } from '@/theme';
-import { BREATH_SCHEME_IDS, PHASE_TEXT } from './breath';
+import { BREATH_SCHEME_IDS, PHASE_TEXT, type BreathPhaseKind } from './breath';
 import { useBreathSession } from './useBreathSession';
 
 type SoundId = 'rain' | 'wind' | 'forest' | 'silence';
@@ -21,22 +22,50 @@ const SOUNDS: { id: SoundId; label: string; file: number | null }[] = [
 ];
 const DEFAULT_VOLUME = 60;
 
+type Signal = BreathPhaseKind | 'done';
+// Сигналы фаз синтезированы для приложения, чужих записей в них нет: assets/sounds/README.md.
+const SIGNALS: Record<Signal, number> = {
+  inhale: require('../../../assets/sounds/breath-inhale.m4a'),
+  hold: require('../../../assets/sounds/breath-hold.m4a'),
+  exhale: require('../../../assets/sounds/breath-exhale.m4a'),
+  done: require('../../../assets/sounds/breath-done.m4a'),
+};
+// На «Готово» фон затихает за 2 секунды, а не обрывается.
+const FADE_MS = 2000;
+const FADE_STEPS = 10;
+const KEEP_AWAKE_TAG = 'breath';
+
+const warn = (error: unknown) => {
+  if (__DEV__) console.warn('Звук дыхания:', error);
+};
+
 type Props = {
   initialScheme: BreathScheme;
   cycles: number;
 };
 
-/** Вкладка «Дыхание»: схема, дыхательный круг с Тимкой, фоновый звук, пауза и сброс. */
+/** Вкладка «Дыхание»: схема, дыхательный круг с Тимкой, фоновый звук, сигналы фаз, пауза и сброс. */
 export function BreathTab({ initialScheme, cycles }: Props) {
   const t = useTheme();
   const router = useRouter();
   const [scheme, setScheme] = useState(initialScheme);
   const [sound, setSound] = useState<SoundId>('rain');
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
-  const session = useBreathSession(scheme, cycles, { haptics: sound !== 'silence' && volume > 0 });
-  const { position } = session;
+  const [signals, setSignals] = useState(true);
   // Звук идёт, только пока идёт практика и экран на виду: под открытым поверх SOS он замолкает.
   const focused = useIsFocused();
+  const signalPlayers = useRef(new Map<Signal, AudioPlayer>());
+  const session = useBreathSession(scheme, cycles, {
+    haptics: (sound !== 'silence' || signals) && volume > 0,
+    onPhase: (phase) => {
+      const signal = signalPlayers.current.get(phase);
+      if (!signal || !signals || !focused) return;
+      signal.volume = volume / 100;
+      signal.seekTo(0).catch(warn);
+      signal.play();
+    },
+  });
+  const { position } = session;
   const playing = session.running && focused;
   const file = SOUNDS.find((item) => item.id === sound)?.file ?? null;
   // Плеер в ref, а не из useAudioPlayer: громкость и петля у expo-audio — свойства, а значения хуков менять нельзя.
@@ -56,11 +85,49 @@ export function BreathTab({ initialScheme, cycles }: Props) {
   }, [file]);
 
   useEffect(() => {
-    if (!player.current) return;
-    player.current.volume = volume / 100;
-    if (playing) player.current.play();
-    else player.current.pause();
-  }, [file, volume, playing]);
+    const background = player.current;
+    if (!background) return;
+    background.volume = volume / 100;
+    if (playing) background.play();
+    else if (!position.done) background.pause();
+    else {
+      let step = 0;
+      const timer = setInterval(() => {
+        step += 1;
+        background.volume = (volume / 100) * (1 - step / FADE_STEPS);
+        if (step < FADE_STEPS) return;
+        clearInterval(timer);
+        background.pause();
+      }, FADE_MS / FADE_STEPS);
+      return () => clearInterval(timer);
+    }
+  }, [file, volume, playing, position.done]);
+
+  // Сигналы загружаются заранее: на смене фазы звук должен начаться сразу.
+  useEffect(() => {
+    const created = new Map(
+      (Object.keys(SIGNALS) as Signal[]).map((phase) => [phase, createAudioPlayer(SIGNALS[phase])] as const),
+    );
+    signalPlayers.current = created;
+    return () => {
+      created.forEach((signal) => {
+        signal.remove();
+        signal.release();
+      });
+      signalPlayers.current = new Map();
+    };
+  }, []);
+
+  // Пока идёт практика, экран не гаснет: с закрытыми глазами его не трогают,
+  // а погасший экран Android считает уходом из приложения и глушит звук.
+  useEffect(() => {
+    if (!playing) return;
+    const awake = activateKeepAwakeAsync(KEEP_AWAKE_TAG);
+    awake.catch(warn);
+    return () => {
+      awake.then(() => deactivateKeepAwake(KEEP_AWAKE_TAG), () => {}).catch(warn);
+    };
+  }, [playing]);
   const label = { fontFamily: t.fontFamily.text[600], color: t.color.textMuted };
 
   return (
@@ -120,6 +187,12 @@ export function BreathTab({ initialScheme, cycles }: Props) {
           <Text style={[t.type.label, label]}>Громкость</Text>
           <Slider value={volume} onChange={setVolume} accessibilityLabel="Громкость звука" />
         </View>
+        <Switch
+          label="Сигналы на смену фазы"
+          description="Можно дышать с закрытыми глазами"
+          checked={signals}
+          onChange={setSignals}
+        />
       </View>
 
       <View style={{ flexDirection: 'row', gap: t.space.sm, paddingHorizontal: t.space.screen }}>
