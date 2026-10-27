@@ -73,6 +73,7 @@ export function TechniquesPage({ active, onScrollAtTop }: FeedPageProps) {
         <EmptyState
           title="Здесь пока пусто"
           text="Под этот фильтр техник пока нет."
+          active={active}
           actionLabel="Показать все"
           onAction={() => setFilter(null)}
         />

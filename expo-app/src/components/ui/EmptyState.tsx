@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Icon, Timka, type IconName, type TimkaPose } from '@/components/brand';
+import { Icon, Timka, type IconName, type TimkaMotion, type TimkaPose } from '@/components/brand';
 import { useTheme } from '@/theme';
 import { Button } from './Button';
 
@@ -30,10 +30,24 @@ type Props = {
   icon?: IconName;
   actionLabel?: string;
   onAction?: () => void;
+  /** false — экран сейчас не виден: Тимка стоит и не тратит батарею. */
+  active?: boolean;
 };
 
+// Спящий Тимка дышит во сне, приветливый — машет (TIMKA-MOTION.md, пункты 3 и 6).
+const MOTION: Record<TimkaPose, TimkaMotion | undefined> = { sleep: 'sleepy', hello: 'wave', breathe: undefined };
+
 /** Пустое состояние: Тимка, заголовок, одна фраза и одно действие. */
-export function EmptyState({ title, text, pose = 'sleep', illustrationSize = TIMKA_SIZE, icon, actionLabel, onAction }: Props) {
+export function EmptyState({
+  title,
+  text,
+  pose = 'sleep',
+  illustrationSize = TIMKA_SIZE,
+  icon,
+  actionLabel,
+  onAction,
+  active,
+}: Props) {
   const t = useTheme();
   return (
     <View style={{ alignItems: 'center', gap: GAP, paddingVertical: PAD_V, paddingHorizontal: t.space.lg }}>
@@ -51,7 +65,7 @@ export function EmptyState({ title, text, pose = 'sleep', illustrationSize = TIM
           <Icon name={icon} size={ICON_SIZE} color={t.color.onPrimarySoft} />
         </View>
       ) : (
-        <Timka pose={pose} size={illustrationSize} />
+        <Timka pose={pose} size={illustrationSize} motion={MOTION[pose]} active={active} />
       )}
       <Text
         accessibilityRole="header"

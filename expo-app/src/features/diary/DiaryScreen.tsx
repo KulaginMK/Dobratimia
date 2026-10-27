@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,6 +30,7 @@ export function DiaryScreen() {
   const t = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const focused = useIsFocused();
   const { entries, ready, todayKey, setNote } = useMoodDiary();
   const dass = useDassHistory();
 
@@ -86,6 +87,7 @@ export function DiaryScreen() {
               text="Отметьте настроение на главной — и запись появится здесь."
               actionLabel="Отметить настроение"
               onAction={() => router.dismissTo({ pathname: '/', params: { s: 'home', focus: 'mood' } })}
+              active={focused}
             />
           ) : (
             <>

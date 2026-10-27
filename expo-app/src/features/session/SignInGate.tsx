@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { ScreenHeader } from '@/components/blocks';
@@ -14,6 +14,7 @@ import { useSession } from './Session';
 export function SignInGate({ text }: { text: string }) {
   const t = useTheme();
   const router = useRouter();
+  const focused = useIsFocused();
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: t.space.xl }}>
       <EmptyState
@@ -21,6 +22,7 @@ export function SignInGate({ text }: { text: string }) {
         title="Откроется после входа"
         text={text}
         actionLabel="Войти через Google"
+        active={focused}
         onAction={() => router.push('/onboarding/sign-in')}
       />
     </ScrollView>

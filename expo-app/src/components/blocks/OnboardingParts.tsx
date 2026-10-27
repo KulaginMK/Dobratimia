@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View, useWindowDimensions } from 'react-native';
-import { Icon, type IconName } from '@/components/brand';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import { Icon, Timka, type IconName } from '@/components/brand';
 import { IconButton } from '@/components/ui/IconButton';
 import { focusRing, isFocused } from '@/components/ui/focus';
 import { useTheme } from '@/theme';
@@ -366,18 +367,85 @@ const SCHEME: { icon: IconName; label: string; below?: string }[] = [
   { icon: 'sprout', label: 'Доброе\nслово' },
 ];
 const SCHEME_MAIN = 2;
+
+// Показ жестов на схеме (TIMKA-MOTION.md, пункт 2): маленький Тимка стоит на карточке и ходит по ленте.
+const WALKER = 36;
+// Низ тела Тимки — 90 % высоты рисунка: на эту линию он «встаёт» на край карточки.
+const WALKER_FEET = 0.9;
+const WALK_SIDE = 240; // как смена экрана ленты
+const WALK_DOWN = 320; // как выезд Медитаций сверху
+const WALK_PAUSE = 600;
+const WALK_LOOPS = 2;
+const walkEasing = Easing.out(Easing.cubic);
+export type SchemeGesture = 'sides' | 'down';
+// Главная → Техники → вниз в Медитации → обратно на Техники → Главная.
+const WALK: { column: number; below: boolean; gesture: SchemeGesture }[] = [
+  { column: 1, below: false, gesture: 'sides' },
+  { column: 1, below: true, gesture: 'down' },
+  { column: 1, below: false, gesture: 'down' },
+  { column: SCHEME_MAIN, below: false, gesture: 'sides' },
+];
 const SCHEME_LABEL =
   'Схема: пять экранов в ряд — Анатомия, Техники, Главная, Специалисты, Доброе слово. ' +
   'Под Техниками — Медитации, под Специалистами — Избранные.';
+
+type FeedSchemeProps = {
+  /**
+   * С Тимкой: он проходит по схеме два круга и показывает жесты, нажатие на схему — ещё раз.
+   * false — экран не виден: показ стоит. Без пропа Тимки на схеме нет.
+   */
+  demo?: boolean;
+  /** Какой жест Тимка показывает сейчас — чтобы выделить его пояснение. null — показ закончился. */
+  onGesture?: (gesture: SchemeGesture | null) => void;
+};
 
 /**
  * Схема ленты: пять экранов в ряд, под «Техниками» и «Специалистами» — то, что открывается свайпом вниз.
  * Это картинка: для скринридера у неё одно описание, а подписи не растут с системным шрифтом.
  * Колонки берут ширину по самой длинной подписи — «Специалисты» в плитку одинаковой ширины не помещаются.
+ * При «Уменьшить движение» Тимка стоит на Главной.
  */
-export function FeedScheme() {
+export function FeedScheme({ demo, onGesture }: FeedSchemeProps) {
   const t = useTheme();
   const { width } = useWindowDimensions();
+  const reduced = useReducedMotion();
+  const [columns, setColumns] = useState<{ x: number; width: number }[]>([]);
+  const [run, setRun] = useState(0);
+  const walkerX = useSharedValue(0);
+  const walkerY = useSharedValue(0);
+  const walkerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: walkerX.get() }, { translateY: walkerY.get() }],
+  }));
+  const ready = columns.filter(Boolean).length === SCHEME.length;
+
+  useEffect(() => {
+    if (demo === undefined || !ready) return;
+    const spotX = (column: number) => columns[column].x + columns[column].width / 2 - WALKER / 2;
+    const spotY = (below: boolean) =>
+      (below ? SCHEME_PAD_TOP + TILE_HEIGHT + SCHEME_GAP : SCHEME_PAD_TOP) - WALKER * WALKER_FEET;
+    walkerX.set(spotX(SCHEME_MAIN));
+    walkerY.set(spotY(false));
+    if (!demo || reduced) return;
+    let step = 0;
+    let below = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const next = () => {
+      if (step === WALK.length * WALK_LOOPS) return onGesture?.(null);
+      const to = WALK[step++ % WALK.length];
+      const duration = to.below !== below ? WALK_DOWN : WALK_SIDE;
+      below = to.below;
+      onGesture?.(to.gesture);
+      walkerX.set(withTiming(spotX(to.column), { duration, easing: walkEasing }));
+      walkerY.set(withTiming(spotY(to.below), { duration, easing: walkEasing }));
+      timer = setTimeout(next, duration + WALK_PAUSE);
+    };
+    timer = setTimeout(next, WALK_PAUSE);
+    return () => {
+      clearTimeout(timer);
+      onGesture?.(null);
+    };
+  }, [demo, reduced, ready, columns, run, onGesture, walkerX, walkerY]);
+
   const scale = Math.min(1, (width - SCHEME_SIDE) / SCHEME_DESIGN_WIDTH);
   const font = {
     fontFamily: t.fontFamily.text[600],
@@ -386,10 +454,12 @@ export function FeedScheme() {
     textAlign: 'center' as const,
   };
   return (
-    <View
+    <Pressable
       accessible
       accessibilityRole="image"
       accessibilityLabel={SCHEME_LABEL}
+      disabled={!demo || reduced}
+      onPress={() => setRun((n) => n + 1)}
       style={{
         flexDirection: 'row',
         gap: TILE_GAP,
@@ -404,7 +474,13 @@ export function FeedScheme() {
         const main = i === SCHEME_MAIN;
         const color = main ? t.color.onPrimary : t.color.textMuted;
         return (
-          <View key={screen.label} style={{ flexGrow: 1, gap: SCHEME_GAP }}>
+          <View
+            key={screen.label}
+            onLayout={({ nativeEvent: { layout } }) =>
+              setColumns((list) => Object.assign([...list], { [i]: { x: layout.x, width: layout.width } }))
+            }
+            style={{ flexGrow: 1, gap: SCHEME_GAP }}
+          >
             <View
               style={{
                 height: TILE_HEIGHT,
@@ -443,7 +519,12 @@ export function FeedScheme() {
           </View>
         );
       })}
-    </View>
+      {demo !== undefined && ready ? (
+        <Animated.View aria-hidden style={[{ position: 'absolute', left: 0, top: 0 }, walkerStyle]}>
+          <Timka pose="hello" size={WALKER} motion="idle" active={demo} />
+        </Animated.View>
+      ) : null}
+    </Pressable>
   );
 }
 
@@ -452,12 +533,14 @@ type GestureRowProps = {
   kind: 'sides' | 'down' | 'dots';
   title: string;
   text: string;
+  /** Этот жест сейчас показывает Тимка на схеме: значок выделен, как Главная на схеме. */
+  active?: boolean;
 };
 
 /** Пояснение жеста: значок, название и что он делает. */
-export function GestureRow({ kind, title, text }: GestureRowProps) {
+export function GestureRow({ kind, title, text, active }: GestureRowProps) {
   const t = useTheme();
-  const color = t.color.onPrimarySoft;
+  const color = active ? t.color.onPrimary : t.color.onPrimarySoft;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: ROW_GAP }}>
       <View
@@ -465,7 +548,7 @@ export function GestureRow({ kind, title, text }: GestureRowProps) {
           width: GESTURE_BOX,
           height: GESTURE_BOX,
           borderRadius: GESTURE_RADIUS,
-          backgroundColor: t.color.primarySoft,
+          backgroundColor: active ? t.color.primary : t.color.primarySoft,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',

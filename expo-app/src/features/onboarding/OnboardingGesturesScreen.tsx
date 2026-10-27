@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { useIsFocused, useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import { Text, View } from 'react-native';
-import { FeedScheme, GestureRow } from '@/components/blocks';
+import { FeedScheme, GestureRow, type SchemeGesture } from '@/components/blocks';
 import { Button } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { OnboardingStep, useStepBack } from './OnboardingStep';
@@ -14,6 +14,8 @@ export function OnboardingGesturesScreen() {
   const t = useTheme();
   const router = useRouter();
   const back = useStepBack('/onboarding/warning');
+  const focused = useIsFocused();
+  const [gesture, setGesture] = useState<SchemeGesture | null>(null);
   return (
     <OnboardingStep
       step={3}
@@ -33,12 +35,13 @@ export function OnboardingGesturesScreen() {
         </Text>
       </View>
       <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.screen }}>
-        <FeedScheme />
+        <FeedScheme demo={focused} onGesture={setGesture} />
       </View>
       <View style={{ paddingTop: t.space.xl, paddingHorizontal: t.space.xl, gap: t.space.md }}>
-        <GestureRow kind="sides" title="Влево и вправо" text="Свайп переносит на соседний экран." />
+        <GestureRow kind="sides" active={gesture === 'sides'} title="Влево и вправо" text="Свайп переносит на соседний экран." />
         <GestureRow
           kind="down"
+          active={gesture === 'down'}
           title="Вниз"
           text="На «Техниках» откроются медитации, на «Специалистах» — избранные контакты."
         />

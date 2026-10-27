@@ -1,23 +1,34 @@
 import React from 'react';
 import { View } from 'react-native';
-import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
+import Animated, { FadeIn, useAnimatedStyle, useDerivedValue, type SharedValue } from 'react-native-reanimated';
 import { Timka } from '@/components/brand';
+import { MIN_SCALE } from '@/features/meditation/breath';
 import { useTheme } from '@/theme';
 
 // Размеры из макета Meditation.
 const OUTER = 270;
 const INNER = 224;
 const TIMKA = 170;
+// Тимка открывает глаза, как смена состояния (docs/02: тост, смена экрана — 240 мс).
+const AWAKE_FADE = 240;
 
 type Props = {
   /** Размер внутреннего круга: 0,72 — сжат, 1 — раскрыт. Меняется строго по секундам схемы. */
   scale: SharedValue<number>;
+  /** Практика закончилась: Тимка открывает глаза. */
+  done?: boolean;
+  /** false — экран сейчас не виден: Тимка стоит и не тратит батарею. */
+  active?: boolean;
 };
 
-/** Дыхательный круг с Тимкой: растёт на вдохе, стоит на задержке, сжимается на выдохе. */
-export function BreathCircle({ scale }: Props) {
+/**
+ * Дыхательный круг с Тимкой: растёт на вдохе, стоит на задержке, сжимается на выдохе.
+ * Листья Тимки раскрываются вместе с кругом и никогда не расходятся с ним (TIMKA-MOTION.md, пункты 4 и 5).
+ */
+export function BreathCircle({ scale, done, active }: Props) {
   const t = useTheme();
   const innerStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
+  const breath = useDerivedValue(() => (scale.get() - MIN_SCALE) / (1 - MIN_SCALE));
   return (
     <View
       aria-hidden
@@ -43,7 +54,13 @@ export function BreathCircle({ scale }: Props) {
           innerStyle,
         ]}
       >
-        <Timka pose="breathe" size={TIMKA} />
+        {done ? (
+          <Animated.View entering={FadeIn.duration(AWAKE_FADE)}>
+            <Timka pose="hello" size={TIMKA} motion="idle" active={active} />
+          </Animated.View>
+        ) : (
+          <Timka pose="breathe" size={TIMKA} breath={breath} active={active} />
+        )}
       </Animated.View>
     </View>
   );

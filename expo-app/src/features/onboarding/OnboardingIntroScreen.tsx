@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { FeatureRow } from '@/components/blocks';
@@ -15,6 +15,7 @@ const FEATURES_GAP = 14;
 export function OnboardingIntroScreen() {
   const t = useTheme();
   const router = useRouter();
+  const focused = useIsFocused();
   return (
     <OnboardingStep
       step={1}
@@ -26,7 +27,7 @@ export function OnboardingIntroScreen() {
       }
     >
       <View style={{ alignItems: 'center', paddingTop: t.space.md }}>
-        <Timka pose="hello" size={TIMKA_SIZE} />
+        <Timka pose="hello" size={TIMKA_SIZE} motion="wave" active={focused} />
       </View>
       <View style={{ paddingTop: t.space.xs, paddingHorizontal: t.space.xl, gap: t.space.sm }}>
         <Text accessibilityRole="header" style={[t.type.display, { color: t.color.text }]}>

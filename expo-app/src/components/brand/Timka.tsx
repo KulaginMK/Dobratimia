@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import Svg from 'react-native-svg';
 import { timkaShapes, type Shape } from './shapes';
@@ -43,6 +44,8 @@ const SLEEP_CYCLE = 4000;
 const SLEEP_RISE = 0.02;
 const ZZZ_RISE = 3;
 const ZZZ_FADE = 0.5;
+const SPROUT_STRETCH = 0.08;
+const LEAF_OPEN_DEG = 10;
 
 /** Точка поворота части в координатах рисунка → transformOrigin слоя. */
 const origin = (x: number, y: number) => `${(x / VIEW) * 100}% ${((y - VIEW_TOP) / VIEW) * 100}%`;
@@ -50,6 +53,8 @@ const SPROUT_ORIGIN = origin(60, 30); // основание стебля
 const HAND_ORIGIN = origin(98, 68); // плечо
 const EYES_ORIGIN = origin(60, 64);
 const BODY_ORIGIN = origin(60, 102); // низ тела: «поднимается» вверх от земли
+const LEAF_LEFT_ORIGIN = origin(59.5, 18); // черешки листьев на стебле
+const LEAF_RIGHT_ORIGIN = origin(60.5, 14);
 
 const easeOut = Easing.out(Easing.cubic);
 const easeInOut = Easing.inOut(Easing.sin);
@@ -64,6 +69,8 @@ type Props = {
   motion?: TimkaMotion;
   /** false — экран сейчас не виден: Тимка стоит и не тратит батарею. */
   active?: boolean;
+  /** Поза breathe в дыхательном круге: 0 — выдох, 1 — вдох. На вдохе росток тянется вверх, листья раскрываются. */
+  breath?: SharedValue<number>;
 };
 
 /**
@@ -71,7 +78,7 @@ type Props = {
  * Где он бывает и как двигается — TIMKA-MOTION.md (решение владельца от 27 октября 2026 года).
  * Никогда — в SOS, DASS-21, у специалистов, в кабинете, в «Плане на трудный момент» и в ошибках.
  */
-export function Timka({ pose = 'hello', size = 160, title, motion, active = true }: Props) {
+export function Timka({ pose = 'hello', size = 160, title, motion, active = true, breath }: Props) {
   const reduced = useReducedMotion();
   const shapes = timkaShapes[pose];
   return (
@@ -81,8 +88,8 @@ export function Timka({ pose = 'hello', size = 160, title, motion, active = true
       accessibilityLabel={title ?? LABELS[pose]}
       style={{ width: size, height: size }}
     >
-      {motion && active && !reduced ? (
-        <MovingTimka shapes={shapes} size={size} motion={motion} />
+      {(motion || breath) && active && !reduced ? (
+        <MovingTimka shapes={shapes} size={size} motion={motion} breath={breath} />
       ) : (
         <Svg width={size} height={size} viewBox={VIEW_BOX}>
           <SvgShapes shapes={shapes} />
@@ -92,13 +99,16 @@ export function Timka({ pose = 'hello', size = 160, title, motion, active = true
   );
 }
 
-function MovingTimka({ shapes, size, motion }: { shapes: Shape[]; size: number; motion: TimkaMotion }) {
+type MovingProps = { shapes: Shape[]; size: number; motion?: TimkaMotion; breath?: SharedValue<number> };
+
+function MovingTimka({ shapes, size, motion, breath }: MovingProps) {
   const sway = useSharedValue(0);
   const hand = useSharedValue(0);
   const eyes = useSharedValue(1);
   const sleep = useSharedValue(0);
 
   useEffect(() => {
+    if (!motion) return;
     if (motion === 'sleepy') {
       sleep.set(withRepeat(withTiming(1, { duration: SLEEP_CYCLE / 2, easing: easeInOut }), -1, true));
       return () => cancelAnimation(sleep);
@@ -131,7 +141,15 @@ function MovingTimka({ shapes, size, motion }: { shapes: Shape[]; size: number; 
     };
   }, [motion, sway, hand, eyes, sleep]);
 
-  const sproutStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${sway.get()}deg` }] }));
+  const sproutStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${sway.get()}deg` }, { scaleY: 1 + SPROUT_STRETCH * (breath ? breath.get() : 0) }],
+  }));
+  const leafLeftStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${-LEAF_OPEN_DEG * (breath ? breath.get() : 0)}deg` }],
+  }));
+  const leafRightStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${LEAF_OPEN_DEG * (breath ? breath.get() : 0)}deg` }],
+  }));
   const handStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${hand.get()}deg` }] }));
   const eyesStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: eyes.get() }] }));
   const bodyStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: 1 + SLEEP_RISE * sleep.get() }] }));
@@ -143,6 +161,8 @@ function MovingTimka({ shapes, size, motion }: { shapes: Shape[]; size: number; 
   // Части с id в SVG (handoff/assets/svg/Mascot). Части без движения рисуются вместе с остальным.
   const parts: Record<string, Part> = {
     sprout: { style: sproutStyle, origin: SPROUT_ORIGIN },
+    'leaf-left': { style: leafLeftStyle, origin: LEAF_LEFT_ORIGIN },
+    'leaf-right': { style: leafRightStyle, origin: LEAF_RIGHT_ORIGIN },
     hand: { style: handStyle, origin: HAND_ORIGIN },
     eyes: { style: eyesStyle, origin: EYES_ORIGIN },
     body: { style: bodyStyle, origin: BODY_ORIGIN },
