@@ -2,19 +2,6 @@
 -- с настоящим сервером. Те же люди и телефоны, что в expo-app/src/data/mocks; новых не выдумано.
 -- Перед публикацией удалить: demo_remove.sql.
 
-update public.universities set
-  service_name = 'Психологическая служба ВГМУ',
-  service_address = 'Учебный корпус № 1, кабинет 214',
-  service_hours = 'Пн–Пт 9:00–17:00',
-  service_phone = '+375 212 00-00-00',
-  verified_at = '2026-09-01'
-where id = 'vsmu';
-
-insert into public.university_staff (id, university_id, name, name_dative, role, format, phone, sort_order) values
-  ('d0000000-0000-4000-8000-000000000101', 'vsmu', 'Наталья Бусько', 'Наталье Бусько', 'Психолог', 'очно', '+375 212 00-00-01', 1),
-  ('d0000000-0000-4000-8000-000000000102', 'vsmu', 'Сергей Ровба', 'Сергею Ровбе', 'Психолог', 'очно и онлайн', '+375 212 00-00-02', 2)
-on conflict (id) do nothing;
-
 insert into public.specialists
   (id, first_name, last_name, name_dative, gender, title, experience, education, specializations, quote, about,
    format_online, format_offline, city, published)
