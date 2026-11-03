@@ -49,7 +49,7 @@ export function FavoritesScreen() {
             <SectionLetter>Служба вашего вуза</SectionLetter>
             <ContactRow
               name={service.name}
-              caption={`${service.hours} · очно`}
+              caption={[service.hours, 'очно'].filter(Boolean).join(' · ')}
               note={phoneNote(service.phone)}
               avatarIcon="sos"
               avatarTone="sos"

@@ -99,7 +99,7 @@ function UniversityHelp({ university, onCall }: { university: University; onCall
             <ContactRow
               key={item.id}
               name={item.service!.name}
-              caption={`${item.city} · ${item.service!.hours}`}
+              caption={[item.city, item.service!.hours].filter(Boolean).join(' · ')}
               note={SHOW_NUMBERS ? item.service!.phone : undefined}
               avatarIcon="sos"
               avatarTone="sos"
@@ -143,7 +143,7 @@ function ServiceDetails({ service, onCall }: { service: UniversityService; onCal
             </Text>
             <View style={{ gap: t.space.xxs }}>
               <Text style={[t.type.body, { color: t.color.text }]}>{service.address}</Text>
-              <Text style={[t.type.caption, { color: t.color.textMuted }]}>{service.hours}</Text>
+              {service.hours ? <Text style={[t.type.caption, { color: t.color.textMuted }]}>{service.hours}</Text> : null}
               {SHOW_NUMBERS ? <Text style={[t.type.caption, { color: t.color.textMuted }]}>{service.phone}</Text> : null}
             </View>
             <Button icon="phone" fullWidth onPress={() => onCall(service.phone)}>
@@ -162,7 +162,7 @@ function ServiceDetails({ service, onCall }: { service: UniversityService; onCal
             <ContactRow
               key={person.id}
               name={person.name}
-              caption={`${person.role} · ${person.format}`}
+              caption={[person.role, person.format].filter(Boolean).join(' · ')}
               note={SHOW_NUMBERS ? person.phone : undefined}
               initials={initials(person.name)}
               callLabel={person.nameDative ? `Позвонить ${person.nameDative}` : `Позвонить: ${person.name}`}
