@@ -258,6 +258,7 @@ describe('справочники и фразы', () => {
   let boris;
   before(async () => {
     db = await createDatabase();
+    await db.exec(readFileSync(join(SUPABASE_DIR, 'universities.sql'), 'utf8'));
     anna = await createUser(db, 'anna@example.com');
     boris = await createUser(db, 'boris@example.com');
   });
@@ -268,7 +269,7 @@ describe('справочники и фразы', () => {
       universities.map((u) => u.id),
       ['vsmu', 'bsmu', 'grsmu', 'gomsmu', 'other'],
     );
-    assert.equal((await as(db, null, (q) => q('select name from university_staff'))).length, 2);
+    assert.equal((await as(db, null, (q) => q('select name from university_staff'))).length, 6);
     await assert.rejects(as(db, null, (q) => q("update universities set service_phone = '1'")), DENIED);
     await assert.rejects(as(db, anna, (q) => q("update universities set service_phone = '1'")), DENIED);
   });
