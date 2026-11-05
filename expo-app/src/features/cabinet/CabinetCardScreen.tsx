@@ -4,7 +4,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { CardStatus, LikesLink, SpecialistCard, type CardStatusTone } from '@/components/blocks';
 import { Button } from '@/components/ui';
 import type { Cabinet } from '@/data/repos';
-import { formatAndCity, fullName, roleAndExperience } from '@/features/specialists/labels';
+import { TIMKA_ID, formatAndCity, fullName, roleAndExperience } from '@/features/specialists/labels';
 import { useTheme } from '@/theme';
 import { CabinetFallback, likesCount, likesThisWeek, useCabinet } from './Cabinet';
 
@@ -73,6 +73,7 @@ export function CabinetCardScreen() {
         quote={card.quote ? `«${card.quote}».` : undefined}
         format={formatAndCity(card)}
         photoUri={card.photoUri}
+        mascot={card.id === TIMKA_ID}
         photoHeight={PHOTO_HEIGHT}
       />
       <View style={{ paddingTop: t.space.md }}>

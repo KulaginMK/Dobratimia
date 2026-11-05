@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Icon, svgA11y } from '@/components/brand';
+import { Icon, Timka, svgA11y } from '@/components/brand';
 import { ChipBadge } from '@/components/ui/Chip';
 import { useTheme, type Theme } from '@/theme';
 
@@ -9,6 +9,7 @@ import { useTheme, type Theme } from '@/theme';
 const PHOTO_HEIGHT = 200;
 const SILHOUETTE_WIDTH = 200;
 const SILHOUETTE_HEIGHT = 180;
+const MASCOT_MAX = 190;
 const COUNTER_INSET = 12;
 const COUNTER_PAD_V = 4;
 const COUNTER_PAD_H = 10;
@@ -69,6 +70,8 @@ type Props = {
   tone?: PhotoTone;
   /** Слой поверх фото: штамп «НРАВИТСЯ», пока карточку тянут вправо. */
   photoOverlay?: React.ReactNode;
+  /** Талисман: вместо фото — Тимка, который машет. */
+  mascot?: boolean;
 };
 
 /** Карточка специалиста: фото или силуэт, имя, роль, специализации, цитата, формат. */
@@ -83,6 +86,7 @@ export function SpecialistCard({
   photoHeight = PHOTO_HEIGHT,
   tone,
   photoOverlay,
+  mascot,
 }: Props) {
   const t = useTheme();
   return (
@@ -100,12 +104,14 @@ export function SpecialistCard({
         accessibilityLabel={`Фото: ${name}`}
         style={{
           height: photoHeight,
-          backgroundColor: photoColors(t, tone).bg,
+          backgroundColor: photoColors(t, mascot ? 'growth' : tone).bg,
           alignItems: 'center',
           justifyContent: 'flex-end',
         }}
       >
-        {photoUri ? (
+        {mascot ? (
+          <Timka pose="hello" motion="wave" size={Math.min(MASCOT_MAX, photoHeight)} title={`Фото: ${name}`} />
+        ) : photoUri ? (
           <Image source={{ uri: photoUri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
         ) : (
           <Silhouette width={SILHOUETTE_WIDTH} height={Math.min(SILHOUETTE_HEIGHT, photoHeight)} tone={tone} />

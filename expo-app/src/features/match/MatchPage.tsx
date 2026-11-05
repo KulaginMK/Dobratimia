@@ -19,7 +19,7 @@ import { useOnceHint } from '@/features/feed/useOnceHint';
 import { useReportScrollTop } from '@/features/feed/useReportScrollTop';
 import { useSession } from '@/features/session/Session';
 import { useSpecialists } from '@/features/specialists/Specialists';
-import { formatAndCity, fullName, roleAndExperience } from '@/features/specialists/labels';
+import { TIMKA_ID, formatAndCity, fullName, roleAndExperience } from '@/features/specialists/labels';
 import { useTheme } from '@/theme';
 
 // Пороги свайпа — те же, что у ленты (docs/06): 60 dp или скорость больше 500 dp/с.
@@ -269,6 +269,7 @@ function Deck({ current, next, counter, toneOf, hint, onLike, onReject }: DeckPr
                 quote={quoted(next.quote)}
                 format={formatAndCity(next)}
                 photoUri={next.photoUri}
+                mascot={next.id === TIMKA_ID}
                 tone={toneOf(next.id)}
               />
             </Animated.View>
@@ -287,6 +288,7 @@ function Deck({ current, next, counter, toneOf, hint, onLike, onReject }: DeckPr
                 format={formatAndCity(current)}
                 counter={counter}
                 photoUri={current.photoUri}
+                mascot={current.id === TIMKA_ID}
                 tone={toneOf(current.id)}
                 photoOverlay={
                   <Animated.View style={[StyleSheet.absoluteFill, stampStyle]}>

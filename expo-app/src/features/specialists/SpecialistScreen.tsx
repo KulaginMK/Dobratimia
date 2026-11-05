@@ -10,7 +10,7 @@ import { isWebUrl } from '@/lib/url';
 import { useCallPhone } from '@/lib/phone';
 import { useTheme } from '@/theme';
 import { useSpecialists } from './Specialists';
-import { addedToFavorites, experienceAndFormat, fullName, roleExperienceFormat } from './labels';
+import { TIMKA_ID, addedToFavorites, experienceAndFormat, fullName, roleExperienceFormat } from './labels';
 
 // Размеры из макета SpecialistProfile: цитата, карточка «Контакты», текст разделов.
 const QUOTE_PAD_V = 16;
@@ -107,7 +107,7 @@ export function SpecialistScreen() {
           </View>
         ) : null}
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen }}>
-          <SpecialistPhoto name={name} tone={toneOf(specialist.id)} photoUri={specialist.photoUri} />
+          <SpecialistPhoto name={name} tone={toneOf(specialist.id)} photoUri={specialist.photoUri} mascot={specialist.id === TIMKA_ID} />
         </View>
         <View style={{ paddingTop: t.space.md, paddingHorizontal: t.space.screen, gap: t.space.xs }}>
           <Text accessibilityRole="header" style={[t.type.h1, { color: t.color.text }]}>

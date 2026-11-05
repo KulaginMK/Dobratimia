@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { Icon, svgA11y, type IconName } from '@/components/brand';
+import { Icon, Timka, svgA11y, type IconName } from '@/components/brand';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/theme';
 import { Silhouette, photoColors, type PhotoTone } from './SpecialistCard';
@@ -26,6 +26,7 @@ const BANNER_ICON = 18;
 const BANNER_FONT = 15;
 const BANNER_LINE = 21;
 const PHOTO_HEIGHT = 240;
+const MASCOT_SIZE = 220;
 const PHOTO_FIGURE_WIDTH = 240;
 const PHOTO_FIGURE_HEIGHT = 216;
 const CONTACT_PAD_V = 12;
@@ -128,7 +129,18 @@ export function SuccessBanner({ lead, text }: { lead: string; text: string }) {
 }
 
 /** Фото специалиста в профиле: пока фотографии нет — силуэт. */
-export function SpecialistPhoto({ name, tone, photoUri }: { name: string; tone?: PhotoTone; photoUri?: string }) {
+export function SpecialistPhoto({
+  name,
+  tone,
+  photoUri,
+  mascot,
+}: {
+  name: string;
+  tone?: PhotoTone;
+  photoUri?: string;
+  /** Талисман: вместо фото — Тимка, который машет. */
+  mascot?: boolean;
+}) {
   const t = useTheme();
   return (
     <View
@@ -138,13 +150,15 @@ export function SpecialistPhoto({ name, tone, photoUri }: { name: string; tone?:
       style={{
         height: PHOTO_HEIGHT,
         borderRadius: t.radius['2xl'],
-        backgroundColor: photoColors(t, tone).bg,
+        backgroundColor: photoColors(t, mascot ? 'growth' : tone).bg,
         alignItems: 'center',
         justifyContent: 'flex-end',
         overflow: 'hidden',
       }}
     >
-      {photoUri ? (
+      {mascot ? (
+        <Timka pose="hello" motion="wave" size={MASCOT_SIZE} title={`Фото: ${name}`} />
+      ) : photoUri ? (
         <Image source={{ uri: photoUri }} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
       ) : (
         <Silhouette width={PHOTO_FIGURE_WIDTH} height={PHOTO_FIGURE_HEIGHT} tone={tone} />
