@@ -4,11 +4,13 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
+import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ToastProvider } from '@/components/ui';
 import { SessionProvider, useSession } from '@/features/session/Session';
 import { SelectedUniversityProvider, useSelectedUniversity } from '@/features/university/SelectedUniversity';
+import { MAX_APP_WIDTH } from '@/lib/appWidth';
 import { useNotificationTaps } from '@/lib/notifications';
 import { ThemePreferenceProvider, appFonts, useTheme, useThemePreference } from '@/theme';
 
@@ -57,32 +59,37 @@ function RootStack() {
   return (
     <ToastProvider>
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: t.color.background },
-        }}
-      >
-        {/* Группа с лентой объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
-        <Stack.Screen name="(app)" options={{ animation: 'fade' }} />
-        {/* Вход и выход меняют онбординг и приложение местами — мягким проявлением, без сдвига. */}
-        <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
-        {/* Возврат от Google после входа: короткий экран «Входим в аккаунт…». */}
-        <Stack.Screen name="auth/callback" options={{ animation: 'fade' }} />
-        {/* Из ленты медитации выезжают сверху над «Техниками»: прозрачное окно без системной анимации (docs/06). */}
-        <Stack.Screen
-          name="meditation"
-          options={({ route }) =>
-            (route.params as { from?: string } | undefined)?.from === 'feed'
-              ? {
-                  presentation: 'transparentModal',
-                  animation: 'none',
-                  contentStyle: { backgroundColor: 'transparent' },
-                }
-              : {}
-          }
-        />
-      </Stack>
+      {/* В вебе на широком экране приложение — колонка по центру; на телефоне и в Android рамка ничего не меняет. */}
+      <View style={{ flex: 1, alignItems: 'center', backgroundColor: t.color.background }}>
+        <View style={{ flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? MAX_APP_WIDTH : undefined }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: t.color.background },
+          }}
+        >
+          {/* Группа с лентой объявлена первой: с неё начинается стек, если адрес не говорит иного. */}
+          <Stack.Screen name="(app)" options={{ animation: 'fade' }} />
+          {/* Вход и выход меняют онбординг и приложение местами — мягким проявлением, без сдвига. */}
+          <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+          {/* Возврат от Google после входа: короткий экран «Входим в аккаунт…». */}
+          <Stack.Screen name="auth/callback" options={{ animation: 'fade' }} />
+          {/* Из ленты медитации выезжают сверху над «Техниками»: прозрачное окно без системной анимации (docs/06). */}
+          <Stack.Screen
+            name="meditation"
+            options={({ route }) =>
+              (route.params as { from?: string } | undefined)?.from === 'feed'
+                ? {
+                    presentation: 'transparentModal',
+                    animation: 'none',
+                    contentStyle: { backgroundColor: 'transparent' },
+                  }
+                : {}
+            }
+          />
+        </Stack>
+        </View>
+      </View>
     </ToastProvider>
   );
 }

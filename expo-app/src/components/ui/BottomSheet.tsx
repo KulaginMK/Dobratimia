@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
+import { MAX_APP_WIDTH } from '@/lib/appWidth';
 import { useTheme } from '@/theme';
 import { IconButton } from './IconButton';
 
@@ -137,6 +138,10 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
             style={[
               {
                 maxHeight: windowHeight * MAX_HEIGHT_SHARE,
+                // Шторка открывается поверх окна, вне рамки приложения: в вебе держим её в ширине колонки.
+                width: '100%',
+                maxWidth: MAX_APP_WIDTH,
+                alignSelf: 'center',
                 backgroundColor: t.color.surface,
                 borderTopLeftRadius: t.radius['2xl'],
                 borderTopRightRadius: t.radius['2xl'],
